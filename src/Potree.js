@@ -2,6 +2,8 @@
 export * from "./Actions.js";
 export * from "./AnimationPath.js";
 export * from "./Annotation.js";
+// cmair class
+export * from "./Annotation_Custom.js";
 export * from "./defines.js";
 export * from "./Enum.js";
 export * from "./EventDispatcher.js";
@@ -74,6 +76,17 @@ export {FirstPersonControls} from "./navigation/FirstPersonControls.js";
 export {EarthControls} from "./navigation/EarthControls.js";
 export {DeviceOrientationControls} from "./navigation/DeviceOrientationControls.js";
 export {VRControls} from "./navigation/VRControls.js";
+
+// cmair export //
+export {ProfileWindow} from "./viewer/profile.js"
+export {MeasurePanel} from "./viewer/PropertyPanels/MeasurePanel.js"
+export {DistancePanel} from "./viewer/PropertyPanels/DistancePanel.js"
+export {EDLRenderer} from "./viewer/EDLRenderer.js"
+export {PotreeRenderer} from "./viewer/PotreeRenderer.js"
+export {HQSplatRenderer} from "./viewer/HQSplatRenderer.js"
+export {PropertiesPanel} from "./viewer/PropertyPanels/PropertiesPanel.js"
+export {VolumePanel} from "./viewer/PropertyPanels/VolumePanel.js"
+//////////////////
 
 import "./extensions/OrthographicCamera.js";
 import "./extensions/PerspectiveCamera.js";

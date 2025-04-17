@@ -615,7 +615,19 @@ export class Measure extends THREE.Object3D {
 				let coordinateLabel = this.coordinateLabels[0];
 				
 				let msg = position.toArray().map(p => Utils.addCommas(p.toFixed(2))).join(" / ");
-				coordinateLabel.setText(msg);
+
+                // added by cmair
+                if(this.name === 'GeoCoord') {
+                    if(this.geo_coord) {
+                        coordinateLabel.setText(`${this.geo_coord}: ${msg}`);
+                    }
+                }
+                else {
+                    coordinateLabel.setText(msg);
+                }
+
+                // removed by cmair
+                //coordinateLabel.setText(msg);
 
 				coordinateLabel.visible = this.showCoordinates;
 			}
@@ -684,8 +696,8 @@ export class Measure extends THREE.Object3D {
 					distance = distance / this.lengthUnit.unitspermeter * this.lengthUnitDisplay.unitspermeter;  //convert to meters then to the display unit
 					suffix = this.lengthUnitDisplay.code;
 				}
-
-				let txtLength = Utils.addCommas(distance.toFixed(2));
+                // change digit for cmair
+				let txtLength = Utils.addCommas(distance.toFixed(4));
 				edgeLabel.setText(`${txtLength} ${suffix}`);
 				edgeLabel.visible = this.showDistances && (index < lastIndex || this.closed) && this.points.length >= 2 && distance > 0;
 			}

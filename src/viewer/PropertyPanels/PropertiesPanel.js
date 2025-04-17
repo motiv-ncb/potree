@@ -79,10 +79,24 @@ export class PropertiesPanel{
 	setPointCloud(pointcloud){
 
 		let material = pointcloud.material;
-
+        // for cmair, add "pc_filename" and "num_points"
 		let panel = $(`
+            <div class="divider"><span>Properties</span></div>
 			<div class="scene_content selectable">
 				<ul class="pv-menu-list">
+
+				<li>
+				    <span>Filename:</span>
+				</li>
+				<li>
+				    <input id="pc_filename" value="" disabled style="width: 255px; height: 27px; margin-bottom: 10px; color: #111111 !important"/>
+				</li>
+				<li>
+				    <span>Number of Points:</span>
+				</li>
+				<li>
+				    <input id="num_points" value="" disabled style="width: 255px; height: 27px; margin-bottom: 10px; color: #111111 !important"/>
+				</li>
 
 				<li>
 				<span data-i18n="appearance.point_size"></span>:&nbsp;<span id="lblPointSize"></span> <div id="sldPointSize"></div>
@@ -251,6 +265,18 @@ export class PropertiesPanel{
 
 		panel.i18n();
 		this.container.append(panel);
+
+        // cmair ADDED: rcd - number of points and filename
+        {
+            if(pointcloud.pcoGeometry.points){
+                let num_points = panel.find(`#num_points`);
+                num_points.val(pointcloud.pcoGeometry.points.toLocaleString());
+            }
+           
+
+            let pc_filename = panel.find(`#pc_filename`);
+            pc_filename.val(pointcloud.name);
+        }
 
 		{ // POINT SIZE
 			let sldPointSize = panel.find(`#sldPointSize`);

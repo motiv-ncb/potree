@@ -7,6 +7,7 @@ export class ProfilePanel extends MeasurePanel{
 		super(viewer, measurement, propertiesPanel);
 
 		let removeIconPath = Potree.resourcePath + '/icons/remove.svg';
+        // adjust "show_2d_profile" for Cmair
 		this.elContent = $(`
 			<div class="measurement_content selectable">
 				<span class="coordinates_table_container"></span>
@@ -14,18 +15,21 @@ export class ProfilePanel extends MeasurePanel{
 				<span style="display:flex">
 					<span style="display:flex; align-items: center; padding-right: 10px">Width: </span>
 					<input id="sldProfileWidth" name="sldProfileWidth" value="5.06" style="flex-grow: 1; width:100%">
-				</span>
+				    <input type="button" id="show_2d_profile" value="Height profile" style="width: 100%"/>
+                </span>
+				<!-- 
 				<br>
 
 				<li style="margin-top: 10px">
 					<input name="download_profile" type="button" value="prepare download" style="width: 100%" />
 					<div name="download_message"></div>
 				</li>
+				-->
 
 				<br>
-
+                <!-- 
 				<input type="button" id="show_2d_profile" value="show 2d profile" style="width: 100%"/>
-
+                -->
 				<!-- ACTIONS -->
 				<div style="display: flex; margin-top: 12px">
 					<span></span>

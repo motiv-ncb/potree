@@ -499,6 +499,10 @@ export class TransformationTool {
 					type: "orientation_changed",
 					object: selection
 				});
+
+                // for CMAIR
+                selection.pointCloudVolume = 0;
+
 			}
 
 			drag.pivot = I;
@@ -553,6 +557,10 @@ export class TransformationTool {
 						type: "position_changed",
 						object: selection
 					});
+
+                    // for CMAIR
+                    selection.pointCloudVolume = 0;
+
 				}
 
 				drag.pivot = drag.pivot.add(diff);
@@ -637,6 +645,9 @@ export class TransformationTool {
 						type: "scale_changed",
 						object: selection
 					});
+
+                    // for CMAIR
+                    selection.pointCloudVolume = 0;
 				}
 
 				drag.pivot.copy(iOnLine);
@@ -845,6 +856,23 @@ export class TransformationTool {
 					if(intersects.length > 0){
 						let I = intersects[0];
 						let handleName = I.object.handle;
+
+                        // cmair
+                        // make jstree select object
+                        if(this.selection.length > 0){
+                            let selction = this.selection[0];
+                            let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
+                            let jsonNode = measurementsRoot.children.find(child => child.data.uuid === selction.uuid);
+                            if(jsonNode){
+                                $.jstree.reference(jsonNode.id).deselect_all();
+                                $.jstree.reference(jsonNode.id).select_node(jsonNode.id);
+                                if(selction.updateLabel){
+                                    selction.updateLabel();
+                                }
+                            }
+                        }
+                        ///////////////////////////
+
 						this.setActiveHandle(this.handles[handleName]);
 					}else{
 						this.setActiveHandle(null);

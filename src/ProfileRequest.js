@@ -324,7 +324,11 @@ export class ProfileRequest {
 				for(let attributeName of relevantAttributes){
 
 					let attribute = geometry.attributes[attributeName];
-					let numElements = attribute.array.length / numPoints;
+
+                    // fix points not shown in profile windows
+					let numElements = attribute.itemSize;
+                    //let numElements = attribute.array.length / numPoints;
+
 
 					if(numElements !== parseInt(numElements)){
 						debugger;

@@ -359,6 +359,10 @@ export class Sidebar{
 		}
 
 		let propertiesPanel = new PropertiesPanel(elProperties, this.viewer);
+
+        // for cmair
+        this.propertiesPanel = propertiesPanel;
+
 		propertiesPanel.setScene(this.viewer.scene);
 		
 		localStorage.removeItem('jstree');
@@ -567,7 +571,17 @@ export class Sidebar{
 		let onMeasurementAdded = (e) => {
 			let measurement = e.measurement;
 			let icon = Utils.getMeasurementIcon(measurement);
-			createNode(measurementID, measurement.name, icon, measurement);
+
+            // Added by cmair
+            if(measurement.name === "GeoCoord") {
+                createNode("geo_references", measurement.name, icon, measurement);
+            }
+            else {
+                createNode(measurementID, measurement.name, icon, measurement);
+            }
+
+            // removed by cmair
+			// createNode(measurementID, measurement.name, icon, measurement);
 		};
 
 		let onVolumeAdded = (e) => {
@@ -677,8 +691,20 @@ export class Sidebar{
 		this.viewer.scene.annotations.addEventListener("annotation_added", onAnnotationAdded);
 
 		let onMeasurementRemoved = (e) => {
-			let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
-			let jsonNode = measurementsRoot.children.find(child => child.data.uuid === e.measurement.uuid);
+			
+            // removed by cmair
+            // let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
+			 
+            // added by cmair //////
+            let measurementsRoot = "";
+
+            if(e.measurement.name !== "GeoCoord") {
+                measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
+            } else {
+                measurementsRoot = $("#jstree_scene").jstree().get_json("geo_references");
+            }
+            ///////////////////////
+            let jsonNode = measurementsRoot.children.find(child => child.data.uuid === e.measurement.uuid);
 			
 			tree.jstree("delete_node", jsonNode.id);
 		};
@@ -1367,7 +1393,8 @@ export class Sidebar{
 	}
 
 	initNavigation(){
-		let elNavigation = $('#navigation');
+        // change "navigation" to "potree-navigation" for cmair
+		let elNavigation = $('#potree-navigation');
 		let sldMoveSpeed = $('#sldMoveSpeed');
 		let lblMoveSpeed = $('#lblMoveSpeed');
 

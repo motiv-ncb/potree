@@ -41,6 +41,7 @@ export class AreaPanel extends MeasurePanel{
 		elCoordiantesContainer.append(this.createCoordinatesTable(this.measurement.points.map(p => p.position)));
 
 		let elArea = this.elContent.find(`#measurement_area`);
-		elArea.html(this.measurement.getArea().toFixed(3));
+        // change digit for cmair 
+		elArea.html(this.measurement.getArea().toFixed(4));
 	}
 };

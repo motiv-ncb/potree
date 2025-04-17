@@ -7,8 +7,9 @@ export class PointPanel extends MeasurePanel{
 		super(viewer, measurement, propertiesPanel);
 
 		let removeIconPath = Potree.resourcePath + '/icons/remove.svg';
+       // add scene-hidden for cmair 
 		this.elContent = $(`
-			<div class="measurement_content selectable">
+			<div class="measurement_content selectable scene-hidden">
 				<span class="coordinates_table_container"></span>
 				<br>
 				<span class="attributes_table_container"></span>
