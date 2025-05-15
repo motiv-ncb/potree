@@ -3,7 +3,7 @@ import * as THREE from "../../libs/three.js/build/three.module.js";
 import {Volume, BoxVolume} from "./Volume.js";
 import {Utils} from "../utils.js";
 import { EventDispatcher } from "../EventDispatcher.js";
-
+import { AreaVolume } from "./AreaVolume.js";
 export class VolumeTool extends EventDispatcher{
 	constructor (viewer) {
 		super();
@@ -121,6 +121,117 @@ export class VolumeTool extends EventDispatcher{
 
 		return volume;
 	}
+
+    startAreaInsertion(args = {}){
+        let domElement = this.viewer.renderer.domElement;
+
+        let measure = new AreaVolume();
+
+        this.dispatchEvent({
+            type: 'start_inserting_measurement',
+            measure: measure
+        });
+
+        const pick = (defaul, alternative) => {
+            if(defaul != null){
+                return defaul;
+            }else{
+                return alternative;
+            }
+        };
+
+        measure.showDistances = (args.showDistances === null) ? true : args.showDistances;
+
+        measure.showArea = pick(args.showArea, false);
+        measure.showAngles = pick(args.showAngles, false);
+        measure.showCoordinates = pick(args.showCoordinates, false);
+        measure.showHeight = pick(args.showHeight, false);
+        measure.showCircle = pick(args.showCircle, false);
+        measure.showAzimuth = pick(args.showAzimuth, false);
+        measure.showEdges = pick(args.showEdges, true);
+        measure.closed = pick(args.closed, false);
+        measure.maxMarkers = pick(args.maxMarkers, Infinity);
+        // for cmair
+        measure.showVolume = pick(args.showVolume, false);
+        measure.name = args.name || 'Volume';
+		this.viewer.scene.addVolume(measure);
+        this.scene.add(measure);
+
+        let cancel = {
+            removeLastMarker: measure.maxMarkers > 3,
+            callback: null
+        };
+
+        let insertionCallback = (e) => {
+            if (e.button === THREE.MOUSE.LEFT) {
+                measure.addMarker(measure.points[measure.points.length - 1].position.clone());
+
+                if (measure.points.length >= measure.maxMarkers) {
+                    cancel.callback();
+                }
+
+                this.viewer.inputHandler.startDragging(
+                    measure.spheres[measure.spheres.length - 1]);
+            } else if (e.button === THREE.MOUSE.RIGHT) {
+                cancel.callback();
+            }
+        };
+
+        cancel.callback = e => {
+            if (cancel.removeLastMarker) {
+                measure.removeMarker(measure.points.length - 1);
+            }
+            domElement.removeEventListener('mouseup', insertionCallback, false);
+            this.viewer.removeEventListener('cancel_insertions', cancel.callback);
+            // cmair
+            if(measure.showVolume){
+                // set all point into the bottom
+                const nPoint = measure.points.length;
+                if(nPoint > 0){
+                    let xMin = measure.points[0].position.x;
+                    let yMin = measure.points[0].position.y;
+                    let zMin = measure.points[0].position.z;
+                    let xMax = measure.points[0].position.x;
+                    let yMax = measure.points[0].position.y;
+                    let zMax = measure.points[0].position.z;
+                    for(let point of measure.points){
+                        xMin = Math.min(xMin, point.position.x);
+                        yMin = Math.min(yMin, point.position.y);
+                        zMin = Math.min(zMin, point.position.z);
+                        xMax = Math.max(xMax, point.position.x);
+                        yMax = Math.max(yMax, point.position.y);
+                        zMax = Math.max(zMax, point.position.z);
+                    }
+                    // let xCenter = (xMax + xMin) / 2;
+                    // let yCenter = (yMax + yMin) / 2;
+                    // let zCenter = (zMax + zMin) / 2;
+                    
+                    // for(let point of measure.points){
+                    //     point.position.x -= xCenter;
+                    //     point.position.y -= yCenter;
+                    //     point.position.z = 0;
+                    // }
+                 //   measure.position.set(xCenter,yCenter,zCenter);
+
+                }
+                measure.addTopBottomMarker();
+                measure.updateVolumeGeometry();
+                
+            }
+        };
+
+        if (measure.maxMarkers > 1) {
+            this.viewer.addEventListener('cancel_insertions', cancel.callback);
+            domElement.addEventListener('mouseup', insertionCallback, false);
+        }
+
+        measure.addMarker(new THREE.Vector3(0, 0, 0));
+        this.viewer.inputHandler.startDragging(
+            measure.spheres[measure.spheres.length - 1]);
+
+        this.viewer.scene.addMeasurement(measure);
+        return measure;
+    }
 
 	update(){
 		if (!this.viewer.scene) {
