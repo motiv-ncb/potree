@@ -21,6 +21,7 @@
 		"circle_measurement": "Circle measurement",
 		"area_measurement": "Area measurement",
 		"volume_measurement": "Volume measurement",
+        "area_volume_measurement": "Area Volume measurement",
 		"height_profile": "Height profile",
 		"annotation": "Annotation",
 		"clip_volume": "Volume clip",

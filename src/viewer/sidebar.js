@@ -229,7 +229,7 @@ export class Sidebar{
         // cmair: AREA VOLUME
 		elToolbar.append(this.createToolIcon(
 			Potree.resourcePath + '/icons/area.svg',
-			'[title]tt.area_measurement',
+			'[title]tt.area_volume_measurement',
 			() => {
 				$('#menu_measurements').next().slideDown();
 				let measurement = this.volumeTool.startAreaInsertion({
