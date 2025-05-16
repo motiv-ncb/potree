@@ -34,6 +34,7 @@ import { ClassificationScheme } from "../materials/ClassificationScheme.js";
 import { VRButton } from '../../libs/three.js/extra/VRButton.js';
 
 import JSON5 from "../../libs/json5-2.1.3/json5.mjs";
+import { GlobalAxis } from "../utils/GlobalAxis.js";
 
 
 export class Viewer extends EventDispatcher{
@@ -258,7 +259,8 @@ export class Viewer extends EventDispatcher{
 			this.navigationCube.visible = false;
 
 			this.compass = new Compass(this);
-			
+            // cmair : add global axis
+			this.globalAxis = new GlobalAxis(this);
 			this.createControls();
 
 			this.clippingTool.setScene(this.scene);
@@ -2116,6 +2118,19 @@ export class Viewer extends EventDispatcher{
 			scene.cameraScreenSpace.bottom = -1/aspect;
 			scene.cameraScreenSpace.updateProjectionMatrix();
 		}
+        
+        {// cmair : update axis
+            if(this.globalAxis){
+                const camera = viewer.scene.getActiveCamera()
+                const axisPosition = new THREE.Vector3(0.9 * 2 - 1, -0.9 * 2 + 1, 0.5); // z = depth in NDC space (0 near, 1 far)
+                axisPosition.unproject(camera);
+                const dir = axisPosition.sub(camera.position).normalize();
+                const distance = 0.3;
+                const worldPoint = camera.position.clone().add(dir.multiplyScalar(distance));
+                this.globalAxis.axis.position.copy(worldPoint);
+            }
+        }
+
 
 		pRenderer.clear();
 
