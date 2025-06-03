@@ -5,7 +5,7 @@ export class GlobalAxis{
     constructor(viewer){
 
         this.axis = new THREE.Object3D();
-
+        this.axis.visible = false;
 		viewer.scene.scene.add(this.axis);
         const geometry = new THREE.CylinderGeometry( 0.02, 0.02, 1, 32 ); 
 
@@ -44,7 +44,7 @@ export class GlobalAxis{
             child.material.depthTest = false;
             child.material.transparent  = false 
         }
-        const scale = 0.015;
+        const scale = 0.3;
         this.axis.renderOrder = 999
         this.axis.scale.set(scale,scale,scale)
     }

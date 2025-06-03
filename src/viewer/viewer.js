@@ -2125,7 +2125,7 @@ export class Viewer extends EventDispatcher{
                 const axisPosition = new THREE.Vector3(0.9 * 2 - 1, -0.9 * 2 + 1, 0.5); // z = depth in NDC space (0 near, 1 far)
                 axisPosition.unproject(camera);
                 const dir = axisPosition.sub(camera.position).normalize();
-                const distance = 0.3;
+                const distance = 10;
                 const worldPoint = camera.position.clone().add(dir.multiplyScalar(distance));
                 this.globalAxis.axis.position.copy(worldPoint);
             }
