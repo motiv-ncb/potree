@@ -22,6 +22,7 @@
 		"area_measurement": "Area measurement",
 		"volume_measurement": "Volume measurement",
         "area_volume_measurement": "Area Volume measurement",
+        "plane": "Plane",
 		"height_profile": "Height profile",
 		"annotation": "Annotation",
 		"clip_volume": "Volume clip",

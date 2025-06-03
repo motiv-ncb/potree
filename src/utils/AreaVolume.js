@@ -224,62 +224,6 @@ function createCircle(){
 
 }
 
-function createAzimuth(){
-
-	const azimuth = {
-		label: null,
-		center: null,
-		target: null,
-		north: null,
-		centerToNorth: null,
-		centerToTarget: null,
-		centerToTargetground: null,
-		targetgroundToTarget: null,
-		circle: null,
-
-		node: null,
-	};
-
-	const sg = new THREE.SphereGeometry(1, 32, 32);
-	const sm = new THREE.MeshNormalMaterial();
-
-	{
-		const label = new TextSprite("");
-
-		label.setTextColor({r: 140, g: 250, b: 140, a: 1.0});
-		label.setBorderColor({r: 0, g: 0, b: 0, a: 1.0});
-		label.setBackgroundColor({r: 0, g: 0, b: 0, a: 1.0});
-		label.fontsize = 16;
-		label.material.depthTest = false;
-		label.material.opacity = 1;
-
-		azimuth.label = label;
-	}
-
-	azimuth.center = new THREE.Mesh(sg, sm);
-	azimuth.target = new THREE.Mesh(sg, sm);
-	azimuth.north = new THREE.Mesh(sg, sm);
-	azimuth.centerToNorth = createLine();
-	azimuth.centerToTarget = createLine();
-	azimuth.centerToTargetground = createLine();
-	azimuth.targetgroundToTarget = createLine();
-	azimuth.circle = createCircle();
-
-	azimuth.node = new THREE.Object3D();
-	azimuth.node.add(
-		azimuth.centerToNorth,
-		azimuth.centerToTarget,
-		azimuth.centerToTargetground,
-		azimuth.targetgroundToTarget,
-		azimuth.circle,
-		azimuth.label,
-		azimuth.center,
-		azimuth.target,
-		azimuth.north,
-	);
-
-	return azimuth;
-}
 
 export class AreaVolume extends Volume {
 	constructor () {
@@ -297,7 +241,6 @@ export class AreaVolume extends Volume {
 		this._showCircle = false;
 		this._showHeight = false;
 		this._showEdges = true;
-		this._showAzimuth = false;
         // for cmair
         this._showVolume = false;
 		this.maxMarkers = Number.MAX_SAFE_INTEGER;
@@ -320,7 +263,6 @@ export class AreaVolume extends Volume {
 		this.circleLine = createCircleLine();
 		this.circleCenter = createCircleCenter();
 
-		this.azimuth = createAzimuth();
 
 		this.add(this.heightEdge);
 		this.add(this.heightLabel);
@@ -330,7 +272,6 @@ export class AreaVolume extends Volume {
 		this.add(this.circleLine);
 		this.add(this.circleCenter);
 
-		this.add(this.azimuth.node);
 
     
         this.extrude = new THREE.Mesh();
@@ -366,7 +307,7 @@ export class AreaVolume extends Volume {
     }
 
 	createSphereMaterial () {
-		let sphereMaterial = new THREE.MeshLambertMaterial({
+		let sphereMaterial = new THREE.MeshBasicMaterial({
 			//shading: THREE.SmoothShading,
 			color: this.color,
 			depthTest: false,
@@ -377,7 +318,7 @@ export class AreaVolume extends Volume {
 	};
 
     createTopBottomSphereMaterial () {
-		let sphereMaterial = new THREE.MeshLambertMaterial({
+		let sphereMaterial = new THREE.MeshBasicMaterial({
 			//shading: THREE.SmoothShading,
 			color: this.topBottomColor,
 			depthTest: false,
@@ -616,8 +557,8 @@ export class AreaVolume extends Volume {
                 console.log("drop");
 			};
 
-            let mouseover = (e) => e.object.material.emissive.setHex(0x888888);
-            let mouseleave = (e) => e.object.material.emissive.setHex(0x000000);
+            // let mouseover = (e) => e.object.material.emissive.setHex(0x888888);
+            // let mouseleave = (e) => e.object.material.emissive.setHex(0x000000);
 
             // this.topSphere.addEventListener('mouseover', mouseover);
             // this.topSphere.addEventListener('mouseleave', mouseleave);
@@ -749,13 +690,13 @@ export class AreaVolume extends Volume {
 				}
 			};
 
-			let mouseover = (e) => e.object.material.emissive.setHex(0x888888);
-			let mouseleave = (e) => e.object.material.emissive.setHex(0x000000);
+			// let mouseover = (e) => e.object.material.emissive.setHex(0x888888);
+			// let mouseleave = (e) => e.object.material.emissive.setHex(0x000000);
 
 			sphere.addEventListener('drag', drag);
 			sphere.addEventListener('drop', drop);
-			sphere.addEventListener('mouseover', mouseover);
-			sphere.addEventListener('mouseleave', mouseleave);
+			// sphere.addEventListener('mouseover', mouseover);
+			// sphere.addEventListener('mouseleave', mouseleave);
 		}
 
 		let event = {
@@ -885,18 +826,7 @@ export class AreaVolume extends Volume {
 		return this.getAngleBetweenLines(point, previous, next);
 	}
 
-	// updateAzimuth(){
-	// 	// if(this.points.length !== 2){
-	// 	// 	return;
-	// 	// }
 
-	// 	// const azimuth = this.azimuth;
-
-	// 	// const [p0, p1] = this.points;
-
-	// 	// const r = p0.position.distanceTo(p1.position);
-		
-	// }
 
 	update () {
 		if (this.points.length === 0) {
@@ -1138,7 +1068,6 @@ export class AreaVolume extends Volume {
 			this.areaLabel.setText(msg);
 		}
 
-		// this.updateAzimuth();
 	};
 
 	raycast (raycaster, intersects) {
@@ -1186,14 +1115,7 @@ export class AreaVolume extends Volume {
 		this.update();
 	}
 
-	get showAzimuth(){
-		return this._showAzimuth;
-	}
 
-	set showAzimuth(value){
-		this._showAzimuth = value;
-		this.update();
-	}
 
 	get showEdges () {
 		return this._showEdges;

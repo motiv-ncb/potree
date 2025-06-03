@@ -246,6 +246,25 @@ export class Sidebar{
 			}
 		));
 
+         // cmair: Plane
+		elToolbar.append(this.createToolIcon(
+			Potree.resourcePath + '/icons/area.svg',
+			'[title]tt.plane',
+			() => {
+				$('#menu_measurements').next().slideDown();
+				let measurement = this.volumeTool.startPlaneInsertion({
+					showDistances: false,
+					showArea: false,
+					closed: true,
+                    showVolume:true,
+					name: 'Plane'});
+				let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
+				let jsonNode = measurementsRoot.children.find(child => child.data.uuid === measurement.uuid);
+				$.jstree.reference(jsonNode.id).deselect_all();
+				$.jstree.reference(jsonNode.id).select_node(jsonNode.id);
+			}
+		));
+
 		// SPHERE VOLUME
 		elToolbar.append(this.createToolIcon(
 			Potree.resourcePath + '/icons/sphere_distances.svg',

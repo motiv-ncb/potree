@@ -4,6 +4,7 @@ import {Volume, BoxVolume} from "./Volume.js";
 import {Utils} from "../utils.js";
 import { EventDispatcher } from "../EventDispatcher.js";
 import { AreaVolume } from "./AreaVolume.js";
+import { PlaneMesurement } from "./PlaneMeasurement.js";
 export class VolumeTool extends EventDispatcher{
 	constructor (viewer) {
 		super();
@@ -64,6 +65,67 @@ export class VolumeTool extends EventDispatcher{
 		}else{
 			volume = new BoxVolume();
 		}
+		
+		volume.clip = args.clip || false;
+		volume.name = args.name || 'Volume';
+
+		this.dispatchEvent({
+			type: 'start_inserting_volume',
+			volume: volume
+		});
+
+		this.viewer.scene.addVolume(volume);
+		this.scene.add(volume);
+
+		let cancel = {
+			callback: null
+		};
+
+		let drag = e => {
+			let camera = this.viewer.scene.getActiveCamera();
+			
+			let I = Utils.getMousePointCloudIntersection(
+				e.drag.end, 
+				this.viewer.scene.getActiveCamera(), 
+				this.viewer, 
+				this.viewer.scene.pointclouds, 
+				{pickClipped: false});
+
+			if (I) {
+				volume.position.copy(I.location);
+
+				let wp = volume.getWorldPosition(new THREE.Vector3()).applyMatrix4(camera.matrixWorldInverse);
+				// let pp = new THREE.Vector4(wp.x, wp.y, wp.z).applyMatrix4(camera.projectionMatrix);
+				let w = Math.abs((wp.z / 5));
+				volume.scale.set(w, w, w);
+			}
+		};
+
+		let drop = e => {
+			volume.removeEventListener('drag', drag);
+			volume.removeEventListener('drop', drop);
+
+			cancel.callback();
+		};
+
+		cancel.callback = e => {
+			volume.removeEventListener('drag', drag);
+			volume.removeEventListener('drop', drop);
+			this.viewer.removeEventListener('cancel_insertions', cancel.callback);
+		};
+
+		volume.addEventListener('drag', drag);
+		volume.addEventListener('drop', drop);
+		this.viewer.addEventListener('cancel_insertions', cancel.callback);
+
+		this.viewer.inputHandler.startDragging(volume);
+
+		return volume;
+	}
+
+    startPlaneInsertion (args = {}) {
+		let volume;
+		volume = new PlaneMesurement();
 		
 		volume.clip = args.clip || false;
 		volume.name = args.name || 'Volume';
@@ -202,17 +264,6 @@ export class VolumeTool extends EventDispatcher{
                         yMax = Math.max(yMax, point.position.y);
                         zMax = Math.max(zMax, point.position.z);
                     }
-                    // let xCenter = (xMax + xMin) / 2;
-                    // let yCenter = (yMax + yMin) / 2;
-                    // let zCenter = (zMax + zMin) / 2;
-                    
-                    // for(let point of measure.points){
-                    //     point.position.x -= xCenter;
-                    //     point.position.y -= yCenter;
-                    //     point.position.z = 0;
-                    // }
-                 //   measure.position.set(xCenter,yCenter,zCenter);
-
                 }
                 measure.addTopBottomMarker();
                 measure.updateVolumeGeometry();
@@ -229,7 +280,7 @@ export class VolumeTool extends EventDispatcher{
         this.viewer.inputHandler.startDragging(
             measure.spheres[measure.spheres.length - 1]);
 
-        this.viewer.scene.addMeasurement(measure);
+      //  this.viewer.scene.addMeasurement(measure);
         return measure;
     }
 
@@ -256,10 +307,27 @@ export class VolumeTool extends EventDispatcher{
 				label.scale.set(scale, scale, scale);
 			}
 
+            // spheres
+            if(volume.spheres){
+                for(let sphere of volume.spheres){
+                    let distance = camera.position.distanceTo(sphere.getWorldPosition(new THREE.Vector3()));
+                    let pr = Utils.projectedRadius(1, camera, distance, clientWidth, clientHeight);
+                    let scale = (15 / pr);
+                    sphere.scale.set(scale, scale, scale);
+                }
+            }
+                        
+            // cmair show volime only when greater than 0
 			let calculatedVolume = volume.getVolume();
-			calculatedVolume = calculatedVolume / Math.pow(this.viewer.lengthUnit.unitspermeter, 3) * Math.pow(this.viewer.lengthUnitDisplay.unitspermeter, 3);  //convert to cubic meters then to the cubic display unit
-			let text = Utils.addCommas(calculatedVolume.toFixed(3)) + ' ' + this.viewer.lengthUnitDisplay.code + '\u00B3';
-			label.setText(text);
+            if(calculatedVolume > 0.0001){
+                calculatedVolume = calculatedVolume / Math.pow(this.viewer.lengthUnit.unitspermeter, 3) * Math.pow(this.viewer.lengthUnitDisplay.unitspermeter, 3);  //convert to cubic meters then to the cubic display unit
+			    let text = Utils.addCommas(calculatedVolume.toFixed(3)) + ' ' + this.viewer.lengthUnitDisplay.code + '\u00B3';
+            	label.setText(text);
+            }
+            else{
+                label.setText("");
+            }
+			
 		}
 	}
 
