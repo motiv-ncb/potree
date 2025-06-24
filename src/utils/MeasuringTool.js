@@ -417,4 +417,22 @@ export class MeasuringTool extends EventDispatcher{
 	render(){
 		this.viewer.renderer.render(this.scene, this.viewer.scene.getActiveCamera());
 	}
+
+    createUniqueName(prefix){
+        let measurements = this.viewer.scene.measurements;
+        let suffix = 0;
+        let name = prefix
+        let found = true;
+        while(found){    
+            name = prefix +"_"+ suffix;
+            found = false;
+            for(let measurement of measurements){
+                if(name == measurement.name){
+                    found = true;
+                }
+            }
+            suffix++;
+        }
+        return name;
+    }
 };

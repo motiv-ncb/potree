@@ -228,7 +228,7 @@ export class Sidebar{
 
         // cmair: AREA VOLUME
 		elToolbar.append(this.createToolIcon(
-			Potree.resourcePath + '/icons/area.svg',
+			Potree.resourcePath + '/icons/area_volume.png',
 			'[title]tt.area_volume_measurement',
 			() => {
 				$('#menu_measurements').next().slideDown();
@@ -248,7 +248,7 @@ export class Sidebar{
 
          // cmair: Plane
 		elToolbar.append(this.createToolIcon(
-			Potree.resourcePath + '/icons/area.svg',
+			Potree.resourcePath + '/icons/plane.png',
 			'[title]tt.plane',
 			() => {
 				$('#menu_measurements').next().slideDown();
@@ -886,7 +886,7 @@ export class Sidebar{
 			Potree.resourcePath + '/icons/clip_volume.svg',
 			'[title]tt.clip_volume',
 			() => {
-				let item = this.volumeTool.startInsertion({clip: true}); 
+				let item = this.volumeTool.startInsertion({clip: true, name: "Clip_volume", volumeType:"Clipping"}); 
 
 				let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
 				let jsonNode = measurementsRoot.children.find(child => child.data.uuid === item.uuid);

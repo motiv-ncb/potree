@@ -98,8 +98,9 @@ export class ClippingTool extends EventDispatcher{
 		$(domElement.parentElement).append(svg);
 
 		let polyClipVol = new PolygonClipVolume(this.viewer.scene.getActiveCamera().clone());
-
-		this.dispatchEvent({"type": "start_inserting_clipping_volume"});
+        polyClipVol.name = this.createUniqueName("Polygon_clip_volume")
+		
+        this.dispatchEvent({"type": "start_inserting_clipping_volume"});
 
 		this.viewer.scene.addPolygonClipVolume(polyClipVol);
 		this.sceneMarker.add(polyClipVol);
@@ -151,13 +152,13 @@ export class ClippingTool extends EventDispatcher{
 				this.viewer.scene.removePolygonClipVolume(polyClipVol);
 			}
 
-			this.viewer.renderer.domElement.removeEventListener("mouseup", insertionCallback, true);
+			this.viewer.renderer.domElement.removeEventListener("mouseup", insertionCallback, false);
 			this.viewer.removeEventListener("cancel_insertions", cancel.callback);
 			this.viewer.inputHandler.enabled = true;
 		};
 		
 		this.viewer.addEventListener("cancel_insertions", cancel.callback);
-		this.viewer.renderer.domElement.addEventListener("mouseup", insertionCallback , true);
+		this.viewer.renderer.domElement.addEventListener("mouseup", insertionCallback , false);
 		this.viewer.inputHandler.enabled = false;
 		
 		polyClipVol.addMarker();
@@ -170,4 +171,22 @@ export class ClippingTool extends EventDispatcher{
 	update() {
 
 	}
+
+    createUniqueName(prefix){
+        let volumes = this.viewer.scene.polygonClipVolumes;
+        let suffix = 0;
+        let name = prefix
+        let found = true;
+        while(found){    
+            name = prefix +"_"+ suffix;
+            found = false;
+            for(let volume of volumes){
+                if(name == volume.name){
+                    found = true;
+                }
+            }
+            suffix++;
+        }
+        return name;
+    }
 };

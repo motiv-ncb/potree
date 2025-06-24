@@ -67,7 +67,8 @@ export class VolumeTool extends EventDispatcher{
 		}
 		
 		volume.clip = args.clip || false;
-		volume.name = args.name || 'Volume';
+		volume.name = this.createUniqueName(args.name || 'Volume');
+        volume.volumeType = args.volumeType || 'Volume'
 
 		this.dispatchEvent({
 			type: 'start_inserting_volume',
@@ -128,7 +129,8 @@ export class VolumeTool extends EventDispatcher{
 		volume = new PlaneMesurement();
 		
 		volume.clip = args.clip || false;
-		volume.name = args.name || 'Volume';
+		volume.name = this.createUniqueName(args.name || 'Volume');
+        volume.volumeType = args.volumeType || 'Volume'
 
 		this.dispatchEvent({
 			type: 'start_inserting_volume',
@@ -215,7 +217,10 @@ export class VolumeTool extends EventDispatcher{
         measure.maxMarkers = pick(args.maxMarkers, Infinity);
         // for cmair
         measure.showVolume = pick(args.showVolume, false);
-        measure.name = args.name || 'Volume';
+        measure.name = this.createUniqueName(args.name || 'Volume');
+        measure.volumeType = args.volumeType || 'Volume'
+
+
 		this.viewer.scene.addVolume(measure);
         this.scene.add(measure);
 
@@ -343,4 +348,22 @@ export class VolumeTool extends EventDispatcher{
 		renderer.setRenderTarget(oldTarget);
 	}
 
+
+    createUniqueName(prefix){
+        let volumes = this.viewer.scene.volumes;
+        let suffix = 0;
+        let name = prefix
+        let found = true;
+        while(found){      
+            name = prefix +"_"+ suffix;
+            found = false;
+            for(let vol of volumes){
+                if(name == vol.name){
+                    found = true;
+                }
+            }
+            suffix++;
+        }
+        return name;
+    }
 }
