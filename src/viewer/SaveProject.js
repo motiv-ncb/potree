@@ -71,6 +71,7 @@ function createVolumeData(volume){
 		scale: volume.scale.toArray(),
 		visible: volume.visible,
 		clip: volume.clip,
+        volumeType:volume.volumeType,
 	};
 
 	return data;
