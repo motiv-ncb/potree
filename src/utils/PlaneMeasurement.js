@@ -15,7 +15,7 @@ export class PlaneMesurement extends Volume {
         this.constructor.counter = (this.constructor.counter === undefined) ? 0 : this.constructor.counter + 1;
         this.name = 'box_' + this.constructor.counter;
         const thickness = 0.0001;
-        let boxGeometry = new THREE.BoxGeometry(1, 1, thickness);
+        let boxGeometry = new THREE.BoxGeometry(thickness, 1, 1);
         boxGeometry.computeBoundingBox();
 
         let boxFrameGeometry = new THREE.Geometry();
@@ -25,32 +25,32 @@ export class PlaneMesurement extends Volume {
             boxFrameGeometry.vertices.push(
 
                 // bottom
-                new Vector3(-0.5, -0.5, thickness),
-                new Vector3(0.5, -0.5, thickness),
-                new Vector3(0.5, -0.5, thickness),
-                new Vector3(0.5, -0.5, -thickness),
-                new Vector3(0.5, -0.5, -thickness),
-                new Vector3(-0.5, -0.5, -thickness),
-                new Vector3(-0.5, -0.5, -thickness),
-                new Vector3(-0.5, -0.5, thickness),
+                new Vector3(-thickness, -0.5, 0.5),
+                new Vector3(thickness, -0.5, 0.5),
+                new Vector3(thickness, -0.5, 0.5),
+                new Vector3(thickness, -0.5, -0.5),
+                new Vector3(thickness, -0.5, -0.5),
+                new Vector3(-thickness, -0.5, -0.5),
+                new Vector3(-thickness, -0.5, -0.5),
+                new Vector3(-thickness, -0.5, 0.5),
                 // top
-                new Vector3(-0.5, 0.5, thickness),
-                new Vector3(0.5, 0.5, thickness),
-                new Vector3(0.5, 0.5, thickness),
-                new Vector3(0.5, 0.5, -thickness),
-                new Vector3(0.5, 0.5, -thickness),
-                new Vector3(-0.5, 0.5, -thickness),
-                new Vector3(-0.5, 0.5, -thickness),
-                new Vector3(-0.5, 0.5, thickness),
+                new Vector3(-thickness, 0.5, 0.5),
+                new Vector3(thickness, 0.5, 0.5),
+                new Vector3(thickness, 0.5, 0.5),
+                new Vector3(thickness, 0.5, -0.5),
+                new Vector3(thickness, 0.5, -0.5),
+                new Vector3(-thickness, 0.5, -0.5),
+                new Vector3(-thickness, 0.5, -0.5),
+                new Vector3(-thickness, 0.5, 0.5),
                 // sides
-                new Vector3(-0.5, -0.5, thickness),
-                new Vector3(-0.5, 0.5, thickness),
-                new Vector3(0.5, -0.5, thickness),
-                new Vector3(0.5, 0.5, thickness),
-                new Vector3(0.5, -0.5, -thickness),
-                new Vector3(0.5, 0.5, -thickness),
-                new Vector3(-0.5, -0.5, -thickness),
-                new Vector3(-0.5, 0.5, -thickness),
+                new Vector3(-thickness, -0.5, 0.5),
+                new Vector3(-thickness, 0.5, 0.5),
+                new Vector3(thickness, -0.5, 0.5),
+                new Vector3(thickness, 0.5, 0.5),
+                new Vector3(thickness, -0.5, -0.5),
+                new Vector3(thickness, 0.5, -0.5),
+                new Vector3(-thickness, -0.5, -0.5),
+                new Vector3(-thickness, 0.5, -0.5),
 
             );
 
