@@ -1,5 +1,6 @@
 import * as THREE from "../../../libs/three.js/build/three.module.js";
-
+import { PointAttribute } from "../PointAttributes.js";
+import { PointAttributeTypes } from "../PointAttributes.js";
 export class EptLaszipLoader {
 	async load(node) {
 		if (node.loaded) return;
@@ -124,6 +125,19 @@ export class EptLazBatcher {
 					new THREE.BufferAttribute(indices, 4));
 			g.setAttribute('gps-time',
 					new THREE.BufferAttribute(gpsTime, 1));
+
+            // cmair extra attribute ///
+            const existingAttributes = ['intensity', 'classification', 'indices', 'color', 'returnNumber','numberOfReturns', 'pointSourceId', 'gpsTime', 'mean','tightBoundingBox','gpsMeta', 'ranges', 'TX_SQUARE', 'TX_TRIANGLE']
+            for(const key in e.data){                  
+                if(!existingAttributes.includes(key) &&!g.attributes.hasOwnProperty(key)){  
+                    g.setAttribute(key,new THREE.BufferAttribute(new Float32Array(e.data[key]), 1));
+                    const attribute = pointAttributes.attributes.find(a => a.name === key);
+                    if(! attribute){
+                        pointAttributes.add(new PointAttribute(key, PointAttributeTypes.DATA_TYPE_FLOAT, 1));
+                    }
+                }
+            }
+            ////////////////////////////
 			this.node.gpsTime = e.data.gpsMeta;
 
 			g.attributes.indices.normalized = true;

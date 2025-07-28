@@ -240,6 +240,11 @@ export class HQSplatRenderer{
 				attributeMaterial.setClipBoxes(material.clipBoxes);
 				attributeMaterial.setClipPolygons(material.clipPolygons);
 
+                // cmair to enable color change
+                for (const [key, value] of material.ranges.entries()) {
+                    attributeMaterial.setRange(key, value)
+                }
+
 				pointcloud.material = attributeMaterial;
 			}
 			

@@ -996,8 +996,10 @@ export class Renderer {
 					let globalRange = range;
 					let globalRangeSize = globalRange[1] - globalRange[0];
 
-					let scale = initialRangeSize / globalRangeSize;
-					let offset = -(globalRange[0] - initialRange[0]) / initialRangeSize;
+					// let scale = initialRangeSize / globalRangeSize;
+                    // let offset = -(globalRange[0] - initialRange[0]) / initialRangeSize;
+                    let offset = -globalRange[0];
+                    let scale = 1 / globalRangeSize;
 
 					scale = Number.isNaN(scale) ? 1 : scale;
 					offset = Number.isNaN(offset) ? 0 : offset;

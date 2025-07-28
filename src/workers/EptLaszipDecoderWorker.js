@@ -74,7 +74,17 @@ async function readUsingDataView(event) {
 		}),
 	}
 
-	const ranges = [
+	let existingDimenions = ['X','Y','Z','Intensity','Classification','ReturnNumber','NumberOfReturns','PointSourceId', "Synthetic", 'KeyPoint','Withheld','Overlap','ScannerChannel', 'ScanDirectionFlag', 'EdgeOfFlightLine', 'UserData', 'ScanAngle'];
+    if(view.dimensions.GpsTime){
+        existingDimenions.push('GpsTime');
+    }
+    if(view.dimensions.Red){
+        existingDimenions.push('Red');
+        existingDimenions.push('Green');
+        existingDimenions.push('Blue');
+    }
+    
+    let dimensionNames = [
 		'x', 
 		'y', 
 		'z', 
@@ -84,8 +94,22 @@ async function readUsingDataView(event) {
 		'numberOfReturns',
 		'pointSourceId',
 		'gpsTime',
-		'color',
-	].reduce((map, name) => ({ ...map, [name]: [Infinity, -Infinity] }), {})
+		'color'
+	];
+
+    let extraDimensions = [];
+    for(let dimension in view.dimensions){
+        if(!existingDimenions.includes(dimension) && !get.hasOwnProperty(dimension)){     
+            const dim = dimension;      
+            get[dim] = view.getter(dimension);
+            dimensionNames.push(dim);
+            extraDimensions.push(dim);
+            buffers[dim] = new ArrayBuffer(pointCount * 4);
+            views[dim] =  new Float32Array(buffers[dim]);
+        }
+    }
+
+	const ranges = dimensionNames.reduce((map, name) => ({ ...map, [name]: [Infinity, -Infinity] }), {})
 
 	function update(range, value) {
 		range[0] = Math.min(range[0], value)
@@ -147,6 +171,12 @@ async function readUsingDataView(event) {
 			views.color16[3 * i + 1] = g
 			views.color16[3 * i + 2] = b
 		}
+
+        for(let extraDimension of extraDimensions){
+            const extraData = get[extraDimension](i);
+                update(ranges[extraDimension], extraData);
+            views[extraDimension][i] = extraData;
+        }
 	}
 
 	// Do some normalizations:
@@ -161,6 +191,20 @@ async function readUsingDataView(event) {
 		views.color8[4 * i + 2] = normalizeColor(views.color16[3 * i + 2]);
 		views.gpsTime32[i] = views.gpsTime64[i] - ranges.gpsTime[0]
 	}
+
+    let messageRange = { 
+        intensity: ranges.intensity,
+        classification: ranges.classification,
+        'return number': ranges.returnNumber,
+        'number of returns': ranges.numberOfReturns,
+        'source id': ranges.pointSourceId,
+        'gps-time': ranges.gpsTime,
+    }
+
+    for(let extraDimension of extraDimensions)
+    {
+        messageRange[extraDimension] = ranges[extraDimension];
+    }
 
 	performance.mark("laslaz-end");
 
@@ -185,14 +229,7 @@ async function readUsingDataView(event) {
 			offset: ranges.gpsTime[0], 
 			range: ranges.gpsTime[1] - ranges.gpsTime[0]
 		},
-		ranges: { 
-			intensity: ranges.intensity,
-			classification: ranges.classification,
-			'return number': ranges.returnNumber,
-			'number of returns': ranges.numberOfReturns,
-			'source id': ranges.pointSourceId,
-			'gps-time': ranges.gpsTime,
-		}
+		ranges: messageRange
 	};
 
 	let transferables = Object.values(buffers)
