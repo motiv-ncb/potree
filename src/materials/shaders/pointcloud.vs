@@ -80,6 +80,11 @@ uniform float uOpacity;
 uniform vec2 elevationRange;
 uniform vec2 intensityRange;
 
+// cmair distPlane
+uniform vec2 distPlaneRange;
+uniform vec3 distPlanePosition;
+uniform vec3 distPlaneNormal;
+
 uniform vec2 uFilterReturnNumberRange;
 uniform vec2 uFilterNumberOfReturnsRange;
 uniform vec2 uFilterPointSourceIDClipRange;
@@ -439,6 +444,17 @@ vec3 getElevation(){
 	return cElevation;
 }
 
+// cmair distPlane
+vec3 getPlaneDistance(){
+	vec4 world = modelMatrix * vec4( position, 1.0 );
+    float d = distPlaneNormal.x * distPlanePosition.x + distPlaneNormal.y * distPlanePosition.y + distPlaneNormal.z * distPlanePosition.z;
+    float dist = (distPlaneNormal.x * world.x + distPlaneNormal.y * world.y + distPlaneNormal.z * world.z - d) / sqrt(pow( distPlaneNormal.x, 2. ) + pow( distPlaneNormal.y, 2. ) + pow( distPlaneNormal.z, 2. ));
+	float w = (dist - distPlaneRange.x) / (distPlaneRange.y - distPlaneRange.x);
+	vec3 cPlaneDist = texture2D(gradient, vec2(w,1.0-w)).rgb;
+
+	return cPlaneDist;
+}
+
 vec4 getClassification(){
 	vec2 uv = vec2(classification / 255.0, 0.5);
 	vec4 classColor = texture2D(classificationLUT, uv);
@@ -607,6 +623,11 @@ vec3 getColor(){
 		color = getRGB();
 	#elif defined color_type_height || defined color_type_elevation
 		color = getElevation();
+
+    // cmair distPlane
+    #elif defined color_type_plane_distance
+		color = getPlaneDistance();
+        
 	#elif defined color_type_rgb_height
 		vec3 cHeight = getElevation();
 		color = (1.0 - uTransition) * getRGB() + uTransition * cHeight;

@@ -86,6 +86,7 @@ export {PotreeRenderer} from "./viewer/PotreeRenderer.js"
 export {HQSplatRenderer} from "./viewer/HQSplatRenderer.js"
 export {PropertiesPanel} from "./viewer/PropertyPanels/PropertiesPanel.js"
 export {VolumePanel} from "./viewer/PropertyPanels/VolumePanel.js"
+export {PlaneMeasurement} from "./utils/PlaneMeasurement.js"
 //////////////////
 
 import "./extensions/OrthographicCamera.js";
@@ -199,6 +200,11 @@ export function loadPointCloud(path, name, callback){
 						aPosition.range[0][2],
 						aPosition.range[1][2],
 					];
+                    // cmair distPlane
+                    material.distPlaneRange = [
+                        aPosition.range[0][2],
+                        aPosition.range[1][2],
+                    ];
 
 					// loaded(pointcloud);
 					resolve({type: 'pointcloud_loaded', pointcloud: pointcloud});

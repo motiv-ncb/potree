@@ -4,7 +4,7 @@ import {Volume, BoxVolume} from "./Volume.js";
 import {Utils} from "../utils.js";
 import { EventDispatcher } from "../EventDispatcher.js";
 import { AreaVolume } from "./AreaVolume.js";
-import { PlaneMesurement } from "./PlaneMeasurement.js";
+import { PlaneMeasurement } from "./PlaneMeasurement.js";
 export class VolumeTool extends EventDispatcher{
 	constructor (viewer) {
 		super();
@@ -126,7 +126,7 @@ export class VolumeTool extends EventDispatcher{
 
     startPlaneInsertion (args = {}) {
 		let volume;
-		volume = new PlaneMesurement();
+		volume = new PlaneMeasurement();
 		
 		volume.clip = args.clip || false;
 		volume.name = this.createUniqueName(args.name || 'Volume');

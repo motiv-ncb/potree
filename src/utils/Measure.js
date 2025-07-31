@@ -622,6 +622,23 @@ export class Measure extends THREE.Object3D {
                         coordinateLabel.setText(`${this.geo_coord}: ${msg}`);
                     }
                 }
+                
+                // cmair distPlane
+                else if(this.name == 'Distance point'){
+                    let plane = viewer.scene.volumes.find(e => e.name == "Plane");
+                    if (plane) {
+                        let ele = plane.matrix.elements;
+                        let distPlanePosition = new THREE.Vector3(ele[12], ele[13], ele[14]);
+                        let distPlaneNormal = new THREE.Vector3(ele[0], ele[1], ele[2]);
+                        let d = distPlaneNormal.x * distPlanePosition.x + distPlaneNormal.y * distPlanePosition.y + distPlaneNormal.z * distPlanePosition.z;
+                        let dist = (distPlaneNormal.x * position.x + distPlaneNormal.y * position.y + distPlaneNormal.z * position.z - d) / Math.sqrt(distPlaneNormal.x * distPlaneNormal.x + distPlaneNormal.y * distPlaneNormal.y + distPlaneNormal.z * distPlaneNormal.z);
+
+                            coordinateLabel.setText(`Distance : ${dist.toFixed(2)}`);
+                    }
+                    else{
+                        coordinateLabel.setText(`Distance :`);
+                    }
+                }
                 else {
                     coordinateLabel.setText(msg);
                 }

@@ -21,6 +21,10 @@ function loadPointCloud(viewer, data){
 
 					if(range.name === "elevationRange"){
 						target.elevationRange = range.value;
+                    }
+                    // cmair distPlane
+                    else if(range.name === "distPlaneRange"){
+						target.distPlaneRange = range.value;
 					}else if(range.name === "intensityRange"){
 						target.intensityRange = range.value;
 					}else{

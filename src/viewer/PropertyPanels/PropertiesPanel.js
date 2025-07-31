@@ -691,6 +691,16 @@ export class PropertiesPanel{
 					material.heightMax = ui.values[1];
 				}
 			});
+            // cmair distPlane
+            panel.find('#sldDistPlaneRange').slider({
+                range: true,
+                min: 0, max: 1000, step: 0.01,
+                values: [0, 1000],
+                slide: (event, ui) => {
+                    material.distPlaneMin = ui.values[0];
+                    material.distPlaneMax = ui.values[1];
+                }
+            });
 
 			panel.find('#sldIntensityGamma').slider({
 				value: material.intensityGamma,

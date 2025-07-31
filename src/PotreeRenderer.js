@@ -1309,7 +1309,10 @@ export class Renderer {
 
 			shader.setUniform2f("elevationRange", material.elevationRange);
 			shader.setUniform2f("intensityRange", material.intensityRange);
-
+            // cmair distPlane
+            shader.setUniform2f("distPlaneRange", material.distPlaneRange);
+            shader.setUniform3f("distPlanePosition", material.distPlanePosition);
+            shader.setUniform3f("distPlaneNormal", material.distPlaneNormal);
 
 			shader.setUniform3f("uIntensity_gbc", [
 				material.intensityGamma, 

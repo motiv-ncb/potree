@@ -19,6 +19,14 @@ function createPointcloudData(pointcloud) {
 			value: material.elevationRange,
 		});
 	}
+    // cmair distPlane
+    if(typeof material.distPlaneRange[0] === "number"){
+        ranges.push({
+            name: "distPlaneRange",
+            value: material.distPlaneRange,
+        });
+    }
+        
 	if(typeof material.intensityRange[0] === "number"){
 		ranges.push({
 			name: "intensityRange",

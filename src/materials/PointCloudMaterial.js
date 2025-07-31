@@ -56,6 +56,8 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 
 		this._defaultIntensityRangeChanged = false;
 		this._defaultElevationRangeChanged = false;
+        // cmair distPlane
+        this._defaultDistPlaneRangeChanged = false;
 
 		{
 			const [width, height] = [256, 1];
@@ -98,6 +100,10 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 			octreeSize:			{ type: "f", value: 0 },
 			bbSize:				{ type: "fv", value: [0, 0, 0] },
 			elevationRange:		{ type: "2fv", value: [0, 0] },
+            // cmair distPlane
+            distPlaneRange:		{ type: "2fv", value: [-50.0, 50.0] },
+            distPlanePosition:	{ type: "3fv", value: [0.0, 0.0, 0.0] },
+            distPlaneNormal:	{ type: "3fv", value: [1.0, 1.0, 1.0] },
 
 			clipBoxCount:		{ type: "f", value: 0 },
 			//clipSphereCount:	{ type: "f", value: 0 },
@@ -717,6 +723,65 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 			});
 		}
 	}
+    // cmair distPlane
+    get distPlaneRange () {
+		return this.uniforms.distPlaneRange.value;
+    }
+
+    set distPlaneRange (value) {
+        let changed = this.uniforms.distPlaneRange.value[0] !== value[0]
+            || this.uniforms.distPlaneRange.value[1] !== value[1];
+
+        if(changed){
+            this.uniforms.distPlaneRange.value = value;
+
+            this._defaultDistPlaneRangeChanged = true;
+
+            this.dispatchEvent({
+                type: 'material_property_changed',
+                target: this
+            });
+        }
+    }
+
+    get distPlaneNormal () {
+			return this.uniforms.distPlaneNormal.value;
+		}
+
+		set distPlaneNormal (value) {
+			let changed = this.uniforms.distPlaneNormal.value[0] !== value[0]
+				|| this.uniforms.distPlaneNormal.value[1] !== value[1]
+                || this.uniforms.distPlaneNormal.value[2] !== value[2];
+
+			if(changed){
+				this.uniforms.distPlaneNormal.value = value;
+
+				this.dispatchEvent({
+					type: 'material_property_changed',
+					target: this
+				});
+			}
+		}
+
+
+        get distPlanePosition () {
+			return this.uniforms.distPlanePosition.value;
+		}
+
+		set distPlanePosition (value) {
+			let changed = this.uniforms.distPlanePosition.value[0] !== value[0]
+				|| this.uniforms.distPlanePosition.value[1] !== value[1]
+                || this.uniforms.distPlanePosition.value[2] !== value[2];
+
+			if(changed){
+				this.uniforms.distPlanePosition.value = value;
+
+				this.dispatchEvent({
+					type: 'material_property_changed',
+					target: this
+				});
+			}
+		}
 
 	get heightMin () {
 		return this.uniforms.elevationRange.value[0];
@@ -733,6 +798,22 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 	set heightMax (value) {
 		this.elevationRange = [this.elevationRange[0], value];
 	}
+    // cmair distPlane
+    get distPlaneMin () {
+        return this.uniforms.distPlaneRange.value[0];
+    }
+
+    set distPlaneMin (value) {
+        this.distPlaneRange = [value, this.distPlaneRange[1]];
+    }
+
+    get distPlaneMax () {
+        return this.uniforms.distPlaneRange.value[1];
+    }
+
+    set distPlaneMax (value) {
+        this.distPlaneRange = [this.distPlaneRange[0], value];
+    }
 
 	get transition () {
 		return this.uniforms.transition.value;

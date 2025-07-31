@@ -213,7 +213,13 @@ export class HQSplatRenderer{
 
 				attributeMaterial.elevationGradientRepeat = material.elevationGradientRepeat;
 				attributeMaterial.elevationRange = material.elevationRange;
-				attributeMaterial.gradient = material.gradient;
+
+                // cmair distPlane
+                attributeMaterial.distPlaneRange = material.distPlaneRange;
+                attributeMaterial.distPlanePosition = material.distPlanePosition;
+                attributeMaterial.distPlaneNormal = material.distPlaneNormal;
+				
+                attributeMaterial.gradient = material.gradient;
 				attributeMaterial.matcap = material.matcap;
 
 				attributeMaterial.intensityRange = material.intensityRange;

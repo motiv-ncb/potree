@@ -7,7 +7,7 @@ import {LineGeometry} from "../../libs/three.js/lines/LineGeometry.js";
 import {LineMaterial} from "../../libs/three.js/lines/LineMaterial.js";
 import { BoxVolume, Volume } from "./Volume.js";
 
-export class PlaneMesurement extends Volume {
+export class PlaneMeasurement extends Volume {
 
     constructor(args = {}){
         super(args);
