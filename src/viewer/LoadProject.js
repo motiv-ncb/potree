@@ -5,6 +5,8 @@ import {Measure} from "../utils/Measure.js";
 import {CameraAnimation} from "../modules/CameraAnimation/CameraAnimation.js";
 import {Utils} from "../utils.js";
 import {PointSizeType} from "../defines.js";
+// cmair import
+import { PolygonClipVolume } from "../utils/PolygonClipVolume.js";
 
 function loadPointCloud(viewer, data){
 
@@ -106,6 +108,8 @@ export function loadMeasurement(viewer, data){
 	measure.showCircle = data.showCircle;
 	measure.showAzimuth = data.showAzimuth;
 	measure.showEdges = data.showEdges;
+    // cmair measuringType
+    measure.measuringType = data.measuringType;
 	// color
 
 	for(const point of data.points){
@@ -317,6 +321,30 @@ function loadClassification(viewer, data){
 
 	viewer.setClassifications(classifications);
 }
+ // cmair loadPolygonClipVolume
+export function loadPolygonClipVolume(viewer, data){
+    let polyClipVol = new PolygonClipVolume(viewer.scene.getActiveCamera().clone());
+    polyClipVol.name = data.name;
+    polyClipVol.matrix.fromArray(data.matrix);
+    polyClipVol.camera.matrix.fromArray(data.cameraMatrix);
+    polyClipVol.camera.matrix.decompose(polyClipVol.camera.position, polyClipVol.camera.quaternion, polyClipVol.camera.scale);
+    polyClipVol.camera.updateMatrixWorld();
+    polyClipVol.camera.matrixWorldInverse.copy(polyClipVol.camera.matrixWorld).invert();
+    
+    polyClipVol.camera.projectionMatrix.fromArray(data.projectionMatrix);
+
+    polyClipVol.viewMatrix = polyClipVol.camera.matrixWorldInverse.clone();
+    polyClipVol.projMatrix = polyClipVol.camera.projectionMatrix.clone();
+
+    for(let i = 0; i < data.markers.length; i++){
+        const marker = data.markers[i];
+        polyClipVol.addMarker();
+        polyClipVol.markers[i].position.set(marker.x, marker.y,marker.z)
+    }   
+    viewer.clippingTool.sceneMarker.add(polyClipVol);
+    viewer.scene.addPolygonClipVolume(polyClipVol);
+    polyClipVol.initialized = true;
+}
 
 export async function loadProject(viewer, data){
 
@@ -356,6 +384,12 @@ export async function loadProject(viewer, data){
 			loadOrientedImages(viewer, images);
 		}
 	}
+    // cmair loadPolygonClipVolume
+    if(data.polygonClipVolumes){
+        for(const polygonClipVolume of data.polygonClipVolumes){
+            loadPolygonClipVolume(viewer, polygonClipVolume);
+        }
+    }
 
 	loadAnnotations(viewer, data.annotations);
 

@@ -68,7 +68,11 @@ export class VolumeTool extends EventDispatcher{
 		
 		volume.clip = args.clip || false;
 		volume.name = this.createUniqueName(args.name || 'Volume');
-        volume.volumeType = args.volumeType || 'Volume'
+        volume.volumeType = args.volumeType || 'Volume';
+         // cmair args.scale
+        if(args.scale){
+            volume.scale.set(args.scale.x, args.scale.y, args.scale.z);
+        }
 
 		this.dispatchEvent({
 			type: 'start_inserting_volume',

@@ -130,6 +130,24 @@ function createMeasurementData(measurement){
 
 	return data;
 }
+// cmair create data
+function createPolygonClipVolumesData(polygonClipVolume){
+    let markerPositions = [];
+    const markers = polygonClipVolume.markers;
+    for(let marker of markers){
+        markerPositions.push(marker.position)
+    }
+    const data = {
+        uuid: polygonClipVolume.uuid,
+        name: polygonClipVolume.name,
+        cameraType: polygonClipVolume.camera.type,
+        matrix: polygonClipVolume.matrix.elements,
+        cameraMatrix: polygonClipVolume.camera.matrix.elements,
+        projectionMatrix: polygonClipVolume.projMatrix.elements,
+        markers:markerPositions
+    }
+    return data
+}
 
 function createOrientedImagesData(images){
 	const data = {
@@ -275,6 +293,9 @@ export function saveProject(viewer) {
 		annotations: createAnnotationsData(viewer),
 		orientedImages: scene.orientedImages.map(createOrientedImagesData),
 		geopackages: scene.geopackages.map(createGeopackageData),
+        // cmair create data
+        polygonClipVolumes: scene.polygonClipVolumes.map(createPolygonClipVolumesData)
+
 		// objects: createSceneContentData(viewer),
 	};
 
