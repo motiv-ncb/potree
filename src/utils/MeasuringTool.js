@@ -196,8 +196,11 @@ export class MeasuringTool extends EventDispatcher{
 		measure.closed = pick(args.closed, false);
 		measure.maxMarkers = pick(args.maxMarkers, Infinity);
 
-		measure.name = args.name || 'Measurement';
+		measure.name = this.createUniqueName(args.name || 'Measurement');
 
+        measure.measuringType = args.measuringType || 'Measurement'
+
+        
 		this.scene.add(measure);
 
 		let cancel = {
@@ -420,7 +423,7 @@ export class MeasuringTool extends EventDispatcher{
 
     createUniqueName(prefix){
         let measurements = this.viewer.scene.measurements;
-        let suffix = 0;
+        let suffix = 1;
         let name = prefix
         let found = true;
         while(found){    

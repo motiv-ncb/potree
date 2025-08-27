@@ -842,7 +842,7 @@ export class AreaVolume extends Volume {
 				let msg = position.toArray().map(p => Utils.addCommas(p.toFixed(2))).join(" / ");
 
                 // added by cmair
-                if(this.name === 'GeoCoord') {
+                if(this.name.includes('GeoCoord')) {
                     if(this.geo_coord) {
                         coordinateLabel.setText(`${this.geo_coord}: ${msg}`);
                     }

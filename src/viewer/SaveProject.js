@@ -124,6 +124,7 @@ function createMeasurementData(measurement){
 		showCircle: measurement.showCircle,
 		showAzimuth: measurement.showAzimuth,
 		showEdges: measurement.showEdges,
+        measuringType: measurement.measuringType,
 		color: measurement.color.toArray(),
 	};
 

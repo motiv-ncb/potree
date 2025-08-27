@@ -94,7 +94,9 @@ export class VolumeTool extends EventDispatcher{
 
 			if (I) {
 				volume.position.copy(I.location);
-
+                if(args.disableAutoScale){
+                    return;
+                }
 				let wp = volume.getWorldPosition(new THREE.Vector3()).applyMatrix4(camera.matrixWorldInverse);
 				// let pp = new THREE.Vector4(wp.x, wp.y, wp.z).applyMatrix4(camera.projectionMatrix);
 				let w = Math.abs((wp.z / 5));
@@ -351,7 +353,7 @@ export class VolumeTool extends EventDispatcher{
 
     createUniqueName(prefix){
         let volumes = this.viewer.scene.volumes;
-        let suffix = 0;
+        let suffix = 1;
         let name = prefix
         let found = true;
         while(found){      

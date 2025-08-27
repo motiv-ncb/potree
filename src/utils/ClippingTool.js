@@ -174,7 +174,7 @@ export class ClippingTool extends EventDispatcher{
 
     createUniqueName(prefix){
         let volumes = this.viewer.scene.polygonClipVolumes;
-        let suffix = 0;
+        let suffix = 1;
         let name = prefix
         let found = true;
         while(found){    

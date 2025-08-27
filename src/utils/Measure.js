@@ -617,15 +617,15 @@ export class Measure extends THREE.Object3D {
 				let msg = position.toArray().map(p => Utils.addCommas(p.toFixed(2))).join(" / ");
 
                 // added by cmair
-                if(this.name === 'GeoCoord') {
+                if(this.name.includes('GeoCoord')) {
                     if(this.geo_coord) {
                         coordinateLabel.setText(`${this.geo_coord}: ${msg}`);
                     }
                 }
                 
                 // cmair distPlane
-                else if(this.name == 'Distance point'){
-                    let plane = viewer.scene.volumes.find(e => e.name == "Plane");
+                else if(this.measuringType == 'Plane_Distance'){
+                    let plane = viewer.scene.volumes.find(e => e.volumeType == "Plane_Distance");
                     if (plane) {
                         let ele = plane.matrix.elements;
                         let distPlanePosition = new THREE.Vector3(ele[12], ele[13], ele[14]);

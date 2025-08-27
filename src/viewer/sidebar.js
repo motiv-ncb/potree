@@ -612,7 +612,7 @@ export class Sidebar{
 			let icon = Utils.getMeasurementIcon(measurement);
 
             // Added by cmair
-            if(measurement.name === "GeoCoord") {
+            if(measurement.name.includes('GeoCoord')) {
                 createNode("geo_references", measurement.name, icon, measurement);
             }
             else {
@@ -737,7 +737,7 @@ export class Sidebar{
             // added by cmair //////
             let measurementsRoot = "";
 
-            if(e.measurement.name !== "GeoCoord") {
+            if(!e.measurement.name.includes('GeoCoord')) {
                 measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
             } else {
                 measurementsRoot = $("#jstree_scene").jstree().get_json("geo_references");
