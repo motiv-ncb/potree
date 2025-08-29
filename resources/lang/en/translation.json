@@ -25,6 +25,7 @@
         "plane": "Plane",
 		"height_profile": "Height profile",
 		"annotation": "Annotation",
+        "full_clip_volume": "Full Volume clip",
 		"clip_volume": "Volume clip",
 		"clip_polygon": "Polygon clip",
 		"screen_clip_box": "Draw a selection box. Requires you to be in orthographic camera mode!",

@@ -2,7 +2,7 @@
 import * as THREE from "../../libs/three.js/build/three.module.js";
 import {GeoJSONExporter} from "../exporter/GeoJSONExporter.js"
 import {DXFExporter} from "../exporter/DXFExporter.js"
-import {Volume, SphereVolume} from "../utils/Volume.js"
+import {Volume, SphereVolume, BoxVolume} from "../utils/Volume.js"
 import {PolygonClipVolume} from "../utils/PolygonClipVolume.js"
 import {PropertiesPanel} from "./PropertyPanels/PropertiesPanel.js"
 import {PointCloudTree} from "../PointCloudTree.js"
@@ -880,6 +880,73 @@ export class Sidebar{
 		}
 
 		let clippingToolBar = $("#clipping_tools");
+
+
+// FULL CLIP VOLUME
+			clippingToolBar.append(this.createToolIcon(
+				Potree.resourcePath + '/icons/full_clip_volume2.png',
+				'[title]tt.full_clip_volume',
+				() => {
+                    let item;
+                    item = new BoxVolume();          
+                    item.clip = true;
+                    item.name = this.volumeTool.createUniqueName('Clip_volume');
+                    item.volumeType = "Clipping";
+                    this.viewer.scene.addVolume(item);
+                    this.volumeTool.scene.add(item);
+
+                    const pointclouds = this.viewer.scene.pointclouds;
+                    if(pointclouds.length > 0){
+                        let pointcloud0 = pointclouds[0];
+                        if(pointcloud0.pcoGeometry){
+
+                            pointcloud0.matrix.decompose(pointcloud0.position, pointcloud0.quaternion, pointcloud0.scale);
+
+                            let boundingBox = pointcloud0.pcoGeometry.tightBoundingBox;
+                            let position = pointcloud0.position;
+                            let xmin = boundingBox.min.x + position.x;
+                            let ymin = boundingBox.min.y + position.y;
+                            let zmin = boundingBox.min.z + position.z;
+                            let xmax = boundingBox.min.x + position.x;
+                            let ymax = boundingBox.min.y + position.y;
+                            let zmax = boundingBox.min.z + position.z;
+
+                            for(let pointcloud of pointclouds){
+                                if(pointcloud.pcoGeometry){
+                                    pointcloud.matrix.decompose(pointcloud.position, pointcloud.quaternion, pointcloud.scale);
+
+                                    boundingBox = pointcloud.pcoGeometry.tightBoundingBox;
+                                    position = pointcloud.position;
+                                    xmin = Math.min(xmin, boundingBox.min.x + position.x);
+                                    ymin = Math.min(ymin, boundingBox.min.y + position.y);
+                                    zmin = Math.min(zmin, boundingBox.min.z + position.z);
+                                    xmax = Math.max(xmax, boundingBox.max.x + position.x);
+                                    ymax = Math.max(ymax, boundingBox.max.y + position.y);
+                                    zmax = Math.max(zmax, boundingBox.max.z + position.z);
+                                }
+                            }
+
+                            const x0 = (xmax + xmin) / 2;
+                            const y0 = (ymax + ymin) / 2;
+                            const z0 = (zmax + zmin) / 2;
+                            
+                            const xs = (xmax - xmin);
+                            const ys = (ymax - ymin);
+                            const zs = (zmax - zmin);
+                            item.position.set(x0,y0,z0);
+                            item.scale.set(xs,ys,zs);
+                            
+                            
+                        }
+                        
+                    }
+                    
+					let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
+					let jsonNode = measurementsRoot.children.find(child => child.data.uuid === item.uuid);
+					$.jstree.reference(jsonNode.id).deselect_all();
+					$.jstree.reference(jsonNode.id).select_node(jsonNode.id);
+				}
+			));
 
 		// CLIP VOLUME
 		clippingToolBar.append(this.createToolIcon(
