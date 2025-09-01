@@ -769,10 +769,18 @@ export class Sidebar{
 			tree.jstree("delete_node", jsonNode.id);
 		};
 
+        let onAnnotationRemoved = (e) => {
+            let annotationsRoot = $("#jstree_scene").jstree().get_json("annotations");
+			let jsonNode = annotationsRoot.children.find(child => child.data.uuid === e.annotation.uuid);
+			
+            tree.jstree("delete_node", jsonNode.id);
+        }
+
 		this.viewer.scene.addEventListener("measurement_removed", onMeasurementRemoved);
 		this.viewer.scene.addEventListener("volume_removed", onVolumeRemoved);
 		this.viewer.scene.addEventListener("polygon_clip_volume_removed", onPolygonClipVolumeRemoved);
 		this.viewer.scene.addEventListener("profile_removed", onProfileRemoved);
+        this.viewer.scene.annotations.addEventListener("annotation_removed", onAnnotationRemoved);
 
 		{
 			let annotationIcon = `${Potree.resourcePath}/icons/annotation.svg`;

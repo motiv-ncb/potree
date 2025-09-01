@@ -433,5 +433,10 @@ export class Scene extends EventDispatcher{
 
 	removeAnnotation(annotationToRemove) {
 		this.annotations.remove(annotationToRemove);
+        this.annotations.dispatchEvent({
+				'type': 'annotation_removed',
+				'scene': this,
+				'annotation': annotationToRemove
+			});
 	}
 };

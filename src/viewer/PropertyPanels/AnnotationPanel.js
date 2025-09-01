@@ -10,6 +10,8 @@ export class AnnotationPanel{
 		this._update = () => { this.update(); };
 
 		let copyIconPath = `${Potree.resourcePath}/icons/copy.svg`;
+        let removeIconPath = Potree.resourcePath + '/icons/remove.svg';
+
 		this.elContent = $(`
 		<div class="propertypanel_content">
 			<table>
@@ -43,8 +45,13 @@ export class AnnotationPanel{
 				</div>
 
 			</div>
-
-		</div>
+            <!-- ACTIONS -->
+				<div style="display: flex; margin-top: 12px">
+					<span></span>
+					<span style="flex-grow: 1"></span>
+					<img name="remove" class="button-icon" src="${removeIconPath}" style="width: 16px; height: 16px"/>
+				</div>
+		    </div>
 		`);
 
 		this.elCopyPosition = this.elContent.find("img[name=copyPosition]");
@@ -57,6 +64,12 @@ export class AnnotationPanel{
 					`Copied value to clipboard: <br>'${msg}'`,
 					{duration: 3000});
 		});
+
+        this.elRemove = this.elContent.find("img[name=remove]");
+			this.elRemove.click( () => {
+				this.viewer.scene.removeAnnotation(annotation);
+		});
+
 
 		this.elTitle = this.elContent.find("#annotation_title").html(annotation.title);
 		this.elDescription = this.elContent.find("#annotation_description").html(annotation.description);
@@ -71,6 +84,8 @@ export class AnnotationPanel{
 			const description = this.elDescription.html();
 			annotation.description = description;
 		}, false);
+
+        
 
 		this.update();
 	}
