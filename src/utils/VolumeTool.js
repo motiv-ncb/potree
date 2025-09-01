@@ -277,8 +277,9 @@ export class VolumeTool extends EventDispatcher{
                     }
                 }
                 measure.addTopBottomMarker();
+                measure.updatePointElevations();
                 measure.updateVolumeGeometry();
-                
+                measure.update();
             }
         };
 

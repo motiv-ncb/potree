@@ -339,6 +339,20 @@ export class AreaVolume extends Volume {
         return volumeMaterial;
     }
 
+    updatePointElevations(){
+        // update points elevation
+        const topLevel = this.topSphere ? this.topSphere.position.z : this.getMaxZ();
+        const bottomLevel = this.bottomSphere ? this.bottomSphere.position.z : this.getMinZ();
+        const shiftZ = (topLevel + bottomLevel) / 2;
+        const nPoint = this.points.length 
+
+        for(let i = 0; i < nPoint; i++){
+            const x = this.points[i].position.x;
+            const y = this.points[i].position.y;
+            this.points[i].position.set(x,y,shiftZ);
+        }
+    }
+
     updateVolumeGeometry (){
         const nPoint = this.points.length 
         if(nPoint > 2){
@@ -362,7 +376,7 @@ export class AreaVolume extends Volume {
             const shiftZ = (maxZ + minZ) / 2;
             const depth = (maxZ - minZ) / 2
             const path = new THREE.CurvePath();
-    
+            
             path.add(new THREE.LineCurve3(
                 new THREE.Vector3(0, 0, shiftZ-depth),  // Start
                 new THREE.Vector3(0, 0, shiftZ+depth)   // End
@@ -375,6 +389,14 @@ export class AreaVolume extends Volume {
                 extrudePath: path,
                 bevelEnabled: false
             };
+
+             // update points elevation
+            // for(let i = 0; i < nPoint; i++){
+            //     const x = this.points[i].position.x;
+            //     const y = this.points[i].position.y;
+            //     this.points[i].position.set(x,y,shiftZ);
+            // }
+
     
             // Remove old geometry
             this.extrude.geometry.dispose();
@@ -504,6 +526,24 @@ export class AreaVolume extends Volume {
         ray.intersectPlane(plane,target);
         return target;
     }
+
+    getMousePlaneIntersection(mouse, camera, viewer, point){
+        let renderer = viewer.renderer;
+        
+        let nmouse = {
+            x: (mouse.x / renderer.domElement.clientWidth) * 2 - 1,
+            y: -(mouse.y / renderer.domElement.clientHeight) * 2 + 1
+        };
+
+        let raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(nmouse, camera);
+        let ray = raycaster.ray;
+        let plane = new THREE.Plane();
+        plane.setFromNormalAndCoplanarPoint(new THREE.Vector3(0,0,1), point);
+        let target = new THREE.Vector3();
+        ray.intersectPlane(plane,target);
+        return target;
+    }
    
     addTopBottomMarker(){
         const x = (this.getMinX() + this.getMaxX()) / 2;
@@ -525,7 +565,6 @@ export class AreaVolume extends Volume {
         }
 		this.bottomSphere.position.set(x, y, minZ);
 
-
        
 
         // sphere.addEventListener('drag', drag);
@@ -539,8 +578,20 @@ export class AreaVolume extends Volume {
                 let p = this.getMouseVerticalPlaneIntersection(e.drag.end,e.viewer.scene.getActiveCamera(),e.viewer, e.target.position);
 				e.target.position.z = p.z;
 
+                const tol = 0.01;
+                if(this.topSphere.position.z < this.bottomSphere.position.z + tol)
+                    {
+                        if(e.target === this.topSphere){
+                            this.bottomSphere.position.z = this.topSphere.position.z - tol;
+                        }
+                        else{
+                            this.topSphere.position.z = this.bottomSphere.position.z + tol;
+
+                        }
+                    }
                 this.updateVolumeGeometry();
-              
+                this.updatePointElevations();
+                this.update();
 			};
 
 			let drop = e => {
@@ -554,7 +605,7 @@ export class AreaVolume extends Volume {
                 //     this.updateVolumeGeometry();
                 //     this.updateTopBottomMarkerPosition();
 				// }
-                console.log("drop");
+                // console.log("drop");
 			};
 
             // let mouseover = (e) => e.object.material.emissive.setHex(0x888888);
@@ -649,32 +700,64 @@ export class AreaVolume extends Volume {
 
 		{ // Event Listeners
 			let drag = (e) => {
-				let I = Utils.getMousePointCloudIntersection(
-					e.drag.end, 
-					e.viewer.scene.getActiveCamera(), 
-					e.viewer, 
-					e.viewer.scene.pointclouds,
-					{pickClipped: true});
 
-				if (I) {
-					let i = this.spheres.indexOf(e.drag.object);
-					if (i !== -1) {
-						let point = this.points[i];
-						
-						// loop through current keys and cleanup ones that will be orphaned
-						for (let key of Object.keys(point)) {
-							if (!I.point[key]) {
-								delete point[key];
-							}
-						}
+                if(this.topSphere && this.bottomSphere)
+                {
+                    let p = this.getMousePlaneIntersection(e.drag.end,e.viewer.scene.getActiveCamera(),e.viewer, e.target.position);
+              
+                    e.target.position.x = p.x;
+                    e.target.position.y = p.y;
 
-						for (let key of Object.keys(I.point).filter(e => e !== 'position')) {
-							point[key] = I.point[key];
-						}
 
-						this.setPosition(i, I.location);
-					}
-				}
+                    let i = this.spheres.indexOf(e.drag.object);
+                    if (i !== -1) {
+                        let point = this.points[i];
+                        
+                        // loop through current keys and cleanup ones that will be orphaned
+                        // for (let key of Object.keys(point)) {
+                        //     if (!I.point[key]) {
+                        //         delete point[key];
+                        //     }
+                        // }
+
+                        // for (let key of Object.keys(I.point).filter(e => e !== 'position')) {
+                        //     point[key] = I.point[key];
+                        // }
+                        this.setPosition(i, p);
+                    }
+                    this.updateVolumeGeometry();
+                    this.updatePointElevations();
+                    this.updateTopBottomMarkerPosition();
+                    this.update();
+                }
+                else{
+                    let I = Utils.getMousePointCloudIntersection(
+                        e.drag.end, 
+                        e.viewer.scene.getActiveCamera(), 
+                        e.viewer, 
+                        e.viewer.scene.pointclouds,
+                        {pickClipped: true});
+
+                    if (I) {
+                        let i = this.spheres.indexOf(e.drag.object);
+                        if (i !== -1) {
+                            let point = this.points[i];
+                            
+                            // loop through current keys and cleanup ones that will be orphaned
+                            for (let key of Object.keys(point)) {
+                                if (!I.point[key]) {
+                                    delete point[key];
+                                }
+                            }
+
+                            for (let key of Object.keys(I.point).filter(e => e !== 'position')) {
+                                point[key] = I.point[key];
+                            }
+                            this.setPosition(i, I.location);
+                        }
+                    }
+                }
+				
 			};
 
 			let drop = e => {
@@ -687,6 +770,7 @@ export class AreaVolume extends Volume {
 					});
                     this.updateVolumeGeometry();
                     this.updateTopBottomMarkerPosition();
+                    
 				}
 			};
 
@@ -841,18 +925,7 @@ export class AreaVolume extends Volume {
 				
 				let msg = position.toArray().map(p => Utils.addCommas(p.toFixed(2))).join(" / ");
 
-                // added by cmair
-                if(this.name.includes('GeoCoord')) {
-                    if(this.geo_coord) {
-                        coordinateLabel.setText(`${this.geo_coord}: ${msg}`);
-                    }
-                }
-                else {
-                    coordinateLabel.setText(msg);
-                }
-
-                // removed by cmair
-                //coordinateLabel.setText(msg);
+                coordinateLabel.setText(msg);
 
 				coordinateLabel.visible = this.showCoordinates;
 			}
