@@ -19,7 +19,7 @@ export class Volume extends THREE.Object3D {
 		this.showVolumeLabel = true;
 		this._modifiable = args.modifiable || true;
 
-		this.label = new TextSprite('0');
+		this.label = new TextSprite('');
 		this.label.setBorderColor({r: 0, g: 255, b: 0, a: 0.0});
 		this.label.setBackgroundColor({r: 0, g: 255, b: 0, a: 0.0});
 		this.label.material.depthTest = false;

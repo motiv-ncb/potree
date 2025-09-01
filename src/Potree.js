@@ -87,6 +87,7 @@ export {HQSplatRenderer} from "./viewer/HQSplatRenderer.js"
 export {PropertiesPanel} from "./viewer/PropertyPanels/PropertiesPanel.js"
 export {VolumePanel} from "./viewer/PropertyPanels/VolumePanel.js"
 export {PlaneMeasurement} from "./utils/PlaneMeasurement.js"
+export {AreaVolume} from "./utils/AreaVolume.js"
 //////////////////
 
 import "./extensions/OrthographicCamera.js";

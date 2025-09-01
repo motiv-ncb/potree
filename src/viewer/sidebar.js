@@ -226,25 +226,25 @@ export class Sidebar{
 			}
 		));
 
-        // // cmair: AREA VOLUME
-		// elToolbar.append(this.createToolIcon(
-		// 	Potree.resourcePath + '/icons/area_volume.png',
-		// 	'[title]tt.area_volume_measurement',
-		// 	() => {
-		// 		$('#menu_measurements').next().slideDown();
-		// 		let measurement = this.volumeTool.startAreaInsertion({
-		// 			showDistances: false,
-		// 			showArea: false,
-		// 			closed: true,
-        //             showVolume:true,
-		// 			name: 'Volume'});
+        // cmair: AREA VOLUME
+		elToolbar.append(this.createToolIcon(
+			Potree.resourcePath + '/icons/area_volume.png',
+			'[title]tt.area_volume_measurement',
+			() => {
+				$('#menu_measurements').next().slideDown();
+				let measurement = this.volumeTool.startAreaInsertion({
+					showDistances: false,
+					showArea: false,
+					closed: true,
+                    showVolume:true,
+					name: 'Volume'});
 
-		// 		let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
-		// 		let jsonNode = measurementsRoot.children.find(child => child.data.uuid === measurement.uuid);
-		// 		$.jstree.reference(jsonNode.id).deselect_all();
-		// 		$.jstree.reference(jsonNode.id).select_node(jsonNode.id);
-		// 	}
-		// ));
+				let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
+				let jsonNode = measurementsRoot.children.find(child => child.data.uuid === measurement.uuid);
+				$.jstree.reference(jsonNode.id).deselect_all();
+				$.jstree.reference(jsonNode.id).select_node(jsonNode.id);
+			}
+		));
 
         //  // cmair: Plane
 		// elToolbar.append(this.createToolIcon(
