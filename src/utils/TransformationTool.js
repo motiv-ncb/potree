@@ -757,7 +757,10 @@ export class TransformationTool {
 			let camera = this.viewer.scene.getActiveCamera();
 			let domElement = this.viewer.renderer.domElement;
 			let mouse = this.viewer.inputHandler.mouse;
-
+            // cmair - bounding box check
+            if(!selected.boundingBox){
+                return;
+            }
 			let center = selected.boundingBox.getCenter(new THREE.Vector3()).clone().applyMatrix4(selected.matrixWorld);
 
 			this.scene.scale.copy(selected.boundingBox.getSize(new THREE.Vector3()).multiply(selected.scale));

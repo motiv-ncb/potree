@@ -154,75 +154,6 @@ function createCircleCenter(){
 	return circleCenter;
 }
 
-function createLine(){
-	const geometry = new LineGeometry();
-
-	geometry.setPositions([
-		0, 0, 0,
-		0, 0, 0,
-	]);
-
-	const material = new LineMaterial({ 
-		color: 0xff0000, 
-		linewidth: 2, 
-		resolution:  new THREE.Vector2(1000, 1000),
-		gapSize: 1,
-		dashed: true,
-	});
-
-	material.depthTest = false;
-
-	const line = new Line2(geometry, material);
-
-	return line;
-}
-
-function createCircle(){
-
-	const coordinates = [];
-
-	let n = 128;
-	for(let i = 0; i <= n; i++){
-		let u0 = 2 * Math.PI * (i / n);
-		let u1 = 2 * Math.PI * (i + 1) / n;
-
-		let p0 = new THREE.Vector3(
-			Math.cos(u0), 
-			Math.sin(u0), 
-			0
-		);
-
-		let p1 = new THREE.Vector3(
-			Math.cos(u1), 
-			Math.sin(u1), 
-			0
-		);
-
-		coordinates.push(
-			...p0.toArray(),
-			...p1.toArray(),
-		);
-	}
-
-	const geometry = new LineGeometry();
-	geometry.setPositions(coordinates);
-
-	const material = new LineMaterial({ 
-		color: 0xff0000, 
-		dashSize: 5, 
-		gapSize: 2,
-		linewidth: 2, 
-		resolution:  new THREE.Vector2(1000, 1000),
-	});
-
-	material.depthTest = false;
-
-	const line = new Line2(geometry, material);
-	line.computeLineDistances();
-
-	return line;
-
-}
 
 
 export class AreaVolume extends Volume {
@@ -273,22 +204,23 @@ export class AreaVolume extends Volume {
 		this.add(this.circleCenter);
 
 
-    
         this.extrude = new THREE.Mesh();
         this.extrude.material = this.createVolumeMaterial();
         this.extrude.geometry.computeBoundingBox();
 		this.boundingBox = this.extrude.geometry.boundingBox;
+
+        this.extrude.addEventListener('select', e=>{this.makeSelection();});
+        const frameMaterial = new THREE.LineBasicMaterial({color: 0x000000});
+        const selectedFrameMaterial = new THREE.LineBasicMaterial({color: 0xffff00});
 		this.add(this.extrude);
 
         this.frame = new THREE.LineSegments();
-        this.frame.material =  new THREE.LineBasicMaterial({color: 0x000000});
+        this.frame.material = frameMaterial;
         this.add(this.frame);
 
         // override from base
         this.label.updateMatrixWorld = () => {
-            let volumeWorldPos = new THREE.Vector3();
-            volumeWorldPos.setFromMatrixPosition(this.matrixWorld);
-            this.label.position.copy(volumeWorldPos);
+
             if(this.topSphere){
                 this.label.position.x = this.topSphere.position.x;
                 this.label.position.y = this.topSphere.position.y;
@@ -304,6 +236,15 @@ export class AreaVolume extends Volume {
                 this.label.children[ i ].updateMatrixWorld(true);
             }
         };
+
+        { // event listeners
+			this.addEventListener('select', e => {  
+                this.frame.material = selectedFrameMaterial;
+            });
+			this.addEventListener('deselect', e => {
+                this.frame.material = frameMaterial;
+            });
+		}
     }
 
 	createSphereMaterial () {
@@ -390,14 +331,6 @@ export class AreaVolume extends Volume {
                 bevelEnabled: false
             };
 
-             // update points elevation
-            // for(let i = 0; i < nPoint; i++){
-            //     const x = this.points[i].position.x;
-            //     const y = this.points[i].position.y;
-            //     this.points[i].position.set(x,y,shiftZ);
-            // }
-
-    
             // Remove old geometry
             this.extrude.geometry.dispose();
             // Create new geometry
@@ -589,6 +522,7 @@ export class AreaVolume extends Volume {
 
                         }
                     }
+                this.makeSelection();
                 this.updateVolumeGeometry();
                 this.updatePointElevations();
                 this.update();
@@ -725,6 +659,7 @@ export class AreaVolume extends Volume {
                         // }
                         this.setPosition(i, p);
                     }
+                    this.makeSelection();
                     this.updateVolumeGeometry();
                     this.updatePointElevations();
                     this.updateTopBottomMarkerPosition();
@@ -1143,13 +1078,37 @@ export class AreaVolume extends Volume {
 
 	};
 
+    makeSelection () {
+          let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
+        let jsonNode = measurementsRoot.children.find(child => child.data.uuid === this.uuid);
+        if(jsonNode){
+            $.jstree.reference(jsonNode.id).deselect_all();
+            $.jstree.reference(jsonNode.id).select_node(jsonNode.id);
+            if(this.updateLabel){
+                this.updateLabel();
+            }
+        }
+    }
+
 	raycast (raycaster, intersects) {
-		for (let i = 0; i < this.spheres.length; i++) {
-			let sphere = this.spheres[i];
+		// for (let i = 0; i < this.spheres.length; i++) {
+		// 	let sphere = this.spheres[i];
 
-			sphere.raycast(raycaster, intersects);
-		}
+		// 	sphere.raycast(raycaster, intersects);
+		// }
 
+        let is = [];
+        this.extrude.raycast(raycaster, is);
+        // if (is.length > 0) {
+        //     let I = is[0];
+        //     intersects.push({
+        //         distance: I.distance,
+        //         object: this.extrude,
+        //         point: I.point.clone()
+        //     });
+        // }
+
+   
 		// recalculate distances because they are not necessarely correct
 		// for scaled objects.
 		// see https://github.com/mrdoob/three.js/issues/5827
@@ -1244,31 +1203,7 @@ export class AreaVolume extends Volume {
 		this.update();
 	}
 
-    // update(){
-    //         // this.boundingBox = this.extrude.geometry.boundingBox;
-    //         // this.boundingSphere = this.boundingBox.getBoundingSphere(new THREE.Sphere());
-    
-    //         if (this._clip) {
-    //             this.extrude.visible = false;
-    //             this.label.visible = false;
-    //         } else {
-    //             this.extrude.visible = true;
-    //             this.label.visible = this.showVolumeLabel;
-    //         }
-    //     }
-    
-    raycast (raycaster, intersects) {
-        let is = [];
-        this.extrude.raycast(raycaster, is);
-        if (is.length > 0) {
-            let I = is[0];
-            intersects.push({
-                distance: I.distance,
-                object: this,
-                point: I.point.clone()
-            });
-        }
-    }
+
 
     getVolume(){
         const area = this.getArea();
