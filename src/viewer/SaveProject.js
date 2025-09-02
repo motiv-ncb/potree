@@ -70,19 +70,51 @@ function createProfileData(profile){
 }
 
 function createVolumeData(volume){
-	const data = {
-		uuid: volume.uuid,
-		type: volume.constructor.name,
-		name: volume.name,
-		position: volume.position.toArray(),
-		rotation: volume.rotation.toArray(),
-		scale: volume.scale.toArray(),
-		visible: volume.visible,
-		clip: volume.clip,
-        volumeType:volume.volumeType,
-	};
+    // cmair save polygon instead
+    if(volume.constructor.name === "AreaVolume"){
+        const data = {
+            uuid: volume.uuid,
+            type: volume.constructor.name,
+            name: volume.name,
+            position: volume.position.toArray(),
+            rotation: volume.rotation.toArray(),
+            scale: volume.scale.toArray(),
+            visible: volume.visible,
+            clip: volume.clip,
+            volumeType:volume.volumeType,
+            points: volume.points.map(p => p.position.toArray()),
+            topLevel: volume.topSphere.position.z,
+            bottomLevel: volume.bottomSphere.position.z,
+            showDistances: volume.showDistances,
+            showCoordinates: volume.showCoordinates,
+            showArea: volume.showArea,
+            closed: volume.closed,
+            showAngles: volume.showAngles,
+            showHeight: volume.showHeight,
+            showCircle: volume.showCircle,
+            showAzimuth: volume.showAzimuth,
+            showEdges: volume.showEdges,
+            showVolume: volume.showVolume,
+        };
 
-	return data;
+        return data;
+    }
+    else{
+        const data = {
+            uuid: volume.uuid,
+            type: volume.constructor.name,
+            name: volume.name,
+            position: volume.position.toArray(),
+            rotation: volume.rotation.toArray(),
+            scale: volume.scale.toArray(),
+            visible: volume.visible,
+            clip: volume.clip,
+            volumeType:volume.volumeType,            
+        };
+
+        return data;
+    }
+	
 }
 
 function createCameraAnimationData(animation){

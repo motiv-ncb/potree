@@ -138,6 +138,33 @@ export function loadVolume(viewer, data){
 	volume.visible = data.visible;
 	volume.clip = data.clip;
     volume.volumeType = data.volumeType;
+    //cmair AreaVolume
+    if(data.type === "AreaVolume"){
+
+        volume.showDistances = data.showDistances;
+        volume.showCoordinates = data.showCoordinates;
+        volume.showArea = data.showArea;
+        volume.closed = data.closed;
+        volume.showAngles = data.showAngles;
+        volume.showHeight = data.showHeight;
+        volume.showCircle = data.showCircle;
+        volume.showAzimuth = data.showAzimuth;
+        volume.showEdges = data.showEdges;
+        volume.showVolume = data.showVolume;
+        for(const point of data.points){
+			const pos = new THREE.Vector3(...point);
+			volume.addMarker(pos);
+		}
+
+        volume.addTopBottomMarker();
+        // let topPos = volume.topSphere.position;
+        // let bottomPos = volume.bottomSphere.position;
+        volume.topSphere.position.z = Number(data.topLevel);
+        volume.bottomSphere.position.z = Number(data.bottomLevel);
+        volume.updateVolumeGeometry();
+        volume.update();
+    }
+
 	viewer.scene.addVolume(volume);
 }
 
