@@ -280,6 +280,7 @@ export class VolumeTool extends EventDispatcher{
                 measure.updatePointElevations();
                 measure.updateVolumeGeometry();
                 measure.update();
+                measure.makeSelection();
             }
         };
 

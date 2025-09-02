@@ -526,6 +526,10 @@ export class AreaVolume extends Volume {
                 this.updateVolumeGeometry();
                 this.updatePointElevations();
                 this.update();
+                if(this.updateLabel){
+                    this.pointCloudVolume = 0;
+	                this.updateLabel();
+	            }
 			};
 
 			let drop = e => {
@@ -664,6 +668,10 @@ export class AreaVolume extends Volume {
                     this.updatePointElevations();
                     this.updateTopBottomMarkerPosition();
                     this.update();
+                    if(this.updateLabel){
+                        this.pointCloudVolume = 0;
+                        this.updateLabel();
+                    }
                 }
                 else{
                     let I = Utils.getMousePointCloudIntersection(
