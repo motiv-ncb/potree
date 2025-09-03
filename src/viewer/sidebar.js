@@ -866,6 +866,25 @@ export class Sidebar{
 			elClipTask.selectgroup({title: "Clip Task"});
 
 			elClipTask.find("input").click( (e) => {
+                let elClipMethod = $("#clipmethod_options");
+                let anyLabel = elClipMethod.find(`label[for=clipmethod_options_any]`)[0];
+                let allLabel = elClipMethod.find(`label[for=clipmethod_options_all]`)[0];
+                if(e.target.value === "SHOW_OUTSIDE"){
+                    if(anyLabel){
+                        anyLabel.innerText = "Outside Any";
+                    }
+                    if(allLabel){
+                        allLabel.innerText = "Outside All";
+                    }
+                }
+                else{
+                    if(anyLabel){
+                        anyLabel.innerText = "Inside Any";
+                    }
+                    if(allLabel){
+                        allLabel.innerText = "Inside All";
+                    }
+                }
 				this.viewer.setClipTask(ClipTask[e.target.value]);
 			});
 
