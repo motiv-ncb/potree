@@ -39,6 +39,8 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 		this._useClipBox = false;
 		this.clipBoxes = [];
 		this.clipPolygons = [];
+         // cmair clip area
+        this.clipAreas = [];
 		this._weighted = false;
 		this._gradient = Gradients.SPECTRAL;
 		this.gradientTexture = PointCloudMaterial.generateGradientTexture(this._gradient);
@@ -108,11 +110,20 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 			clipBoxCount:		{ type: "f", value: 0 },
 			//clipSphereCount:	{ type: "f", value: 0 },
 			clipPolygonCount:	{ type: "i", value: 0 },
+            // cmair clipArea
+            clipAreaCount:	    { type: "i", value: 0 },
+
 			clipBoxes:			{ type: "Matrix4fv", value: [] },
 			//clipSpheres:		{ type: "Matrix4fv", value: [] },
 			clipPolygons:		{ type: "3fv", value: [] },
 			clipPolygonVCount:	{ type: "iv", value: [] },
 			clipPolygonVP:		{ type: "Matrix4fv", value: [] },
+
+             // cmair clipArea
+            clipAreas:		{ type: "3fv", value: [] },
+			clipAreaVCount:	{ type: "iv", value: [] },
+			clipAreaTopLevel:		{ type: "fv", value: [] },
+            clipAreaBottomLevel:		{ type: "fv", value: [] },
 
 			visibleNodes:		{ type: "t", value: this.visibleNodesTexture },
 			pcIndex:			{ type: "f", value: 0 },
@@ -318,6 +329,20 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 		this.clipPolygons = clipPolygons;
 
 		let doUpdate = (this.clipPolygons.length !== clipPolygons.length);
+
+		if(doUpdate){
+			this.updateShaderSource();
+		}
+	}
+
+    setClipAreas(clipAreas) {
+		if(!clipAreas){
+			return;
+		}
+
+		this.clipAreas = clipAreas;
+
+		let doUpdate = (this.clipAreas.length !== clipAreas.length);
 
 		if(doUpdate){
 			this.updateShaderSource();

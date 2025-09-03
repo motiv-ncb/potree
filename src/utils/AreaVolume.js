@@ -1084,6 +1084,14 @@ export class AreaVolume extends Volume {
 			this.areaLabel.setText(msg);
 		}
 
+        if (this._clip) {
+			this.extrude.visible = false;
+			this.label.visible = false;
+		} else {
+			this.extrude.visible = true;
+			this.label.visible = this.showVolumeLabel;
+		}
+
 	};
 
     makeSelection () {

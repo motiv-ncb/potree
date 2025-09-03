@@ -809,6 +809,44 @@ export class Renderer {
 				}
 			}
 
+            // cmair Clip Area
+            {
+				if(material.clipAreas && material.clipAreas.length > 0){
+                    let clipAreaVCount = [];
+                    let clipAreaTopLevel = [];
+                    let clipAreaBottomLevel = [];
+                    let maxNumberOfVertices = 0;
+
+                    for(let clipArea of material.clipAreas)
+                    {
+						clipAreaVCount.push(clipArea.points.length);
+                        clipAreaTopLevel.push(clipArea.topSphere.position.z);
+                        clipAreaBottomLevel.push(clipArea.bottomSphere.position.z);
+                        maxNumberOfVertices = Math.max(maxNumberOfVertices, clipArea.points.length);
+                    }
+
+                    let flattenedVertices = new Array(maxNumberOfVertices * 3 * material.clipAreas.length);
+					for(let i = 0; i < material.clipAreas.length; i++){
+						let clipArea = material.clipAreas[i];
+						for(let j = 0; j < clipArea.points.length; j++){
+							flattenedVertices[i * maxNumberOfVertices * 3 + (j * 3 + 0)] = clipArea.points[j].position.x;
+							flattenedVertices[i * maxNumberOfVertices * 3 + (j * 3 + 1)] = clipArea.points[j].position.y;
+							flattenedVertices[i * maxNumberOfVertices * 3 + (j * 3 + 2)] = clipArea.points[j].position.z;
+						}
+					}
+
+                    const lClipAreaVCount = shader.uniformLocations["uClipAreaVCount[0]"];
+					gl.uniform1iv(lClipAreaVCount, clipAreaVCount);
+
+                    const lClipAreaTopLevel = shader.uniformLocations["uClipAreaTopLevel[0]"];
+					gl.uniform1fv(lClipAreaTopLevel, clipAreaTopLevel);
+                    const lClipAreaBottomLevel = shader.uniformLocations["uClipAreaBottomLevel[0]"];
+					gl.uniform1fv(lClipAreaBottomLevel, clipAreaBottomLevel);
+
+					const lClipAreas = shader.uniformLocations["uClipAreaVertices[0]"];
+					gl.uniform3fv(lClipAreas, flattenedVertices);
+                }
+            }
 
 			//shader.setUniformMatrix4("modelMatrix", world);
 			//shader.setUniformMatrix4("modelViewMatrix", worldView);
@@ -1100,12 +1138,24 @@ export class Renderer {
 				let numClipSpheres = (params.clipSpheres && params.clipSpheres.length) ? params.clipSpheres.length : 0;
 				let numClipPolygons = (material.clipPolygons && material.clipPolygons.length) ? material.clipPolygons.length : 0;
 
+                // cmair clip areas
+                let numClipAreas = (material.clipAreas && material.clipAreas.length) ? material.clipAreas.length : 0;
+                let maxClipAreaPoints = 0;
+                if(numClipAreas > 0){
+                    for(let clipArea of material.clipAreas){
+                        maxClipAreaPoints = Math.max(maxClipAreaPoints, clipArea.points.length);
+                    }
+                }
+
 				let defines = [
 					`#define num_shadowmaps ${shadowMaps.length}`,
 					`#define num_snapshots ${numSnapshots}`,
 					`#define num_clipboxes ${numClipBoxes}`,
 					`#define num_clipspheres ${numClipSpheres}`,
 					`#define num_clippolygons ${numClipPolygons}`,
+                    // cmair clip areas
+                    `#define num_clipareas ${numClipAreas}`,
+                    `#define max_num_clipareapoints ${maxClipAreaPoints}`,
 				];
 
 
@@ -1243,8 +1293,8 @@ export class Renderer {
 			}else{
 				shader.setUniform("uUseOrthographicCamera", false);
 			}
-
-			if(material.clipBoxes.length + material.clipPolygons.length === 0){
+            // cmair material.clipAreas.length
+			if(material.clipBoxes.length + material.clipPolygons.length === 0 + material.clipAreas.length === 0){
 				shader.setUniform1i("clipTask", ClipTask.NONE);
 			}else{
 				shader.setUniform1i("clipTask", material.clipTask);

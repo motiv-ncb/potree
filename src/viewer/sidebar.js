@@ -237,7 +237,7 @@ export class Sidebar{
 					showArea: false,
 					closed: true,
                     showVolume:true,
-					name: 'Volume'});
+					name: 'Area_volume'});
 
 				let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
 				let jsonNode = measurementsRoot.children.find(child => child.data.uuid === measurement.uuid);
@@ -965,6 +965,29 @@ export class Sidebar{
 
 				let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
 				let jsonNode = measurementsRoot.children.find(child => child.data.uuid === item.uuid);
+				$.jstree.reference(jsonNode.id).deselect_all();
+				$.jstree.reference(jsonNode.id).select_node(jsonNode.id);
+			}
+		));
+
+         // cmair: CLIP AREA
+		clippingToolBar.append(this.createToolIcon(
+			Potree.resourcePath + '/icons/clip_area_volume.png',
+			'[title]tt.clip_area',
+			() => {
+				$('#menu_measurements').next().slideDown();
+				let measurement = this.volumeTool.startAreaInsertion({
+					showDistances: false,
+					showArea: false,
+					closed: true,
+                    showVolume:true,
+					name: 'Clip_area_volume',
+                    clip: true,
+                    volumeType: "Clipping"
+                });
+
+				let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
+				let jsonNode = measurementsRoot.children.find(child => child.data.uuid === measurement.uuid);
 				$.jstree.reference(jsonNode.id).deselect_all();
 				$.jstree.reference(jsonNode.id).select_node(jsonNode.id);
 			}

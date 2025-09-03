@@ -221,6 +221,7 @@ export class VolumeTool extends EventDispatcher{
         measure.showEdges = pick(args.showEdges, true);
         measure.closed = pick(args.closed, false);
         measure.maxMarkers = pick(args.maxMarkers, Infinity);
+        measure.clip = pick(args.clip, false);
         // for cmair
         measure.showVolume = pick(args.showVolume, false);
         measure.name = this.createUniqueName(args.name || 'Volume');

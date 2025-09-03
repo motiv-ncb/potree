@@ -60,6 +60,13 @@ uniform int clipMethod;
 	uniform mat4 uClipPolygonWVP[num_clippolygons];
 #endif
 
+#if defined(num_clipareas) && num_clipareas > 0 && defined(max_num_clipareapoints) && max_num_clipareapoints > 0
+	uniform int uClipAreaVCount[num_clipareas];
+    uniform float uClipAreaTopLevel[num_clipareas];
+    uniform float uClipAreaBottomLevel[num_clipareas];
+	uniform vec3 uClipAreaVertices[num_clipareas * max_num_clipareapoints];
+#endif
+
 
 uniform float size;
 uniform float minSize;
@@ -765,6 +772,34 @@ bool pointInClipPolygon(vec3 point, int polyIdx) {
 }
 #endif
 
+
+#if defined(num_clipareas) && num_clipareas > 0 && defined(max_num_clipareapoints) && max_num_clipareapoints > 0
+bool pointInClipArea(vec4 point, int areaIdx) {
+    
+    if(point.z > uClipAreaTopLevel[areaIdx] || point.z < uClipAreaBottomLevel[areaIdx] ){
+        return false;
+    }
+
+	int j = uClipAreaVCount[areaIdx] - 1;
+    bool c = false;
+	for(int i = 0; i < max_num_clipareapoints; i++) {
+		if(i == uClipAreaVCount[areaIdx]) {
+			break;
+		}
+
+		vec3 verti = uClipAreaVertices[areaIdx * max_num_clipareapoints + i];
+		vec3 vertj = uClipAreaVertices[areaIdx * max_num_clipareapoints + j];
+
+		if( ((verti.y > point.y) != (vertj.y > point.y)) && 
+			(point.x < (vertj.x-verti.x) * (point.y-verti.y) / (vertj.y-verti.y) + verti.x) ) {
+			c = !c;
+		}
+		j = i;
+	}
+    return c;
+}
+#endif
+
 void doClipping(){
 
 	{
@@ -845,6 +880,18 @@ void doClipping(){
 			clipVolumesCount++;
 		}
 	#endif
+
+    #if defined(num_clipareas) && num_clipareas > 0 && defined(max_num_clipareapoints) && max_num_clipareapoints > 0
+        vec4 modelPosition = modelMatrix * vec4( position, 1.0 );
+        for(int i = 0; i < num_clipareas; i++) {
+
+			bool inside = pointInClipArea(modelPosition, i);
+
+			insideCount = insideCount + (inside ? 1 : 0);
+			clipVolumesCount++;
+		}
+
+    #endif
 
 	bool insideAny = insideCount > 0;
 	bool insideAll = (clipVolumesCount > 0) && (clipVolumesCount == insideCount);

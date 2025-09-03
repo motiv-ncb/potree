@@ -35,6 +35,7 @@ import { VRButton } from '../../libs/three.js/extra/VRButton.js';
 
 import JSON5 from "../../libs/json5-2.1.3/json5.mjs";
 import { GlobalAxis } from "../utils/GlobalAxis.js";
+import { AreaVolume } from "../utils/AreaVolume.js";
 
 
 export class Viewer extends EventDispatcher{
@@ -1860,10 +1861,14 @@ export class Viewer extends EventDispatcher{
 
 			let clipPolygons = this.scene.polygonClipVolumes.filter(vol => vol.initialized);
 			
+            let areas = [];
+			areas.push(...this.scene.volumes.filter(v => v.clip && v.topSphere && v.bottomSphere && (v instanceof AreaVolume)));
+
 			// set clip volumes in material
 			for(let pointcloud of visiblePointClouds){
 				pointcloud.material.setClipBoxes(clipBoxes);
 				pointcloud.material.setClipPolygons(clipPolygons, this.clippingTool.maxPolygonVertices);
+                pointcloud.material.setClipAreas(areas);
 				pointcloud.material.clipTask = this.clipTask;
 				pointcloud.material.clipMethod = this.clipMethod;
 			}
