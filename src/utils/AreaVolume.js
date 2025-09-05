@@ -205,7 +205,8 @@ export class AreaVolume extends Volume {
 
 
         this.extrude = new THREE.Mesh();
-        this.extrude.material = this.createVolumeMaterial();
+        this.material =this.createVolumeMaterial();
+	    this.extrude.material = this.material;
         this.extrude.geometry.computeBoundingBox();
 		this.boundingBox = this.extrude.geometry.boundingBox;
 
