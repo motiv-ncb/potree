@@ -7,6 +7,7 @@ import {Measure} from "../../utils/Measure.js";
 import {Profile} from "../../utils/Profile.js";
 import {Volume, BoxVolume, SphereVolume} from "../../utils/Volume.js";
 import {CameraAnimation} from "../../modules/CameraAnimation/CameraAnimation.js";
+import {PolygonClipVolume} from "../../utils/PolygonClipVolume.js";
 import {PointSizeType, PointShape, ElevationGradientRepeat} from "../../defines.js";
 import {Gradients} from "../../materials/Gradients.js";
 
@@ -22,6 +23,7 @@ import {ProfilePanel} from "./ProfilePanel.js";
 import {CameraPanel} from "./CameraPanel.js";
 import {AnnotationPanel} from "./AnnotationPanel.js";
 import { CameraAnimationPanel } from "./CameraAnimationPanel.js";
+import { PolygonClipVolumePanel } from "./PolygonClipVolumePanel.js";
 
 export class PropertiesPanel{
 
@@ -61,6 +63,9 @@ export class PropertiesPanel{
 		}else if(object instanceof CameraAnimation){
 			this.setCameraAnimation(object);
 		}
+        else if(object instanceof PolygonClipVolume){
+            this.setPolygonClipVolume(object);
+        }
 		
 	}
 
@@ -928,7 +933,7 @@ export class PropertiesPanel{
 	
 
 	setMeasurement(object){
-
+        
 		let TYPE = {
 			DISTANCE: {panel: DistancePanel},
 			AREA: {panel: AreaPanel},
@@ -962,7 +967,7 @@ export class PropertiesPanel{
 				return TYPE.PROFILE;
 			} else if (measurement instanceof Volume) {
 				return TYPE.VOLUME;
-			}
+            }
 		};
 
 		//this.container.html("measurement");
@@ -988,5 +993,10 @@ export class PropertiesPanel{
 		let panel = new CameraAnimationPanel(this.viewer, this, animation)
 		this.container.append(panel.elContent);
 	}
+
+    setPolygonClipVolume(polygonVolume){
+        let panel = new PolygonClipVolumePanel(this.viewer,polygonVolume, this);
+        this.container.append(panel.elContent);
+    }
 
 }
