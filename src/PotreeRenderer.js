@@ -773,6 +773,7 @@ export class Renderer {
 
 					let clipPolygonVCount = [];
 					let worldViewProjMatrices = [];
+                    let maxNumberOfMarkers = 0;
 
 					for(let clipPolygon of material.clipPolygons){
 
@@ -783,17 +784,19 @@ export class Renderer {
 
 						clipPolygonVCount.push(clipPolygon.markers.length);
 						worldViewProjMatrices.push(worldViewProj);
+                        maxNumberOfMarkers = Math.max(maxNumberOfMarkers, clipPolygon.markers.length);
+
 					}
 
 					let flattenedMatrices = [].concat(...worldViewProjMatrices.map(m => m.elements));
 
-					let flattenedVertices = new Array(8 * 3 * material.clipPolygons.length);
+					let flattenedVertices = new Array(maxNumberOfMarkers * 3 * material.clipPolygons.length);
 					for(let i = 0; i < material.clipPolygons.length; i++){
 						let clipPolygon = material.clipPolygons[i];
 						for(let j = 0; j < clipPolygon.markers.length; j++){
-							flattenedVertices[i * 24 + (j * 3 + 0)] = clipPolygon.markers[j].position.x;
-							flattenedVertices[i * 24 + (j * 3 + 1)] = clipPolygon.markers[j].position.y;
-							flattenedVertices[i * 24 + (j * 3 + 2)] = clipPolygon.markers[j].position.z;
+							flattenedVertices[i * maxNumberOfMarkers * 3 + (j * 3 + 0)] = clipPolygon.markers[j].position.x;
+							flattenedVertices[i * maxNumberOfMarkers * 3 + (j * 3 + 1)] = clipPolygon.markers[j].position.y;
+							flattenedVertices[i * maxNumberOfMarkers * 3 + (j * 3 + 2)] = clipPolygon.markers[j].position.z;
 						}
 					}
 
@@ -834,7 +837,6 @@ export class Renderer {
 							flattenedVertices[i * maxNumberOfVertices * 3 + (j * 3 + 2)] = clipArea.points[j].position.z;
 						}
 					}
-
                     const lClipAreaVCount = shader.uniformLocations["uClipAreaVCount[0]"];
 					gl.uniform1iv(lClipAreaVCount, clipAreaVCount);
 
@@ -1146,6 +1148,12 @@ export class Renderer {
                         maxClipAreaPoints = Math.max(maxClipAreaPoints, clipArea.points.length);
                     }
                 }
+                let maxClipPolygonPoints = 0;
+                if(numClipPolygons > 0){
+                    for(let clipPolygon of material.clipPolygons){
+                        maxClipPolygonPoints = Math.max(maxClipPolygonPoints, clipPolygon.markers.length);
+                    }
+                }
 
 				let defines = [
 					`#define num_shadowmaps ${shadowMaps.length}`,
@@ -1156,6 +1164,7 @@ export class Renderer {
                     // cmair clip areas
                     `#define num_clipareas ${numClipAreas}`,
                     `#define max_num_clipareapoints ${maxClipAreaPoints}`,
+                    `#define max_num_clippolygonpoints ${maxClipPolygonPoints}`,
 				];
 
 

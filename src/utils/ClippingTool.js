@@ -12,7 +12,7 @@ export class ClippingTool extends EventDispatcher{
 
 		this.viewer = viewer;
 
-		this.maxPolygonVertices = 8; 
+		this.maxPolygonVertices = Number.POSITIVE_INFINITY; 
 		
 		this.addEventListener("start_inserting_clipping_volume", e => {
 			this.viewer.dispatchEvent({

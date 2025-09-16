@@ -54,9 +54,9 @@ uniform int clipMethod;
 	uniform mat4 uClipSpheres[num_clipspheres];
 #endif
 
-#if defined(num_clippolygons) && num_clippolygons > 0
+#if defined(num_clippolygons) && num_clippolygons > 0 && defined(max_num_clippolygonpoints) && max_num_clippolygonpoints > 0
 	uniform int uClipPolygonVCount[num_clippolygons];
-	uniform vec3 uClipPolygonVertices[num_clippolygons * 8];
+	uniform vec3 uClipPolygonVertices[num_clippolygons * max_num_clippolygonpoints];
 	uniform mat4 uClipPolygonWVP[num_clippolygons];
 #endif
 
@@ -732,7 +732,7 @@ float getPointSize(){
 	return pointSize;
 }
 
-#if defined(num_clippolygons) && num_clippolygons > 0
+#if defined(num_clippolygons) && num_clippolygons > 0 && defined(max_num_clippolygonpoints) && max_num_clippolygonpoints > 0
 bool pointInClipPolygon(vec3 point, int polyIdx) {
 
 	mat4 wvp = uClipPolygonWVP[polyIdx];
@@ -744,13 +744,13 @@ bool pointInClipPolygon(vec3 point, int polyIdx) {
 
 	int j = uClipPolygonVCount[polyIdx] - 1;
 	bool c = false;
-	for(int i = 0; i < 8; i++) {
+	for(int i = 0; i < max_num_clippolygonpoints; i++) {
 		if(i == uClipPolygonVCount[polyIdx]) {
 			break;
 		}
 
-		//vec4 verti = wvp * vec4(uClipPolygonVertices[polyIdx * 8 + i], 1);
-		//vec4 vertj = wvp * vec4(uClipPolygonVertices[polyIdx * 8 + j], 1);
+		//vec4 verti = wvp * vec4(uClipPolygonVertices[polyIdx * max_num_clippolygonpoints + i], 1);
+		//vec4 vertj = wvp * vec4(uClipPolygonVertices[polyIdx * max_num_clippolygonpoints + j], 1);
 
 		//verti.xy = verti.xy / verti.w;
 		//vertj.xy = vertj.xy / vertj.w;
@@ -758,8 +758,8 @@ bool pointInClipPolygon(vec3 point, int polyIdx) {
 		//verti.xy = verti.xy / verti.w * 0.5 + 0.5;
 		//vertj.xy = vertj.xy / vertj.w * 0.5 + 0.5;
 
-		vec3 verti = uClipPolygonVertices[polyIdx * 8 + i];
-		vec3 vertj = uClipPolygonVertices[polyIdx * 8 + j];
+		vec3 verti = uClipPolygonVertices[polyIdx * max_num_clippolygonpoints + i];
+		vec3 vertj = uClipPolygonVertices[polyIdx * max_num_clippolygonpoints + j];
 
 		if( ((verti.y > pointNDC.y) != (vertj.y > pointNDC.y)) && 
 			(pointNDC.x < (vertj.x-verti.x) * (pointNDC.y-verti.y) / (vertj.y-verti.y) + verti.x) ) {
