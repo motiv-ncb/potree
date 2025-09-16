@@ -144,6 +144,17 @@ export class VolumePanel extends MeasurePanel{
 			measurement.rotation.set(0, 0, 0);
 		});
 
+        // CMAIR : only box volumes have uniform and reset orientation options
+        if(measurement.constructor.name != "BoxVolume"){
+            this.elContent.find("#volume_make_uniform").hide();
+            this.elContent.find("#volume_reset_orientation").hide();
+        }
+        // CMAIR : hide measurement values for area volumes
+        if(measurement.constructor.name == "AreaVolume"){
+            this.elContent.find(".measurement_value_table").hide();
+            this.elContent.find(".coordinates_table_container").hide();   
+        }
+
 		this.elContent.find("#volume_make_uniform").click(() => {
 			let mean = (measurement.scale.x + measurement.scale.y + measurement.scale.z) / 3;
 			measurement.scale.set(mean, mean, mean);
