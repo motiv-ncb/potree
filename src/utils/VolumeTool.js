@@ -111,7 +111,11 @@ export class VolumeTool extends EventDispatcher{
 		let drop = e => {
 			volume.removeEventListener('drag', drag);
 			volume.removeEventListener('drop', drop);
-
+            
+            volume.dispatchEvent({
+                type: 'position_changed',
+                object: volume
+            });
 			cancel.callback();
 		};
 
@@ -181,6 +185,10 @@ export class VolumeTool extends EventDispatcher{
 			volume.removeEventListener('drag', drag);
 			volume.removeEventListener('drop', drop);
 			this.viewer.removeEventListener('cancel_insertions', cancel.callback);
+            volume.dispatchEvent({
+                type: 'position_changed',
+                object: volume
+            });
 		};
 
 		volume.addEventListener('drag', drag);
@@ -283,6 +291,10 @@ export class VolumeTool extends EventDispatcher{
                 measure.update();
                 measure.makeSelection();
             }
+            measure.dispatchEvent({
+                type: 'position_changed',
+                object: measure
+            });
         };
 
         if (measure.maxMarkers > 1) {

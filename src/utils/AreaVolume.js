@@ -531,6 +531,10 @@ export class AreaVolume extends Volume {
                     this.pointCloudVolume = 0;
 	                this.updateLabel();
 	            }
+                this.dispatchEvent({
+                    type: 'position_changed',
+                    object: this
+                });
 			};
 
 			let drop = e => {
@@ -701,7 +705,11 @@ export class AreaVolume extends Volume {
                         }
                     }
                 }
-				
+                this.dispatchEvent({
+                    type: 'position_changed',
+                    object: this}
+                );
+                
 			};
 
 			let drop = e => {

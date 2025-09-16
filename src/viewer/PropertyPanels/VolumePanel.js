@@ -30,7 +30,7 @@ export class VolumePanel extends MeasurePanel{
 		this.elContent = $(`
 			<div class="measurement_content selectable">
 				<span class="coordinates_table_container"></span>
-
+                <span class="top_botom_level_table_container"></span>
 				<table class="measurement_value_table">
 					<tr>
 						<th>\u03b1</th>
@@ -68,6 +68,7 @@ export class VolumePanel extends MeasurePanel{
 				<br>
 				<span style="font-weight: bold">Volume: </span>
 				<span id="measurement_volume"></span>
+               
 
 				<!--
 				<li>
@@ -152,7 +153,9 @@ export class VolumePanel extends MeasurePanel{
         // CMAIR : hide measurement values for area volumes
         if(measurement.constructor.name == "AreaVolume"){
             this.elContent.find(".measurement_value_table").hide();
-            this.elContent.find(".coordinates_table_container").hide();   
+        }
+        else{
+            this.elContent.find(".area_volume_level").hide();
         }
 
 		this.elContent.find("#volume_make_uniform").click(() => {
@@ -355,7 +358,25 @@ export class VolumePanel extends MeasurePanel{
 	update(){
 		let elCoordiantesContainer = this.elContent.find('.coordinates_table_container');
 		elCoordiantesContainer.empty();
-		elCoordiantesContainer.append(this.createCoordinatesTable([this.measurement.position]));
+
+        let elTopBottomContainer = this.elContent.find('.top_botom_level_table_container');
+		elTopBottomContainer.empty();
+        if(this.measurement.constructor.name != "AreaVolume") {
+            elCoordiantesContainer.append(this.createCoordinatesTable([this.measurement.position]));
+        }
+        else{
+            let points = [];
+            for(let i = 0; i < this.measurement.points.length; i++){
+                points.push(this.measurement.points[i].position);
+            }
+            elCoordiantesContainer.append(this.createCoordinatesTable2D(points));
+            if (this.measurement.topSphere && this.measurement.bottomSphere){
+                let topLevel = this.measurement.topSphere.position.z.toFixed(3);
+                let bottomLevel = this.measurement.bottomSphere.position.z.toFixed(3);
+                elTopBottomContainer.append(this.createTopBottomLevelTable(topLevel,bottomLevel));
+            }
+      
+        }
 
 		{
 			let angles = this.measurement.rotation.toVector3();

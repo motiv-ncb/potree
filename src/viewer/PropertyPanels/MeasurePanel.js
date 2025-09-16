@@ -58,6 +58,70 @@ export class MeasurePanel{
 		return table;
 	};
 
+    // CMAIR
+    createCoordinatesTable2D(points){
+		let table = $(`
+			<table class="measurement_value_table">
+				<tr>
+					<th>x</th>
+					<th>y</th>
+					<th></th>
+				</tr>
+			</table>
+		`);
+
+		let copyIconPath = Potree.resourcePath + '/icons/copy.svg';
+
+		for (let point of points) {
+			let x = Utils.addCommas(point.x.toFixed(3));
+			let y = Utils.addCommas(point.y.toFixed(3));
+
+			let row = $(`
+				<tr>
+					<td><span>${x}</span></td>
+					<td><span>${y}</span></td>
+					<td align="right" style="width: 25%">
+						<img name="copy" title="copy" class="button-icon" src="${copyIconPath}" style="width: 16px; height: 16px"/>
+					</td>
+				</tr>
+			`);
+
+			this.elCopy = row.find("img[name=copy]");
+			this.elCopy.click( () => {
+				let msg = point.toArray().map(c => c.toFixed(3)).join(", ");
+				Utils.clipboardCopy(msg);
+
+				this.viewer.postMessage(
+					`Copied value to clipboard: <br>'${msg}'`,
+					{duration: 3000});
+			});
+
+			table.append(row);
+		}
+
+		return table;
+	};
+
+    // CMAIR
+    createTopBottomLevelTable(topLevel, bottomLevel){
+       let table = $(`
+			<table class="measurement_value_table">
+			    <tr>
+					<td><span>Top level: </span></td>
+					<td><span>${topLevel}</span></td>
+					
+				</tr>
+                <tr>
+					<td><span>Bottom level:</span></td>
+					<td><span>${bottomLevel}</span></td>
+					
+				</tr>
+			</table>
+		`);
+        return table;
+    }
+
+
 	createAttributesTable(){
 		let elTable = $('<table class="measurement_value_table"></table>');
 
