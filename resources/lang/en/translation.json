@@ -11,7 +11,14 @@
 		"classification_filter_opt": "Classification filter",
 		"filters_opt": "Filters",
 		"parameters_opt": "Other settings",
-		"about_opt": "About"
+        "geo_reference_opt": "Geo Referencing",
+		"about_opt": "About",
+		"pointclouds_opt": "Point clouds",
+		"quality_opt": "Quality",
+		"merging_opt": "Merging",
+		"meshing_opt": "Meshing",
+		"classification_opt": "Classification",
+        "pc_manager_opt": "Point cloud Manger"
 	},
 	"tt": {
 		"angle_measurement": "Angle measurement",
@@ -33,9 +40,9 @@
 		"clip_plane_x": "Clip plane on x axis",
 		"clip_plane_y": "Clip plane on y axis",
 		"clip_plane_z": "Clip plane on z axis",
-		"remove_all_measurement": "Remove all measurements",
+		"remove_all_measurement": "Remove",
 		"left_view_control": "Left view",
-		"right_view_control": "Right view",
+		"right_view_control": "Righ view",
 		"front_view_control": "Front view",
 		"back_view_control": "Back view",
 		"top_view_control": "Top view",
@@ -50,7 +57,9 @@
 		"navigation_cube_control": "Navigation cube",
 		"remove_all_clipping_volumes": "Remove all clipping volumes",
 		"compass": "Compass",
-		"camera_animation": "Camera Animation"
+		"camera_animation": "Camera animation",
+		"add_camera_animation": "Add camera tracking",
+		"camera_animate": "Play"
 	},
 	"appearance": {
 		"nb_max_pts": "Point budget", 
@@ -77,7 +86,11 @@
 		"length_unit": "Length unit",
 		"freeze": "Lock view",
 		"language": "Language",
-		"backface_culling": "Backface Culling"
+		"backface_culling": "Backface Culling",
+        "enable_camera_near_far": "Camera near/far",
+        "camera_near": "Camera near",
+        "camera_far": "Camera far",
+        "enable_point_budget":"Enable point budget"
 	},
 	"measurements": {
 		"clip": "clip",
@@ -91,7 +104,8 @@
 		"nb_points": "Number of Points",
 		"title": "Height profile",
 		"save_las": "Save LAS(3D)",
-		"save_ortho": "Save CSV(2D)"
+		"save_ortho": "Save CSV(2D)",
+        "save": "Save"
 	},
 	"scene": {
 		"camera_position": "Camera Position",
