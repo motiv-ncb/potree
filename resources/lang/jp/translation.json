@@ -16,6 +16,7 @@
         "filters_opt": "フィルター",
         "parameters_opt": "その他の設定",
         "geo_reference_opt": "ジオリファレンス",
+        "geo_references": "ジオリファレンス",
         "about_opt": "協力",
         "pointclouds_opt": "ポイントクラウド",
         "appearance_opt": "外観",

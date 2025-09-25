@@ -444,9 +444,9 @@ export class Sidebar{
 			return nodeID;
 		}
 
-		let pcID = tree.jstree('create_node', "#", { "text": "<b>Point Clouds</b>", "id": "pointclouds"}, "last", false, false);
-		let measurementID = tree.jstree('create_node', "#", { "text": "<b>Measurements</b>", "id": "measurements" }, "last", false, false);
-		let annotationsID = tree.jstree('create_node', "#", { "text": "<b>Annotations</b>", "id": "annotations" }, "last", false, false);
+		let pcID = tree.jstree('create_node', "#", { "text": "<b data-i18n='tb.pointclouds_opt'>Point Clouds</b>", "id": "pointclouds"}, "last", false, false);
+		let measurementID = tree.jstree('create_node', "#", { "text": "<b data-i18n='tb.measurments_opt'>Measurements</b>", "id": "measurements" }, "last", false, false);
+		let annotationsID = tree.jstree('create_node', "#", { "text": "<b data-i18n='tb.annotations_opt'>Annotations</b>", "id": "annotations" }, "last", false, false);
 		let otherID = tree.jstree('create_node', "#", { "text": "<b>Other</b>", "id": "other" }, "last", false, false);
 		let vectorsID = tree.jstree('create_node', "#", { "text": "<b>Vectors</b>", "id": "vectors" }, "last", false, false);
 		let imagesID = tree.jstree('create_node', "#", { "text": "<b> Images</b>", "id": "images" }, "last", false, false);
@@ -605,6 +605,7 @@ export class Sidebar{
 					tree.jstree('uncheck_node', node);
 				}
 			});
+            tree.i18n();
 		};
 
 		let onMeasurementAdded = (e) => {
@@ -618,7 +619,7 @@ export class Sidebar{
             else {
                 createNode(measurementID, measurement.name, icon, measurement);
             }
-
+            tree.i18n();
             // removed by cmair
 			// createNode(measurementID, measurement.name, icon, measurement);
 		};
@@ -635,12 +636,14 @@ export class Sidebar{
 					tree.jstree('uncheck_node', node);
 				}
 			});
+            tree.i18n();
 		};
 
 		let onProfileAdded = (e) => {
 			let profile = e.profile;
 			let icon = Utils.getMeasurementIcon(profile);
 			createNode(measurementID, profile.name, icon, profile);
+            tree.i18n();
 		};
 
 		let onAnnotationAdded = (e) => {
@@ -657,6 +660,7 @@ export class Sidebar{
 				
 				$.jstree.reference(jsonNode.id).rename_node(jsonNode.id, annotation.title);
 			});
+            tree.i18n();
 		};
 
 		let onCameraAnimationAdded = (e) => {
@@ -664,6 +668,7 @@ export class Sidebar{
 
 			const animationIcon = `${Potree.resourcePath}/icons/camera_animation.svg`;
 			createNode(otherID, "animation", animationIcon, animation);
+            tree.i18n();
 		};
 
 		let onOrientedImagesAdded = (e) => {
@@ -679,6 +684,7 @@ export class Sidebar{
 					tree.jstree('uncheck_node', node);
 				}
 			});
+            tree.i18n();
 		};
 
 		let onImages360Added = (e) => {
@@ -694,6 +700,7 @@ export class Sidebar{
 					tree.jstree('uncheck_node', node);
 				}
 			});
+            tree.i18n();
 		};
 
 		const onGeopackageAdded = (e) => {
@@ -715,7 +722,7 @@ export class Sidebar{
 					"last", false, false);
 				tree.jstree(layer.visible ? "check_node" : "uncheck_node", shpPointsID);
 			}
-
+            tree.i18n();
 		};
 
 		this.viewer.scene.addEventListener("pointcloud_added", onPointCloudAdded);
@@ -746,6 +753,7 @@ export class Sidebar{
             let jsonNode = measurementsRoot.children.find(child => child.data.uuid === e.measurement.uuid);
 			
 			tree.jstree("delete_node", jsonNode.id);
+            tree.i18n();
 		};
 
 		let onVolumeRemoved = (e) => {
@@ -753,6 +761,7 @@ export class Sidebar{
 			let jsonNode = measurementsRoot.children.find(child => child.data.uuid === e.volume.uuid);
 			
 			tree.jstree("delete_node", jsonNode.id);
+            tree.i18n();
 		};
 
 		let onPolygonClipVolumeRemoved = (e) => {
@@ -760,6 +769,7 @@ export class Sidebar{
 			let jsonNode = measurementsRoot.children.find(child => child.data.uuid === e.volume.uuid);
 			
 			tree.jstree("delete_node", jsonNode.id);
+            tree.i18n();
 		};
 
 		let onProfileRemoved = (e) => {
@@ -767,6 +777,7 @@ export class Sidebar{
 			let jsonNode = measurementsRoot.children.find(child => child.data.uuid === e.profile.uuid);
 			
 			tree.jstree("delete_node", jsonNode.id);
+            tree.i18n();
 		};
 
         let onAnnotationRemoved = (e) => {
@@ -774,6 +785,7 @@ export class Sidebar{
 			let jsonNode = annotationsRoot.children.find(child => child.data.uuid === e.annotation.uuid);
 			
             tree.jstree("delete_node", jsonNode.id);
+            tree.i18n();
         }
 
 		this.viewer.scene.addEventListener("measurement_removed", onMeasurementRemoved);
