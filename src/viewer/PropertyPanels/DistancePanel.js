@@ -17,7 +17,7 @@ export class DistancePanel extends MeasurePanel{
 				<!-- ACTIONS -->
 				<div style="display: flex; margin-top: 12px">
 					<span>
-						<input type="button" name="make_profile" value="profile from measure" />
+						<input type="button" name="make_profile" value="profile from measure" style="display:none"/>
 					</span>
 					<span style="flex-grow: 1"></span>
 					<img name="remove" class="button-icon" src="${removeIconPath}" style="width: 16px; height: 16px"/>

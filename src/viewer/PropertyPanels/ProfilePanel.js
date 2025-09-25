@@ -13,9 +13,9 @@ export class ProfilePanel extends MeasurePanel{
 				<span class="coordinates_table_container"></span>
 				<br>
 				<span style="display:flex">
-					<span style="display:flex; align-items: center; padding-right: 10px">Width: </span>
+					<span data-i18n="tt.height_profile_width" style="display:flex; align-items: center; padding-right: 10px">Width: </span>
 					<input id="sldProfileWidth" name="sldProfileWidth" value="5.06" style="flex-grow: 1; width:100%">
-				    <input type="button" id="show_2d_profile" value="Height profile" style="width: 100%"/>
+				    <button type="button" data-i18n="tt.height_profile" id="show_2d_profile" value="Height profile" style="width: 100%"/>
                 </span>
 				<!-- 
 				<br>
@@ -38,7 +38,7 @@ export class ProfilePanel extends MeasurePanel{
 				</div>
 			</div>
 		`);
-
+        this.elContent.i18n();
 		this.elRemove = this.elContent.find("img[name=remove]");
 		this.elRemove.click( () => {
 			this.viewer.scene.removeProfile(measurement);

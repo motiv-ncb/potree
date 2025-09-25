@@ -16,7 +16,7 @@ export class AnnotationPanel{
 		<div class="propertypanel_content">
 			<table>
 				<tr>
-					<th colspan="3">position</th>
+					<th colspan="3" data-i18n="tt.position">position</th>
 					<th></th>
 				</tr>
 				<tr>
@@ -32,12 +32,12 @@ export class AnnotationPanel{
 
 			<div>
 
-				<div class="heading">Title</div>
+				<div class="heading" data-i18n="tt.title">Title</div>
 				<div id="annotation_title" contenteditable="true">
 					Annotation Title
 				</div>
 
-				<div class="heading">Description</div>
+				<div class="heading" data-i18n="tt.description">Description</div>
 				<div id="annotation_description" contenteditable="true">
 					A longer description of this annotation. 
 						Can be multiple lines long. TODO: the user should be able
@@ -53,6 +53,7 @@ export class AnnotationPanel{
 				</div>
 		    </div>
 		`);
+        this.elContent.i18n();
 
 		this.elCopyPosition = this.elContent.find("img[name=copyPosition]");
 		this.elCopyPosition.click( () => {

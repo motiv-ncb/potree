@@ -867,23 +867,20 @@ export class Sidebar{
 
 			elClipTask.find("input").click( (e) => {
                 let elClipMethod = $("#clipmethod_options");
-                let anyLabel = elClipMethod.find(`label[for=clipmethod_options_any]`)[0];
-                let allLabel = elClipMethod.find(`label[for=clipmethod_options_all]`)[0];
+                const labels = elClipMethod.find("label");
                 if(e.target.value === "SHOW_OUTSIDE"){
-                    if(anyLabel){
-                        anyLabel.innerText = "Outside Any";
-                    }
-                    if(allLabel){
-                        allLabel.innerText = "Outside All";
+                    if(labels && labels.length === 2){              
+                        $(labels[0]).attr('data-i18n', "tt.outside_any");                  
+                        $(labels[1]).attr('data-i18n', "tt.outside_all");      
+                        $('body').i18n();       
                     }
                 }
-                else{
-                    if(anyLabel){
-                        anyLabel.innerText = "Inside Any";
-                    }
-                    if(allLabel){
-                        allLabel.innerText = "Inside All";
-                    }
+                else {
+                        if(labels&& labels.length === 2){
+                        $(labels[0]).attr('data-i18n', "tt.inside_any");
+                        $(labels[1]).attr('data-i18n', "tt.inside_all");
+                            $('body').i18n();
+                        }
                 }
 				this.viewer.setClipTask(ClipTask[e.target.value]);
 			});
@@ -1340,11 +1337,11 @@ export class Sidebar{
 		const addInvertButton = () => { 
 			const element = $(`
 				<li>
-					<input type="button" value="invert" />
+					<button type="button" data-i18n="classification.invert_selection" value="invert" />
 				</li>
 			`);
 
-			let elInput = element.find('input');
+			let elInput = element.find('button');
 
 			elInput.click( () => {
 				const classifications = this.viewer.classifications;

@@ -107,12 +107,12 @@ export class MeasurePanel{
        let table = $(`
 			<table class="measurement_value_table">
 			    <tr>
-					<td><span>Top level: </span></td>
+					<td><span data-i18n="tt.top_level"></span></td>
 					<td><span>${topLevel}</span></td>
 					
 				</tr>
                 <tr>
-					<td><span>Bottom level:</span></td>
+					<td><span data-i18n="tt.bottom_level"></span></td>
 					<td><span>${bottomLevel}</span></td>
 					
 				</tr>

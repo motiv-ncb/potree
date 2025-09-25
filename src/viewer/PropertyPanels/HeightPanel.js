@@ -51,7 +51,8 @@ export class HeightPanel extends MeasurePanel{
 			height = height.toFixed(3);
 
 			this.elHeightLabel = this.elContent.find(`#height_label`);
-			this.elHeightLabel.html(`<b>Height:</b> ${height}`);
+			this.elHeightLabel.html(`<b data-i18n="tt.height_panel_hight">Height:</b> ${height}`);
+            this.elHeightLabel.i18n();
 		}
 	}
 };

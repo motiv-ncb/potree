@@ -50,9 +50,9 @@ export class VolumePanel extends MeasurePanel{
 
 				<table class="measurement_value_table">
 					<tr>
-						<th>${lblLengthText}</th>
-						<th>${lblWidthText}</th>
-						<th>${lblHeightText}</th>
+						<th data-i18n="tt.length">${lblLengthText}</th>
+						<th data-i18n="tt.width">${lblWidthText}</th>
+						<th data-i18n="tt.height">${lblHeightText}</th>
 						<th></th>
 					</tr>
 					<tr>
@@ -81,7 +81,7 @@ export class VolumePanel extends MeasurePanel{
 				<li>
 					<label style="whitespace: nowrap">
 						<input id="volume_clip" type="checkbox"/>
-						<span>make clip volume</span>
+						<span data-i18n="tt.make_clipping_volume">make clip volume</span>
 					</label>
 				</li>
 
@@ -93,8 +93,8 @@ export class VolumePanel extends MeasurePanel{
 
 				<!-- ACTIONS -->
 				<li style="display: grid; grid-template-columns: auto auto; grid-column-gap: 5px; margin-top: 10px">
-					<input id="volume_reset_orientation" type="button" value="reset orientation"/>
-					<input id="volume_make_uniform" type="button" value="make uniform"/>
+					<button id="volume_reset_orientation" type="button" data-i18n="tt.reset_orientation" value="reset orientation"/>
+					<button id="volume_make_uniform" type="button" data-i18n="tt.make_cube" value="make uniform"/>
 				</li>
 				<div style="display: flex; margin-top: 12px">
 					<span></span>
@@ -176,8 +176,8 @@ export class VolumePanel extends MeasurePanel{
 		this.propertiesPanel.addVolatileListener(measurement, "position_changed", this._update);
 		this.propertiesPanel.addVolatileListener(measurement, "orientation_changed", this._update);
 		this.propertiesPanel.addVolatileListener(measurement, "scale_changed", this._update);
-		this.propertiesPanel.addVolatileListener(measurement, "clip_changed", this._update);
-
+		this.propertiesPanel.addVolatileListener(measurement, "", this._update);
+        this.elContent.i18n();
 		this.update();
 	}
 
@@ -375,7 +375,8 @@ export class VolumePanel extends MeasurePanel{
                 let bottomLevel = this.measurement.bottomSphere.position.z.toFixed(3);
                 elTopBottomContainer.append(this.createTopBottomLevelTable(topLevel,bottomLevel));
             }
-      
+            elTopBottomContainer.i18n();
+
         }
 
 		{
