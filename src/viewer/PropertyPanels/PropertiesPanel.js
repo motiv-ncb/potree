@@ -86,18 +86,18 @@ export class PropertiesPanel{
 		let material = pointcloud.material;
         // for cmair, add "pc_filename" and "num_points"
 		let panel = $(`
-            <div class="divider"><span>Properties</span></div>
+            <div class="divider"><span data-i18n="appearance.properties">Properties</span></div>
 			<div class="scene_content selectable">
 				<ul class="pv-menu-list">
 
 				<li>
-				    <span>Filename:</span>
+				    <span data-i18n="appearance.file_name">Filename:</span>
 				</li>
 				<li>
 				    <input id="pc_filename" value="" disabled style="width: 255px; height: 27px; margin-bottom: 10px; color: #111111 !important"/>
 				</li>
 				<li>
-				    <span>Number of Points:</span>
+				    <span data-i18n="appearance.number_of_points">Number of Points:</span>
 				</li>
 				<li>
 				    <input id="num_points" value="" disabled style="width: 255px; height: 27px; margin-bottom: 10px; color: #111111 !important"/>
@@ -114,9 +114,9 @@ export class PropertiesPanel{
 				<li>
 					<label for="optPointSizing" class="pv-select-label" data-i18n="appearance.point_size_type">Point Sizing </label>
 					<select id="optPointSizing" name="optPointSizing">
-						<option>FIXED</option>
-						<option>ATTENUATED</option>
-						<option>ADAPTIVE</option>
+						<option value="FIXED" data-i18n="appearance.FIXED">FIXED</option>
+						<option value="ATTENUATED" data-i18n="appearance.ATTENUATED">ATTENUATED</option>
+						<option value="ADAPTIVE" data-i18n="appearance.ADAPTIVE">ADAPTIVE</option>
 					</select>
 				</li>
 
@@ -124,9 +124,9 @@ export class PropertiesPanel{
 				<li>
 					<label for="optShape" class="pv-select-label" data-i18n="appearance.point_shape"></label><br>
 					<select id="optShape" name="optShape">
-						<option>SQUARE</option>
-						<option>CIRCLE</option>
-						<option>PARABOLOID</option>
+						<option value="SQUARE" data-i18n="appearance.SQUARE">SQUARE</option>
+						<option value="CIRCLE" data-i18n="appearance.CIRCLE">CIRCLE</option>
+						<option value="PARABOLOID" data-i18n="appearance.PARABOLOID">PARABOLOID</option>
 					</select>
 				</li>
 
@@ -138,7 +138,7 @@ export class PropertiesPanel{
 				<li><span data-i18n="appearance.point_opacity"></span>:<span id="lblOpacity"></span><div id="sldOpacity"></div></li>
 
 				<div class="divider">
-					<span>Attribute</span>
+					<span data-i18n="appearance.attribute">Attribute</span>
 				</div>
 
 				<li>
@@ -163,14 +163,14 @@ export class PropertiesPanel{
 						<span>RGB</span>
 					</div>
 
-					<li>Gamma: <span id="lblRGBGamma"></span> <div id="sldRGBGamma"></div>	</li>
-					<li>Brightness: <span id="lblRGBBrightness"></span> <div id="sldRGBBrightness"></div>	</li>
-					<li>Contrast: <span id="lblRGBContrast"></span> <div id="sldRGBContrast"></div>	</li>
+					<li><span data-i18n="appearance.gamma"></span> <span id="lblRGBGamma"></span> <div id="sldRGBGamma"></div>	</li>
+					<li><span data-i18n="appearance.brightness"></span> <div id="sldRGBBrightness"></div>	</li>
+					<li><span data-i18n="appearance.contrast"></span> <div id="sldRGBContrast"></div>	</li>
 				</div>
 
 				<div id="materials.extra_container">
 					<div class="divider">
-						<span>Extra Attribute</span>
+						<span data-i18n="appearance.extra_attribute">Extra Attribute</span>
 					</div>
 
 					<li><span data-i18n="appearance.extra_range"></span>: <span id="lblExtraRange"></span> <div id="sldExtraRange"></div></li>
@@ -184,7 +184,7 @@ export class PropertiesPanel{
 					</li>
 
 					<li>
-						<span>Gradient Scheme:</span>
+						<span data-i18n="appearance.gradient_scheme">Gradient Scheme:</span>
 						<div id="extra_gradient_scheme_selection" class="gradient_scheme" style="display: flex; padding: 1em 0em">
 						</div>
 					</li>
@@ -192,7 +192,7 @@ export class PropertiesPanel{
 				
 				<div id="materials.matcap_container">
 					<div class="divider">
-						<span>MATCAP</span>
+						<span data-i18n="appearance.matcap">MATCAP</span>
 					</div>
 
 					<li>
@@ -202,7 +202,7 @@ export class PropertiesPanel{
 
 				<div id="materials.color_container">
 					<div class="divider">
-						<span>Color</span>
+						<span data-i18n="appearance.color">Color</span>
 					</div>
 
 					<input id="materials.color.picker" />
@@ -211,7 +211,7 @@ export class PropertiesPanel{
 
 				<div id="materials.elevation_container">
 					<div class="divider">
-						<span>Elevation</span>
+						<span data-i18n="appearance.elevation">Elevation</span>
 					</div>
 
 					<li><span data-i18n="appearance.elevation_range"></span>: <span id="lblHeightRange"></span> <div id="sldHeightRange"></div>	</li>
@@ -225,7 +225,7 @@ export class PropertiesPanel{
 					</li>
 
 					<li>
-						<span>Gradient Scheme:</span>
+						<span data-i18n="appearance.gradient_scheme">Gradient Scheme:</span>
 						<div id="elevation_gradient_scheme_selection" class="gradient_scheme" style="display: flex; padding: 1em 0em">
 						</div>
 					</li>
@@ -241,25 +241,25 @@ export class PropertiesPanel{
 
 				<div id="materials.intensity_container">
 					<div class="divider">
-						<span>Intensity</span>
+						<span data-i18n="appearance.intensity">Intensity</span>
 					</div>
 
-					<li>Range: <span id="lblIntensityRange"></span> <div id="sldIntensityRange"></div>	</li>
-					<li>Gamma: <span id="lblIntensityGamma"></span> <div id="sldIntensityGamma"></div>	</li>
-					<li>Brightness: <span id="lblIntensityBrightness"></span> <div id="sldIntensityBrightness"></div>	</li>
-					<li>Contrast: <span id="lblIntensityContrast"></span> <div id="sldIntensityContrast"></div>	</li>
+					<li><span data-i18n="appearance.range"></span><span id="lblIntensityRange"></span> <div id="sldIntensityRange"></div>	</li>
+					<li><span data-i18n="appearance.gamma"></span> <div id="sldIntensityGamma"></div>	</li>
+					<li><span data-i18n="appearance.brightness"></span> <span id="lblIntensityBrightness"></span> <div id="sldIntensityBrightness"></div>	</li>
+					<li><span data-i18n="appearance.contrast"></span> <div id="sldIntensityContrast"></div>	</li>
 				</div>
 
 				<div id="materials.gpstime_container">
 					<div class="divider">
-						<span>GPS Time</span>
+						<span data-i18n="appearance.gps_time">GPS Time</span>
 					</div>
 
 				</div>
 				
 				<div id="materials.index_container">
 					<div class="divider">
-						<span>Indices</span>
+						<span data-i18n="appearance.indices">Indices</span>
 					</div>
 				</div>
 
@@ -443,13 +443,37 @@ export class PropertiesPanel{
 				"position",
 			];
 
-			options = options.filter(o => !blacklist.includes(o));
+            const translationOptions = {
+                "intensity":"attribute.intensity",
+                "intensity gradient": "attribute.intensity_gradient",
+                "classification":"attribute.classification",
+                "gps-time":"attribute.gps_time",
+                "returnNumber":"attribute.returnNumber",
+                "number of returns":"attribute.number_of_returns",
+                "return number":"attribute.return_number",
+                "source id":"attribute.source_id",
+                "elevation":"attribute.elevation",
+                "color":"attribute.color",
+                "matcap":"attribute.matcap",
+                "indices":"attribute.indices",
+                "level of detail":"attribute.level_of_detail",
+                "composite":"attribute.composite",
+            };
 
+			options = options.filter(o => !blacklist.includes(o));
 			let attributeSelection = panel.find('#optMaterial');
 			for(let option of options){
-				let elOption = $(`<option>${option}</option>`);
-				attributeSelection.append(elOption);
+                if(translationOptions[option]){
+                    let elOption = $(`<option value="${option}" data-i18n="${translationOptions[option]}">${option}</option>`);
+				    attributeSelection.append(elOption);
+                }
+                else{
+                    let elOption = $(`<option>${option}</option>`);
+				    attributeSelection.append(elOption);
+                }
+				
 			}
+            attributeSelection.i18n();
 
 			let updateMaterialPanel = (event, ui) => {
 				let selectedValue = attributeSelection.selectmenu().val();
