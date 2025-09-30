@@ -1275,6 +1275,21 @@ export class Sidebar{
 	}
 
 	initClassificationList(){
+
+        const nameMap = {
+            "never classified": "never_classified",
+            "unclassified":"unclassified",
+            "ground":"ground",
+            "low vegetation":"low_vegetation",
+            "medium vegetation": "medium_vegetation",
+            "high vegetation": "high_vegetation",
+            "building":"building",
+            "low point(noise)":"low_point",
+            "key-point":"key_point",
+            "water":"water",
+            "overlap":"overlap",
+        }
+
 		let elClassificationList = $('#classificationList');
 
 		let addClassificationItem = (code, name) => {
@@ -1283,17 +1298,31 @@ export class Sidebar{
 			const colorPickerID = 'colorPickerClassification_' + code;
 
 			const checked = classification.visible ? "checked" : "";
+            let element;
+            if(nameMap[name]){
+                element = $(`
+                    <li>
+                        <label style="whitespace: nowrap; display: flex">
+                            <input id="${inputID}" type="checkbox" ${checked}/>
+                            <span style="flex-grow: 1" data-i18n="classification.${nameMap[name]}">${name}</span>
+                            <input id="${colorPickerID}" style="zoom: 0.5" />
+                        </label>
+                    </li>
+                `);
+            }
+            else{
+                element = $(`
+                    <li>
+                        <label style="whitespace: nowrap; display: flex">
+                            <input id="${inputID}" type="checkbox" ${checked}/>
+                            <span style="flex-grow: 1">${name}</span>
+                            <input id="${colorPickerID}" style="zoom: 0.5" />
+                        </label>
+                    </li>
+                `);
+            }
 
-			let element = $(`
-				<li>
-					<label style="whitespace: nowrap; display: flex">
-						<input id="${inputID}" type="checkbox" ${checked}/>
-						<span style="flex-grow: 1">${name}</span>
-						<input id="${colorPickerID}" style="zoom: 0.5" />
-					</label>
-				</li>
-			`);
-
+			 
 			const elInput = element.find('input');
 			const elColorPicker = element.find(`#${colorPickerID}`);
 
@@ -1325,6 +1354,7 @@ export class Sidebar{
 			});
 
 			elClassificationList.append(element);
+            elClassificationList.i18n();
 		};
 
 		const addToggleAllButton = () => { // toggle all button
