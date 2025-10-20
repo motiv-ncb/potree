@@ -147,15 +147,15 @@ export class PropertiesPanel{
 
 				<div id="materials.composite_weight_container">
 					<div class="divider">
-						<span>Attribute Weights</span>
+						<span data-i18n="appearance.attribute_weights">Attribute Weights</span>
 					</div>
 
 					<li>RGB: <span id="lblWeightRGB"></span> <div id="sldWeightRGB"></div>	</li>
-					<li>Intensity: <span id="lblWeightIntensity"></span> <div id="sldWeightIntensity"></div>	</li>
-					<li>Elevation: <span id="lblWeightElevation"></span> <div id="sldWeightElevation"></div>	</li>
-					<li>Classification: <span id="lblWeightClassification"></span> <div id="sldWeightClassification"></div>	</li>
-					<li>Return Number: <span id="lblWeightReturnNumber"></span> <div id="sldWeightReturnNumber"></div>	</li>
-					<li>Source ID: <span id="lblWeightSourceID"></span> <div id="sldWeightSourceID"></div>	</li>
+					<li><span data-i18n="composite.intensity">Intensity:</span> <span id="lblWeightIntensity"></span> <div id="sldWeightIntensity"></div>	</li>
+					<li><span data-i18n="composite.elevation">Elevation:</span> <span id="lblWeightElevation"></span> <div id="sldWeightElevation"></div>	</li>
+					<li><span data-i18n="composite.classification">Classification:</span> <span id="lblWeightClassification"></span> <div id="sldWeightClassification"></div>	</li>
+					<li><span data-i18n="composite.return_number">Return Number:</span> <span id="lblWeightReturnNumber"></span> <div id="sldWeightReturnNumber"></div>	</li>
+					<li><span data-i18n="composite.source_id">Source ID:</span> <span id="lblWeightSourceID"></span> <div id="sldWeightSourceID"></div>	</li>
 				</div>
 
 				<div id="materials.rgb_container">

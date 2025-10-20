@@ -1288,6 +1288,8 @@ export class Sidebar{
             "key-point":"key_point",
             "water":"water",
             "overlap":"overlap",
+            "default":"default",
+            "power cable":"power_cable"
         }
 
 		let elClassificationList = $('#classificationList');
@@ -1304,7 +1306,7 @@ export class Sidebar{
                     <li>
                         <label style="whitespace: nowrap; display: flex">
                             <input id="${inputID}" type="checkbox" ${checked}/>
-                            <span style="flex-grow: 1" data-i18n="classification.${nameMap[name]}">${name}</span>
+                            <span style="flex-grow: 1; margin-left:5px; display: inline-flex; align-items: center;" data-i18n="classification.${nameMap[name]}">${name}</span>
                             <input id="${colorPickerID}" style="zoom: 0.5" />
                         </label>
                     </li>
@@ -1362,7 +1364,7 @@ export class Sidebar{
 				<li>
 					<label style="whitespace: nowrap">
 						<input id="toggleClassificationFilters" type="checkbox" checked/>
-						<span>show/hide all</span>
+						<span data-i18n="classification.show_hide_all">show/hide all</span>
 					</label>
 				</li>
 			`);
