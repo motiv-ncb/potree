@@ -419,9 +419,7 @@ vec3 getRGB(){
 
 float getIntensity(){
 	float w = (intensity - intensityRange.x) / (intensityRange.y - intensityRange.x);
-	w = pow(w, uIntensity_gbc.x);
-	w = w + uIntensity_gbc.y;
-	w = (w - 0.5) * getContrastFactor(uIntensity_gbc.z) + 0.5;
+	
 	w = clamp(w, 0.0, 1.0);
 
 	return w;
@@ -651,6 +649,11 @@ vec3 getColor(){
 	#elif defined color_type_intensity_gradient
 		float w = getIntensity();
 		color = texture2D(gradient, vec2(w,1.0-w)).rgb;
+        color = pow(color, vec3(uIntensity_gbc.x));
+        color = color + uIntensity_gbc.y;
+        color = (color - 0.5) * getContrastFactor(uIntensity_gbc.z) + 0.5;
+        color = clamp(color, 0.0, 1.0);
+
 	#elif defined color_type_color
 		color = uColor;
 	#elif defined color_type_level_of_detail

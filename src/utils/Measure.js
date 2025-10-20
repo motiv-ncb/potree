@@ -633,7 +633,7 @@ export class Measure extends THREE.Object3D {
                         let d = distPlaneNormal.x * distPlanePosition.x + distPlaneNormal.y * distPlanePosition.y + distPlaneNormal.z * distPlanePosition.z;
                         let dist = (distPlaneNormal.x * position.x + distPlaneNormal.y * position.y + distPlaneNormal.z * position.z - d) / Math.sqrt(distPlaneNormal.x * distPlaneNormal.x + distPlaneNormal.y * distPlaneNormal.y + distPlaneNormal.z * distPlaneNormal.z);
 
-                            coordinateLabel.setText(`Distance : ${dist.toFixed(2)}`);
+                            coordinateLabel.setText(`Distance : ${dist.toFixed(3)}`);
                     }
                     else{
                         coordinateLabel.setText(`Distance :`);
