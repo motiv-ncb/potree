@@ -503,6 +503,9 @@ export class TransformationTool {
                 // for CMAIR
                 selection.pointCloudVolume = 0;
 
+                if(selection.syncingVolume){
+                    selection.updateTransformdVolumeByConstrains();
+                }
 			}
 
 			drag.pivot = I;
@@ -561,6 +564,9 @@ export class TransformationTool {
                     // for CMAIR
                     selection.pointCloudVolume = 0;
 
+                    if(selection.syncingVolume){
+                        selection.updateTransformdVolumeByConstrains();
+                    }
 				}
 
 				drag.pivot = drag.pivot.add(diff);
@@ -637,6 +643,20 @@ export class TransformationTool {
 					selection.scale.y = Math.max(0.1, selection.scale.y);
 					selection.scale.z = Math.max(0.1, selection.scale.z);
 					selection.position.add(diffPosition);
+
+                    if(selection.syncingVolume){
+                        const pairMeasurement = selection.syncingVolume;    
+                        pairMeasurement.scale.x = selection.scale.x
+					    pairMeasurement.scale.y = selection.scale.y;
+					    pairMeasurement.scale.z = selection.scale.z;
+                        let boxInverse = selection.matrixWorld.clone().invert();
+                        let tBox = new THREE.Matrix3().getNormalMatrix((new THREE.Matrix4().multiplyMatrices( pairMeasurement.matrixWorld, boxInverse)));
+                        let pairDif = diffPosition.clone();
+                        pairDif.applyMatrix3(tBox);
+                        pairMeasurement.position.add(pairDif);
+                        selection.updateTransformdVolumeByConstrains();
+                    }
+                    
 					selection.dispatchEvent({
 						type: "position_changed",
 						object: selection

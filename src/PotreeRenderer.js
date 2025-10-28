@@ -1140,6 +1140,8 @@ export class Renderer {
 				let numClipSpheres = (params.clipSpheres && params.clipSpheres.length) ? params.clipSpheres.length : 0;
 				let numClipPolygons = (material.clipPolygons && material.clipPolygons.length) ? material.clipPolygons.length : 0;
 
+                // cmair move box
+                let numMoveBoxes =  (material.moveBoxes && material.moveBoxes.length) ? material.moveBoxes.length : 0;
                 // cmair clip areas
                 let numClipAreas = (material.clipAreas && material.clipAreas.length) ? material.clipAreas.length : 0;
                 let maxClipAreaPoints = 0;
@@ -1161,6 +1163,8 @@ export class Renderer {
 					`#define num_clipboxes ${numClipBoxes}`,
 					`#define num_clipspheres ${numClipSpheres}`,
 					`#define num_clippolygons ${numClipPolygons}`,
+                    // cmair move box
+                    `#define num_moveboxes ${numMoveBoxes}`,
                     // cmair clip areas
                     `#define num_clipareas ${numClipAreas}`,
                     `#define max_num_clipareapoints ${maxClipAreaPoints}`,
@@ -1319,6 +1323,13 @@ export class Renderer {
 
 				const lClipBoxes = shader.uniformLocations["clipBoxes[0]"];
 				gl.uniformMatrix4fv(lClipBoxes, false, material.uniforms.clipBoxes.value);
+			}
+            // cmair move box
+            if (material.moveBoxes && material.moveBoxes.length > 0) {
+				const lMoveBoxOrigins = shader.uniformLocations["moveBoxOrigins[0]"];
+				gl.uniformMatrix4fv(lMoveBoxOrigins, false, material.uniforms.moveBoxOrigins.value);
+                const lMoveBoxTransforms = shader.uniformLocations["moveBoxTransforms[0]"];
+				gl.uniformMatrix4fv(lMoveBoxTransforms, false, material.uniforms.moveBoxTransforms.value);
 			}
 
 			// TODO CLIPSPHERES

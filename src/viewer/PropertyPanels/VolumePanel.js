@@ -96,6 +96,52 @@ export class VolumePanel extends MeasurePanel{
 					<button id="volume_reset_orientation" type="button" data-i18n="tt.reset_orientation" value="reset orientation"/>
 					<button id="volume_make_uniform" type="button" data-i18n="tt.make_cube" value="make uniform"/>
 				</li>
+
+                <div id="measurement_move_container">
+                    <br>
+                    <li>
+                        <label style="whitespace: nowrap">
+                            <input id="measurement_enable_crop_move" type="checkbox" checked/>
+                            <span >Move points</span>
+                        </label>
+                    </li>
+                    <div id="measurement_move_panel">
+                        <br>
+                        <li>
+                            <label style="whitespace: nowrap">
+                                <span>Move Translation</span>
+                            </label>
+                        </li>
+                        <table class="measurement_value_table" id="measurement_crop_translation_table">         
+                            <tr>
+                                <th><input id="measurement_enable_crop_translate_x" type="checkbox"/  checked><span>x</span></th>
+                                <th><input id="measurement_enable_crop_translate_y" type="checkbox"/  checked><span>y</span></th>
+                                <th><input id="measurement_enable_crop_translate_z" type="checkbox"/  checked><span>z</span></th>
+                                <th></th>
+                            </tr>
+                        </table>
+                        <br>
+                        <li>
+                            <label style="whitespace: nowrap">
+                                <span>Move Rotation</span>
+                            </label>
+                        </li>
+                        <table class="measurement_value_table" id="measurement_crop_rotation_table">
+                            <tr>
+                                <th><input id="measurement_enable_crop_rotation_x" type="checkbox"/><span>x</span></th>
+                                <th><input id="measurement_enable_crop_rotation_y" type="checkbox"/><span>y</span></th>
+                                <th><input id="measurement_enable_crop_rotation_z" type="checkbox"/><span>z</span></th>
+                                <th></th>
+                            </tr>
+                        </table>
+
+                        <li style="display: grid; grid-template-columns: auto auto; grid-column-gap: 5px; margin-top: 10px">
+                            <button id="volume_move_reset_rotation" type="button" >Reset move rotation</button>
+                            <button id="volume_move_reset_all" type="button" >Reset all movement</button>
+                        </li>
+                     </div>
+                </div>
+
 				<div style="display: flex; margin-top: 12px">
 					<span></span>
 					<span style="flex-grow: 1"></span>
@@ -143,10 +189,152 @@ export class VolumePanel extends MeasurePanel{
 
 		this.elContent.find("#volume_reset_orientation").click(() => {
 			measurement.rotation.set(0, 0, 0);
+            if(measurement.updateTransformdVolumeByConstrains && measurement.syncingVolume){
+                if(measurement.constructor.name == "TransformedBoxVolume"){
+                    measurement.syncingVolume.set(0, 0, 0);
+                }
+                measurement.updateTransformdVolumeByConstrains();
+            }
 		});
 
+        // CMAIR Move
+        if(measurement.constructor.name == "TransformOriginBoxVolume" || measurement.constructor.name == "TransformedBoxVolume"){
+            const isOrigin = measurement.constructor.name == "TransformOriginBoxVolume";
+            this.elContent.find("#measurement_enable_crop_move").change(() => {
+                let _enableMove = this.elContent.find("#measurement_enable_crop_move").is(':checked')
+                if(isOrigin){
+                    measurement.enableMove = _enableMove;
+
+                }else{
+                    measurement.syncingVolume.enableMove = _enableMove;
+                }
+                if (_enableMove){
+                    this.elContent.find("#measurement_move_panel").show();
+                }
+                else{
+                    this.elContent.find("#measurement_move_panel").hide();
+                }
+                measurement.updateTransformdVolumeByConstrains();
+            });
+
+            this.elContent.find("#measurement_enable_crop_translate_x").change(() => {
+                if(isOrigin){
+                    measurement.enableTranslationX = this.elContent.find("#measurement_enable_crop_translate_x").is(':checked');
+                }
+                else{
+                    measurement.syncingVolume.enableTranslationX = this.elContent.find("#measurement_enable_crop_translate_x").is(':checked');
+                }
+                measurement.updateTransformdVolumeByConstrains();
+            });
+
+            this.elContent.find("#measurement_enable_crop_translate_y").change(() => {
+                if(isOrigin){
+                    measurement.enableTranslationY = this.elContent.find("#measurement_enable_crop_translate_y").is(':checked');
+                }
+                else{
+                    measurement.syncingVolume.enableTranslationY = this.elContent.find("#measurement_enable_crop_translate_y").is(':checked');
+                }
+                measurement.updateTransformdVolumeByConstrains();
+            });
+
+            this.elContent.find("#measurement_enable_crop_translate_z").change(() => {
+                if(isOrigin){
+                    measurement.enableTranslationZ = this.elContent.find("#measurement_enable_crop_translate_z").is(':checked');
+                }
+                else{
+                    measurement.syncingVolume.enableTranslationZ = this.elContent.find("#measurement_enable_crop_translate_z").is(':checked');
+                }
+                measurement.updateTransformdVolumeByConstrains();
+            });
+
+            this.elContent.find("#measurement_enable_crop_rotation_x").change(() => {
+                if(isOrigin){
+                    measurement.enableRotationX = this.elContent.find("#measurement_enable_crop_rotation_x").is(':checked');
+                }
+                else{
+                    measurement.syncingVolume.enableRotationX = this.elContent.find("#measurement_enable_crop_rotation_x").is(':checked');
+                }
+                measurement.updateTransformdVolumeByConstrains();
+            });
+
+            this.elContent.find("#measurement_enable_crop_rotation_y").change(() => {
+                if(isOrigin){
+                    measurement.enableRotationY = this.elContent.find("#measurement_enable_crop_rotation_y").is(':checked');
+                }
+                else{
+                    measurement.syncingVolume.enableRotationY = this.elContent.find("#measurement_enable_crop_rotation_y").is(':checked');
+                }
+                measurement.updateTransformdVolumeByConstrains();
+            });
+
+            this.elContent.find("#measurement_enable_crop_rotation_z").change(() => {
+                if(isOrigin){
+                    measurement.enableRotationZ = this.elContent.find("#measurement_enable_crop_rotation_z").is(':checked');
+                }
+                else{
+                    measurement.syncingVolume.enableRotationZ = this.elContent.find("#measurement_enable_crop_rotation_z").is(':checked');
+                }
+                measurement.updateTransformdVolumeByConstrains();
+            });
+
+            this.elContent.find("#volume_move_reset_all").click(()=>{
+                if(isOrigin){
+                    measurement.syncingVolume.position.x = measurement.position.x;
+                    measurement.syncingVolume.position.y = measurement.position.y;
+                    measurement.syncingVolume.position.z = measurement.position.z;
+                    measurement.syncingVolume.rotation.x = measurement.rotation.x;
+                    measurement.syncingVolume.rotation.y = measurement.rotation.y;
+                    measurement.syncingVolume.rotation.z = measurement.rotation.z;
+                }
+                else{
+                    measurement.position.x = measurement.syncingVolume.position.x;
+                    measurement.position.y = measurement.syncingVolume.position.y;
+                    measurement.position.z = measurement.syncingVolume.position.z;
+                    measurement.rotation.x = measurement.syncingVolume.rotation.x;
+                    measurement.rotation.y = measurement.syncingVolume.rotation.y;
+                    measurement.rotation.z = measurement.syncingVolume.rotation.z;
+                }
+            });
+            this.elContent.find("#volume_move_reset_rotation").click(()=>{
+                if(isOrigin){
+                    measurement.syncingVolume.rotation.x = measurement.rotation.x;
+                    measurement.syncingVolume.rotation.y = measurement.rotation.y;
+                    measurement.syncingVolume.rotation.z = measurement.rotation.z;
+                }
+                else{
+                    measurement.rotation.x = measurement.syncingVolume.rotation.x;
+                    measurement.rotation.y = measurement.syncingVolume.rotation.y;
+                    measurement.rotation.z = measurement.syncingVolume.rotation.z;
+                }
+            })
+
+            const enableMove = isOrigin? measurement.enableMove:measurement.syncingVolume.enableMove;
+            if(!enableMove){
+                this.elContent.find("#measurement_move_panel").hide();
+            }
+            this.elContent.find('#measurement_enable_crop_move').prop('checked', enableMove);
+            const enableTranslateX = isOrigin? measurement.enableTranslationX:measurement.syncingVolume.enableTranslationX;
+            this.elContent.find('#measurement_enable_crop_translate_x').prop('checked', enableTranslateX);
+            const enableTranslateY = isOrigin? measurement.enableTranslationY:measurement.syncingVolume.enableTranslationY;
+            this.elContent.find('#measurement_enable_crop_translate_y').prop('checked', enableTranslateY);
+            const enableTranslateZ = isOrigin? measurement.enableTranslationZ:measurement.syncingVolume.enableTranslationZ;
+            this.elContent.find('#measurement_enable_crop_translate_z').prop('checked', enableTranslateZ);     
+            const enableRotationX = isOrigin? measurement.enableRotationX:measurement.syncingVolume.enableRotationX;
+            this.elContent.find('#measurement_enable_crop_rotation_x').prop('checked', enableRotationX);
+            const enableRotationY = isOrigin? measurement.enableRotationY:measurement.syncingVolume.enableRotationY;
+            this.elContent.find('#measurement_enable_crop_rotation_y').prop('checked', enableRotationY);
+            const enableRotationZ = isOrigin? measurement.enableRotationZ:measurement.syncingVolume.enableRotationZ;
+            this.elContent.find('#measurement_enable_crop_rotation_z').prop('checked', enableRotationZ);
+
+
+            
+        }
+        else{
+            this.elContent.find("#measurement_move_container").hide();
+        }
+
         // CMAIR : only box volumes have uniform and reset orientation options
-        if(measurement.constructor.name != "BoxVolume"){
+        if(!measurement instanceof BoxVolume){
             this.elContent.find("#volume_make_uniform").hide();
             this.elContent.find("#volume_reset_orientation").hide();
         }
@@ -161,6 +349,9 @@ export class VolumePanel extends MeasurePanel{
 		this.elContent.find("#volume_make_uniform").click(() => {
 			let mean = (measurement.scale.x + measurement.scale.y + measurement.scale.z) / 3;
 			measurement.scale.set(mean, mean, mean);
+            if(measurement.syncingVolume){
+                measurement.syncingVolume.scale.set(mean, mean, mean);
+            }
 		});
 
 		this.elCheckClip = this.elContent.find('#volume_clip');
@@ -417,5 +608,16 @@ export class VolumePanel extends MeasurePanel{
 		this.elCheckClip.prop("checked", this.measurement.clip);
 		this.elCheckShow.prop("checked", this.measurement.visible);
 
+        if(this.measurement.syncingVolume){
+            this.measurement.syncingVolume.scale.x = this.measurement.scale.x;
+            this.measurement.syncingVolume.scale.y = this.measurement.scale.y;
+            this.measurement.syncingVolume.scale.z = this.measurement.scale.z;
+            if(this.measurement.constructor.name == "TransformOriginBoxVolume"){
+                this.measurement.updateTransformdVolumeByConstrains();
+            }
+            else if(this.measurement.constructor.name == "TransformedBoxVolume"){
+                this.measurement.syncingVolume.updateTransformdVolumeByConstrains(); 
+            }
+        }
 	}
 };

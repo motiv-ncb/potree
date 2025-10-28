@@ -18,6 +18,7 @@ import {OrientedImage} from "../modules/OrientedImages/OrientedImages.js";
 import {Images360} from "../modules/Images360/Images360.js";
 
 import JSON5 from "../../libs/json5-2.1.3/json5.mjs";
+import { TransformOriginBoxVolume } from "../utils/TransformVolume.js";
 
 export class Sidebar{
 
@@ -218,6 +219,20 @@ export class Sidebar{
 			'[title]tt.volume_measurement',
 			() => {
 				let volume = this.volumeTool.startInsertion(); 
+
+				let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
+				let jsonNode = measurementsRoot.children.find(child => child.data.uuid === volume.uuid);
+				$.jstree.reference(jsonNode.id).deselect_all();
+				$.jstree.reference(jsonNode.id).select_node(jsonNode.id);
+			}
+		));
+
+        // cmair: TRANSFORM VOLUME
+		elToolbar.append(this.createToolIcon(
+			Potree.resourcePath + '/icons/volume.svg',
+			'[title]tt.volume_measurement',
+			() => {
+				let volume = this.volumeTool.startInsertion({type:TransformOriginBoxVolume}); 
 
 				let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
 				let jsonNode = measurementsRoot.children.find(child => child.data.uuid === volume.uuid);
@@ -627,7 +642,15 @@ export class Sidebar{
 		let onVolumeAdded = (e) => {
 			let volume = e.volume;
 			let icon = Utils.getMeasurementIcon(volume);
-			let node = createNode(measurementID, volume.name, icon, volume);
+            let node;
+            if(volume.constructor.name == "TransformedBoxVolume"){             
+                let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
+                let parenetNode = measurementsRoot.children.find(child => child.data.uuid === volume.syncingVolume.uuid);
+                node = createNode(parenetNode.id, volume.name, icon, volume);
+            }
+            else{
+                node = createNode(measurementID, volume.name, icon, volume);
+            }
 
 			volume.addEventListener("visibility_changed", () => {
 				if(volume.visible){
@@ -760,8 +783,16 @@ export class Sidebar{
 			let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
 			let jsonNode = measurementsRoot.children.find(child => child.data.uuid === e.volume.uuid);
 			
-			tree.jstree("delete_node", jsonNode.id);
-            tree.i18n();
+            // cmair remove parent node instead
+            if(e.volume.syncingVolume){
+                this.viewer.scene.removeVolume(e.volume.syncingVolume);
+            }
+
+            if(jsonNode){
+                tree.jstree("delete_node", jsonNode.id);
+                tree.i18n();
+            }
+			
 		};
 
 		let onPolygonClipVolumeRemoved = (e) => {

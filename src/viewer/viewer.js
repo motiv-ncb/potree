@@ -12,6 +12,7 @@ import {Utils} from "../utils.js";
 import {MapView} from "./map.js";
 import {ProfileWindow, ProfileWindowController} from "./profile.js";
 import {BoxVolume} from "../utils/Volume.js";
+import { TransformOriginBoxVolume } from "../utils/TransformVolume.js";
 import {Features} from "../Features.js";
 import {Message} from "../utils/Message.js";
 import {Sidebar} from "./sidebar.js";
@@ -1859,6 +1860,19 @@ export class Viewer extends EventDispatcher{
 				return {box: box, inverse: boxInverse, position: boxPosition};
 			});
 
+            // cmair move box
+            let mBoxes = [];
+            mBoxes.push(...this.scene.volumes.filter(v => (v instanceof TransformOriginBoxVolume && v.syncingVolume)));
+            let moveBoxes = mBoxes.filter(degenerate).map( box => {
+				box.updateMatrixWorld();
+				
+				let boxInverse = box.matrixWorld.clone().invert();
+				let boxPosition = box.getWorldPosition(new THREE.Vector3());
+                let tBox = new THREE.Matrix4().multiplyMatrices( box.syncingVolume.matrixWorld, boxInverse);
+				return {box: box, inverse: boxInverse, position: boxPosition, transform:tBox};
+			});
+
+
 			let clipPolygons = this.scene.polygonClipVolumes.filter(vol => vol.initialized);
 			
             let areas = [];
@@ -1867,6 +1881,7 @@ export class Viewer extends EventDispatcher{
 			// set clip volumes in material
 			for(let pointcloud of visiblePointClouds){
 				pointcloud.material.setClipBoxes(clipBoxes);
+                pointcloud.material.setMoveBoxes(moveBoxes);
 				pointcloud.material.setClipPolygons(clipPolygons, this.clippingTool.maxPolygonVertices);
                 pointcloud.material.setClipAreas(areas);
 				pointcloud.material.clipTask = this.clipTask;

@@ -5,6 +5,7 @@ import {Utils} from "../utils.js";
 import { EventDispatcher } from "../EventDispatcher.js";
 import { AreaVolume } from "./AreaVolume.js";
 import { PlaneMeasurement } from "./PlaneMeasurement.js";
+import { TransformedBoxVolume } from "./TransformVolume.js";
 export class VolumeTool extends EventDispatcher{
 	constructor (viewer) {
 		super();
@@ -81,6 +82,7 @@ export class VolumeTool extends EventDispatcher{
 
 		this.viewer.scene.addVolume(volume);
 		this.scene.add(volume);
+        
 
 		let cancel = {
 			callback: null
@@ -105,6 +107,8 @@ export class VolumeTool extends EventDispatcher{
 				// let pp = new THREE.Vector4(wp.x, wp.y, wp.z).applyMatrix4(camera.projectionMatrix);
 				let w = Math.abs((wp.z / 5));
 				volume.scale.set(w, w, w);
+
+ 
 			}
 		};
 
@@ -116,6 +120,28 @@ export class VolumeTool extends EventDispatcher{
                 type: 'position_changed',
                 object: volume
             });
+
+            // CMAIR : Initialize transforming volume
+            if(volume.constructor.name == "TransformOriginBoxVolume"){
+                if(! volume.syncingVolume){
+                    volume.syncingVolume = new TransformedBoxVolume();
+                    volume.syncingVolume.syncingVolume = volume;
+                    volume.syncingVolume.name = "transfomed volume";
+                    this.viewer.scene.addVolume(volume.syncingVolume);
+                    this.scene.add(volume.syncingVolume);
+                }
+                volume.syncingVolume.position.x = volume.position.x;
+                volume.syncingVolume.position.y = volume.position.y;
+                volume.syncingVolume.position.z = volume.position.z;
+
+                volume.syncingVolume.scale.x = volume.scale.x;
+                volume.syncingVolume.scale.y = volume.scale.y;
+                volume.syncingVolume.scale.z = volume.scale.z;
+                this.viewer.inputHandler.deselectAll();
+                this.viewer.inputHandler.toggleSelection(volume.syncingVolume);
+
+
+            }
 			cancel.callback();
 		};
 
@@ -353,7 +379,6 @@ export class VolumeTool extends EventDispatcher{
             else{
                 label.setText("");
             }
-			
 		}
 	}
 

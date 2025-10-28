@@ -172,6 +172,8 @@ export class HQSplatRenderer{
 				depthMaterial.clipMethod = material.clipMethod;
 				depthMaterial.setClipBoxes(material.clipBoxes);
 				depthMaterial.setClipPolygons(material.clipPolygons);
+                // cmair move box
+                depthMaterial.setMoveBoxes(material.moveBoxes);
                 // cmair clip area
                 depthMaterial.setClipAreas(material.clipAreas);
 				pointcloud.material = depthMaterial;
@@ -246,6 +248,8 @@ export class HQSplatRenderer{
 				attributeMaterial.clipMethod = material.clipMethod;
 				attributeMaterial.setClipBoxes(material.clipBoxes);
 				attributeMaterial.setClipPolygons(material.clipPolygons);
+                // cmair move box
+                depthMaterial.setMoveBoxes(material.moveBoxOrigins);
                  // cmair clip area
                 attributeMaterial.setClipAreas(material.clipAreas);
                 // cmair to enable color change

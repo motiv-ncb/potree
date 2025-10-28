@@ -67,6 +67,11 @@ uniform int clipMethod;
 	uniform vec3 uClipAreaVertices[num_clipareas * max_num_clipareapoints];
 #endif
 
+#if defined(num_moveboxes) && num_moveboxes > 0
+    uniform mat4 moveBoxOrigins[num_moveboxes];
+    uniform mat4 moveBoxTransforms[num_moveboxes]; // = moveBoxMatrix * inv(moveBoxOrigins)
+#endif
+
 
 uniform float size;
 uniform float minSize;
@@ -803,6 +808,28 @@ bool pointInClipArea(vec4 point, int areaIdx) {
 }
 #endif
 
+vec3 doTransform(vec3 p){
+
+    vec4 modelPosition = modelMatrix * vec4( position, 1.0 );
+
+    #if defined(num_moveboxes) && num_moveboxes > 0
+    for(int i = 0; i < num_moveboxes; i++){
+        vec4 clipPosition = moveBoxOrigins[i] * modelPosition;
+        bool inside = -0.5 <= clipPosition.x && clipPosition.x <= 0.5;
+        inside = inside && -0.5 <= clipPosition.y && clipPosition.y <= 0.5;
+        inside = inside && -0.5 <= clipPosition.z && clipPosition.z <= 0.5;
+
+        if(inside){
+            //return vec3(modelPosition.x, modelPosition.y, 2.0 * modelPosition.z);
+
+            vec4 movedPosition = moveBoxTransforms[i] * modelPosition;
+            return vec3(movedPosition.x, movedPosition.y, movedPosition.z);
+        }
+	}
+    #endif
+    return vec3(modelPosition.x, modelPosition.y, modelPosition.z);
+}
+
 void doClipping(){
 
 	{
@@ -931,7 +958,16 @@ void doClipping(){
 //
 
 void main() {
-	vec4 mvPosition = modelViewMatrix * vec4(position, 1.0 );
+
+    vec4 mvPosition;
+    #if defined(num_moveboxes) && num_moveboxes > 0
+        vec4 modelPosition = modelMatrix * vec4( position, 1.0 );
+        vec3 tranformedPosition = doTransform( modelPosition.xyz);
+        mvPosition = viewMatrix * vec4(tranformedPosition, 1.0 );
+    #else
+	    mvPosition = modelViewMatrix * vec4(position, 1.0 );
+    #endif
+
 	vViewPosition = mvPosition.xyz;
 	gl_Position = projectionMatrix * mvPosition;
 	vLogDepth = log2(-mvPosition.z);

@@ -39,6 +39,9 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 		this._useClipBox = false;
 		this.clipBoxes = [];
 		this.clipPolygons = [];
+
+        // cmair move box
+        this.moveBoxes = [];
          // cmair clip area
         this.clipAreas = [];
 		this._weighted = false;
@@ -110,6 +113,8 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 			clipBoxCount:		{ type: "f", value: 0 },
 			//clipSphereCount:	{ type: "f", value: 0 },
 			clipPolygonCount:	{ type: "i", value: 0 },
+            // cmair moveBox
+            moveBoxCount:		{ type: "i", value: 0 },
             // cmair clipArea
             clipAreaCount:	    { type: "i", value: 0 },
 
@@ -119,6 +124,9 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 			clipPolygonVCount:	{ type: "iv", value: [] },
 			clipPolygonVP:		{ type: "Matrix4fv", value: [] },
 
+            // cmair move box
+            moveBoxOrigins:			{ type: "Matrix4fv", value: [] },
+            moveBoxTransforms:			{ type: "Matrix4fv", value: [] },
              // cmair clipArea
             clipAreas:		{ type: "3fv", value: [] },
 			clipAreaVCount:	{ type: "iv", value: [] },
@@ -317,6 +325,49 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 		for (let i = 0; i < this.uniforms.clipBoxes.value.length; i++) {
 			if (Number.isNaN(this.uniforms.clipBoxes.value[i])) {
 				this.uniforms.clipBoxes.value[i] = Infinity;
+			}
+		}
+	}
+    // cmair moving box
+    setMoveBoxes (moveBoxes) {
+		if (!moveBoxes) {
+			return;
+		}
+		let doUpdate = (this.moveBoxes.length !== moveBoxes.length) && (moveBoxes.length === 0 || this.moveBoxes.length === 0);
+
+		this.uniforms.moveBoxCount.value = this.moveBoxes.length;
+		this.moveBoxes = moveBoxes;
+		if (doUpdate) {
+			this.updateShaderSource();
+		}
+
+		this.uniforms.moveBoxOrigins.value = new Float32Array(this.moveBoxes.length * 16);
+        this.uniforms.moveBoxTransforms.value = new Float32Array(this.moveBoxes.length * 16);
+
+      
+		for (let i = 0; i < this.moveBoxes.length; i++) {
+			let box = moveBoxes[i];
+			this.uniforms.moveBoxOrigins.value.set(box.inverse.elements, 16 * i);
+
+            const position = new THREE.Vector3();
+            const quaternion = new THREE.Quaternion();
+            const scale = new THREE.Vector3();
+
+            box.transform.decompose(position, quaternion, scale);
+
+            // Recompose using scale (1,1,1)
+            const normalizedMatrix = new THREE.Matrix4();
+            normalizedMatrix.compose(position, quaternion, new THREE.Vector3(1, 1, 1));
+
+            this.uniforms.moveBoxTransforms.value.set(box.transform.elements, 16 * i);
+		}
+
+		for (let i = 0; i < this.uniforms.moveBoxOrigins.value.length; i++) {
+			if (Number.isNaN(this.uniforms.moveBoxOrigins.value[i])) {
+				this.uniforms.moveBoxOrigins.value[i] = Infinity;
+			}
+            if (Number.isNaN(this.uniforms.moveBoxTransforms.value[i])) {
+				this.uniforms.moveBoxTransforms.value[i] = Infinity;
 			}
 		}
 	}
