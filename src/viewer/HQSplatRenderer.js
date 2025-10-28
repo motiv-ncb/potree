@@ -249,7 +249,7 @@ export class HQSplatRenderer{
 				attributeMaterial.setClipBoxes(material.clipBoxes);
 				attributeMaterial.setClipPolygons(material.clipPolygons);
                 // cmair move box
-                depthMaterial.setMoveBoxes(material.moveBoxOrigins);
+                attributeMaterial.setMoveBoxes(material.moveBoxOrigins);
                  // cmair clip area
                 attributeMaterial.setClipAreas(material.clipAreas);
                 // cmair to enable color change
