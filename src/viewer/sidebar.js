@@ -228,18 +228,18 @@ export class Sidebar{
 		));
 
         // cmair: TRANSFORM VOLUME
-		elToolbar.append(this.createToolIcon(
-			Potree.resourcePath + '/icons/volume.svg',
-			'[title]tt.volume_measurement',
-			() => {
-				let volume = this.volumeTool.startInsertion({type:TransformOriginBoxVolume}); 
+		// elToolbar.append(this.createToolIcon(
+		// 	Potree.resourcePath + '/icons/volume.svg',
+		// 	'[title]tt.volume_measurement',
+		// 	() => {
+		// 		let volume = this.volumeTool.startInsertion({type:TransformOriginBoxVolume}); 
 
-				let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
-				let jsonNode = measurementsRoot.children.find(child => child.data.uuid === volume.uuid);
-				$.jstree.reference(jsonNode.id).deselect_all();
-				$.jstree.reference(jsonNode.id).select_node(jsonNode.id);
-			}
-		));
+		// 		let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
+		// 		let jsonNode = measurementsRoot.children.find(child => child.data.uuid === volume.uuid);
+		// 		$.jstree.reference(jsonNode.id).deselect_all();
+		// 		$.jstree.reference(jsonNode.id).select_node(jsonNode.id);
+		// 	}
+		// ));
 
         // cmair: AREA VOLUME
 		elToolbar.append(this.createToolIcon(
