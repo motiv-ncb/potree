@@ -228,18 +228,18 @@ export class Sidebar{
 		));
 
         // cmair: TRANSFORM VOLUME
-		elToolbar.append(this.createToolIcon(
-			Potree.resourcePath + '/icons/volume.svg',
-			'[title]tt.volume_measurement',
-			() => {
-				let volume = this.volumeTool.startInsertion({type:TransformOriginBoxVolume}); 
+		// elToolbar.append(this.createToolIcon(
+		// 	Potree.resourcePath + '/icons/volume.svg',
+		// 	'[title]tt.volume_measurement',
+		// 	() => {
+		// 		let volume = this.volumeTool.startInsertion({type:TransformOriginBoxVolume}); 
 
-				let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
-				let jsonNode = measurementsRoot.children.find(child => child.data.uuid === volume.uuid);
-				$.jstree.reference(jsonNode.id).deselect_all();
-				$.jstree.reference(jsonNode.id).select_node(jsonNode.id);
-			}
-		));
+		// 		let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
+		// 		let jsonNode = measurementsRoot.children.find(child => child.data.uuid === volume.uuid);
+		// 		$.jstree.reference(jsonNode.id).deselect_all();
+		// 		$.jstree.reference(jsonNode.id).select_node(jsonNode.id);
+		// 	}
+		// ));
 
         // cmair: AREA VOLUME
 		elToolbar.append(this.createToolIcon(
@@ -442,13 +442,29 @@ export class Sidebar{
 			},
 		});
 
-		let createNode = (parent, text, icon, object) => {
-			let nodeID = tree.jstree('create_node', parent, { 
+		let createNode = (parent, text, icon, object, title) => {
+            let nodeID;
+            if(title){
+                console.log("create node with title : " + title)
+                nodeID = tree.jstree('create_node', parent, { 
 					"text": text, 
 					"icon": icon,
-					"data": object
+					"data": object,
+                    "title":title
 				}, 
 				"last", false, false);
+                let nodeEl = tree.jstree(true).get_node(nodeID, true); // get the DOM element
+                nodeEl.children('a').attr('title', title); // set tooltip
+            }
+            else{
+                nodeID = tree.jstree('create_node', parent, { 
+					"text": text, 
+					"icon": icon,
+					"data": object,
+				}, 
+				"last", false, false);
+            }
+			
 			
 			if(object.visible){
 				tree.jstree('check_node', nodeID);
@@ -611,8 +627,7 @@ export class Sidebar{
 		let onPointCloudAdded = (e) => {
 			let pointcloud = e.pointcloud;
 			let cloudIcon = `${Potree.resourcePath}/icons/cloud.svg`;
-			let node = createNode(pcID, pointcloud.name, cloudIcon, pointcloud);
-
+			let node = createNode(pcID, pointcloud.name, cloudIcon, pointcloud, pointcloud.name);
 			pointcloud.addEventListener("visibility_changed", () => {
 				if(pointcloud.visible){
 					tree.jstree('check_node', node);
