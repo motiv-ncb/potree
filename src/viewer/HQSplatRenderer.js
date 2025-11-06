@@ -197,6 +197,9 @@ export class HQSplatRenderer{
 
 				attributeMaterial.pointSizeType = material.pointSizeType;
 				attributeMaterial.activeAttributeName = material.activeAttributeName;
+                attributeMaterial.signedNormComponentXName = material.signedNormComponentXName;
+                attributeMaterial.signedNormComponentYName = material.signedNormComponentYName;
+                attributeMaterial.signedNormComponentZName = material.signedNormComponentZName;
 				attributeMaterial.visibleNodesTexture = material.visibleNodesTexture;
 				attributeMaterial.weighted = true;
 				attributeMaterial.screenWidth = width;
