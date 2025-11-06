@@ -151,6 +151,9 @@ let attributeLocations = {
 	"spacing": {name: "spacing", location: 9},
 	"gps-time":  {name: "gpsTime", location: 10},
 	"aExtra":  {name: "aExtra", location: 11},
+    "xExtra":  {name: "xExtra", location: 12},
+    "yExtra":  {name: "yExtra", location: 13},
+    "zExtra":  {name: "zExtra", location: 14},
 };
 
 class Shader {
@@ -988,8 +991,76 @@ export class Renderer {
 			let isExtraAttribute =
 				attributeLocations[material.activeAttributeName] === undefined
 				&& Object.keys(geometry.attributes).includes(material.activeAttributeName);
+            let isSignedNormAttribute = material.activeAttributeName === "signed norm"
+		    if(isSignedNormAttribute){
+                const xAttributeLocation = attributeLocations["xExtra"].location;
+                const yAttributeLocation = attributeLocations["yExtra"].location;
+                const zAttributeLocation = attributeLocations["zExtra"].location;
 
-			if(isExtraAttribute){
+				for(const attributeName in geometry.attributes){
+					const vbo = webglBuffer.vbos.get(attributeName);
+					gl.bindBuffer(gl.ARRAY_BUFFER, vbo.handle);
+					gl.disableVertexAttribArray(xAttributeLocation);
+                    gl.disableVertexAttribArray(yAttributeLocation);
+					gl.disableVertexAttribArray(zAttributeLocation);
+				}
+
+				const xAttName = material.signedNormComponentXName;
+				const xBufferAttribute = geometry.attributes[xAttName];
+				const xVbo = webglBuffer.vbos.get(xAttName);
+				if(xBufferAttribute !== undefined && xVbo !== undefined){
+					let type = this.glTypeMapping.get(xBufferAttribute.array.constructor);
+					let normalized = xBufferAttribute.normalized;
+					gl.bindBuffer(gl.ARRAY_BUFFER, xVbo.handle);
+					gl.vertexAttribPointer(xAttributeLocation, xBufferAttribute.itemSize, type, normalized, 0, 0);
+					gl.enableVertexAttribArray(xAttributeLocation);
+				}
+
+                const yAttName = material.signedNormComponentYName;
+				const yBufferAttribute = geometry.attributes[yAttName];
+				const yVbo = webglBuffer.vbos.get(yAttName);
+                if(yBufferAttribute !== undefined && yVbo !== undefined){
+					let type = this.glTypeMapping.get(yBufferAttribute.array.constructor);
+					let normalized = yBufferAttribute.normalized;
+					gl.bindBuffer(gl.ARRAY_BUFFER, yVbo.handle);
+					gl.vertexAttribPointer(yAttributeLocation, yBufferAttribute.itemSize, type, normalized, 0, 0);
+					gl.enableVertexAttribArray(yAttributeLocation);
+				}
+
+                const zAttName = material.signedNormComponentZName;
+				const zBufferAttribute = geometry.attributes[zAttName];
+				const zVbo = webglBuffer.vbos.get(zAttName);
+                if(zBufferAttribute !== undefined && zVbo !== undefined){
+					let type = this.glTypeMapping.get(zBufferAttribute.array.constructor);
+					let normalized = zBufferAttribute.normalized;
+					gl.bindBuffer(gl.ARRAY_BUFFER, zVbo.handle);
+					gl.vertexAttribPointer(zAttributeLocation, zBufferAttribute.itemSize, type, normalized, 0, 0);
+					gl.enableVertexAttribArray(zAttributeLocation);
+				}
+
+                {
+
+					let range = material.getRange("signed norm");
+
+					if(!range){
+						range = [0, 1];
+					}
+
+
+					let globalRange = range;
+					let globalRangeSize = globalRange[1] - globalRange[0];
+
+                    let offset = -globalRange[0];
+                    let scale = 1 / globalRangeSize;
+
+					scale = Number.isNaN(scale) ? 1 : scale;
+					offset = Number.isNaN(offset) ? 0 : offset;
+
+					shader.setUniform1f("uExtraScale", scale);
+					shader.setUniform1f("uExtraOffset", offset);					
+				}
+
+            } else if(isExtraAttribute){
 
 				const attributeLocation = attributeLocations["aExtra"].location;
 

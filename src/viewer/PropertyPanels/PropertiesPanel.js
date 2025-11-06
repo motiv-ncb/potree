@@ -158,6 +158,28 @@ export class PropertiesPanel{
 					<li><span data-i18n="composite.source_id">Source ID:</span> <span id="lblWeightSourceID"></span> <div id="sldWeightSourceID"></div>	</li>
 				</div>
 
+                <div id="materials.signed_norm_container">
+					<div class="divider">
+						<span data-i18n="appearance.signed_norm">Signed norm</span>
+					</div>
+                    <li>
+                        <label for="optSignedNormX" class="pv-select-label">X</label>
+                        <select id="optSignedNormX" name="X">       
+                        </select>
+				    </li>
+                    <li>
+                        <label for="optSignedNormY" class="pv-select-label">Y</label>
+                        <select id="optSignedNormY" name="Y">       
+                        </select>
+				    </li>
+                    <li>
+                        <label for="optSignedNormZ" class="pv-select-label">Z</label>
+                        <select id="optSignedNormZ" name="Z">       
+                        </select>
+				    </li>
+					
+				</div>
+
 				<div id="materials.rgb_container">
 					<div class="divider">
 						<span>RGB</span>
@@ -435,7 +457,8 @@ export class PropertiesPanel{
 				'matcap',
 				'indices',
 				'level of detail',
-				'composite'
+				'composite',
+                'signed norm'
 			);
 
 			const blacklist = [
@@ -458,6 +481,7 @@ export class PropertiesPanel{
                 "indices":"attribute.indices",
                 "level of detail":"attribute.level_of_detail",
                 "composite":"attribute.composite",
+                'signed norm':"attribute.signed_norm"
             };
 
 			options = options.filter(o => !blacklist.includes(o));
@@ -475,10 +499,38 @@ export class PropertiesPanel{
 			}
             attributeSelection.i18n();
 
+            const extarBlacklist = [
+				"POSITION_CARTESIAN",
+                'intensity',
+				"position",
+                "rgba",
+                "classification",
+                "gps-time",
+                "returnNumber",
+                "number of returns",
+                "return number",
+                "source id"
+			];
+             let extraoptions = [];
+			extraoptions.push(...attributes.map(a => a.name));
+            extraoptions = extraoptions.filter(o => !extarBlacklist.includes(o));
+
+            let signedNormSelectionX = panel.find('#optSignedNormX');
+            let signedNormSelectionY = panel.find('#optSignedNormY');
+            let signedNormSelectionZ = panel.find('#optSignedNormZ');
+            for(let option of extraoptions){
+                signedNormSelectionX.append( $(`<option>${option}</option>`));
+                signedNormSelectionY.append( $(`<option>${option}</option>`));
+                signedNormSelectionZ.append( $(`<option>${option}</option>`));
+            }
+
 			let updateMaterialPanel = (event, ui) => {
 				let selectedValue = attributeSelection.selectmenu().val();
 				material.activeAttributeName = selectedValue;
-
+                material.signedNormComponentXName = signedNormSelectionX.val();
+                material.signedNormComponentYName = signedNormSelectionY.val();
+                material.signedNormComponentZName = signedNormSelectionZ.val();
+                
 				let attribute = pointcloud.getAttribute(selectedValue);
 
 				if(selectedValue === "intensity gradient"){
@@ -486,7 +538,7 @@ export class PropertiesPanel{
 				}
 
 				const isIntensity = attribute ? ["intensity", "intensity gradient"].includes(attribute.name) : false;
-
+                const isSignedNorm = selectedValue == "signed norm";
 				if(isIntensity){
 					if(pointcloud.material.intensityRange[0] === Infinity){
 						pointcloud.material.intensityRange = attribute.range;
@@ -504,7 +556,43 @@ export class PropertiesPanel{
 							material.intensityRange = [min, max];
 						}
 					});
-				} else if(attribute){
+				}
+                else if(isSignedNorm){
+                    let [xmin, xmax] = [0,1];
+                    let [ymin, ymax] = [0,1];
+                    let [zmin, zmax] =[0,1];
+                    let xAttribute = pointcloud.getAttribute(material.signedNormComponentXName);
+                    if(xAttribute){
+                         [xmin, xmax] =  xAttribute.range;
+                    }
+                    let yAttribute = pointcloud.getAttribute(material.signedNormComponentYName);
+                    if(yAttribute){
+                         [ymin, ymax] =  yAttribute.range;
+                    }
+                    let zAttribute = pointcloud.getAttribute(material.signedNormComponentZName);
+                    if(zAttribute){
+                         [zmin, zmax] =  zAttribute.range;
+                    }
+                   
+                    let min = Math.min(Math.min(xmin, ymin), zmin);
+                    let max = Math.min(Math.min(xmax, ymax), zmax);
+                    
+					let selectedRange = material.getRange("signed norm");
+					if(!selectedRange){
+                         selectedRange = [min,max];
+					}         
+                    panel.find('#sldExtraRange').slider({
+                        range: true,
+                        min: min, 
+                        max: max, 
+                        step: 0.01,
+                        values: selectedRange,
+                        slide: (event, ui) => {
+                            let [a, b] = ui.values;
+                            material.setRange("signed norm", [a, b]);
+                        }
+                    });		
+                }else if(attribute){
 					const [min, max] = attribute.range;
 
 					let selectedRange = material.getRange(attribute.name);
@@ -542,6 +630,7 @@ export class PropertiesPanel{
 				let blockTransition = $('#materials\\.transition_container');
 				let blockGps = $('#materials\\.gpstime_container');
 				let blockMatcap = $('#materials\\.matcap_container');
+                let blockSignedNorm = $('#materials\\.signed_norm_container');
 
 				blockIndex.css('display', 'none');
 				blockIntensity.css('display', 'none');
@@ -553,6 +642,7 @@ export class PropertiesPanel{
 				blockTransition.css('display', 'none');
 				blockMatcap.css('display', 'none');
 				blockGps.css('display', 'none');
+                blockSignedNorm.css('display', 'none');
 
 				if (selectedValue === 'composite') {
 					blockWeights.css('display', 'block');
@@ -586,15 +676,23 @@ export class PropertiesPanel{
 					
 				} else if(["source id", "point source id"].includes(selectedValue)){
 					
+				} else if(selectedValue === "signed norm"){
+                    blockSignedNorm.css('display', 'block');
+					blockExtra.css('display', 'block');
 				} else{
 					blockExtra.css('display', 'block');
 				}
 			};
 
 			attributeSelection.selectmenu({change: updateMaterialPanel});
-
+            signedNormSelectionX.selectmenu({change: updateMaterialPanel});
+            signedNormSelectionY.selectmenu({change: updateMaterialPanel});
+            signedNormSelectionZ.selectmenu({change: updateMaterialPanel});
 			let update = () => {
 				attributeSelection.val(material.activeAttributeName).selectmenu('refresh');
+                signedNormSelectionX.val(material.signedNormComponentXName).selectmenu('refresh');
+                signedNormSelectionY.val(material.signedNormComponentYName).selectmenu('refresh');
+                signedNormSelectionZ.val(material.signedNormComponentZName).selectmenu('refresh');
 			};
 			this.addVolatileListener(material, "point_color_type_changed", update);
 			this.addVolatileListener(material, "active_attribute_changed", update);
@@ -848,22 +946,24 @@ export class PropertiesPanel{
 				let attributeName = material.activeAttributeName;
 				let attribute = pointcloud.getAttribute(attributeName);
 
-				if(attribute == null){
-					return;
-				}
+				// if(attribute == null && attributeName != "signed norm"){
+				// 	return;
+				// }
 				
 				let range = material.getRange(attributeName);
 
-				if(range == null){
+				if(range == null && attribute){
 					range = attribute.range;
 				}
 
 				// currently only supporting scalar ranges.
 				// rgba, normals, positions, etc have vector ranges, however
-				let isValidRange = (typeof range[0] === "number") && (typeof range[1] === "number");
-				if(!isValidRange){
-					return;
-				}
+                if(range){
+                    let isValidRange = (typeof range[0] === "number") && (typeof range[1] === "number");
+                    if(!isValidRange){
+                        return;
+                    }
+                }
 
 				if(range){
 					let msg = `${range[0].toFixed(2)} to ${range[1].toFixed(2)}`;

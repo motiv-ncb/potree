@@ -59,6 +59,11 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 
 		this._activeAttributeName = null;
 
+        this._signedNormComponentXName = null;
+        this._signedNormComponentYName = null;
+        this._signedNormComponentZName = null;
+        
+
 		this._defaultIntensityRangeChanged = false;
 		this._defaultElevationRangeChanged = false;
         // cmair distPlane
@@ -645,6 +650,66 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 		if (this._activeAttributeName !== value) {
 			this._activeAttributeName = value;
 
+			this.updateShaderSource();
+			this.dispatchEvent({
+				type: 'active_attribute_changed',
+				target: this
+			});
+
+			this.dispatchEvent({
+				type: 'material_property_changed',
+				target: this
+			});
+		}
+	}
+
+    get signedNormComponentXName(){
+        return this._signedNormComponentXName;
+    }
+    
+    set signedNormComponentXName(value){
+        if (this._signedNormComponentXName !== value) {
+			this._signedNormComponentXName = value;
+			this.updateShaderSource();
+			this.dispatchEvent({
+				type: 'active_attribute_changed',
+				target: this
+			});
+
+			this.dispatchEvent({
+				type: 'material_property_changed',
+				target: this
+			});
+		}
+    }
+
+    get signedNormComponentYName(){
+        return this._signedNormComponentYName;
+    }
+    
+    set signedNormComponentYName(value){
+        if (this._signedNormComponentYName !== value) {
+			this._signedNormComponentYName = value;
+			this.updateShaderSource();
+			this.dispatchEvent({
+				type: 'active_attribute_changed',
+				target: this
+			});
+
+			this.dispatchEvent({
+				type: 'material_property_changed',
+				target: this
+			});
+		}
+    }
+
+    get signedNormComponentZName(){
+        return this._signedNormComponentZName;
+    }
+    
+    set signedNormComponentZName(value){
+        if (this._signedNormComponentZName !== value) {
+			this._signedNormComponentZName = value;
 			this.updateShaderSource();
 			this.dispatchEvent({
 				type: 'active_attribute_changed',

@@ -17,6 +17,9 @@ attribute float spacing;
 attribute float gpsTime;
 attribute vec3 normal;
 attribute float aExtra;
+attribute float xExtra;
+attribute float yExtra;
+attribute float zExtra;
 
 uniform mat4 modelMatrix;
 uniform mat4 modelViewMatrix;
@@ -626,6 +629,36 @@ vec3 getExtra(){
 	return color;
 }
 
+vec3 getSignedNormExtra(){
+
+    float a = sqrt(xExtra * xExtra + yExtra * yExtra + zExtra * zExtra);
+    float x_abs = abs(xExtra);
+    float y_abs = abs(yExtra);
+    float z_abs = abs(zExtra);
+    if(x_abs > y_abs && x_abs > y_abs){
+        if(xExtra < 0.0){
+            a = -a;
+        }
+    }
+    else if(y_abs > x_abs && y_abs > z_abs){
+        if(yExtra < 0.0){
+            a = -a;
+        }
+    }
+    else{
+         if(zExtra < 0.0){
+            a = -a;
+        }
+    }
+
+
+	float w = (a + uExtraOffset) * uExtraScale;
+	w = clamp(w, 0.0, 1.0);
+	vec3 color = texture2D(gradient, vec2(w,1.0-w)).rgb;
+
+	return color;
+}
+
 vec3 getColor(){
 	vec3 color;
 	
@@ -688,6 +721,8 @@ vec3 getColor(){
 		color = getCompositeColor();
 	#elif defined color_type_matcap
 		color = getMatcap();
+    #elif defined color_type_signed_norm
+		color = getSignedNormExtra();
 	#else 
 		color = getExtra();
 	#endif

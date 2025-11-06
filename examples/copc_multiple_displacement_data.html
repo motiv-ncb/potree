@@ -81,7 +81,13 @@
 			material.size = 1;
 			material.pointSizeType = Potree.PointSizeType.ADAPTIVE;
 			if (c) material.activeAttributeName = c;
-            material.activeAttributeName = "Composite"
+            material.activeAttributeName = "signed norm"
+            material.signedNormComponentXName = "DX10_Week3";
+            material.signedNormComponentYName = "DY10_Week3";
+            material.signedNormComponentZName = "DZ10_Week3";
+            material.setRange("signed norm", [-3000, 3000]);
+            let gradient = Potree.Gradients["RAINBOW"];
+            material.gradient = gradient;
 			viewer.fitToScreen(0.5);
 		});
 	</script>
