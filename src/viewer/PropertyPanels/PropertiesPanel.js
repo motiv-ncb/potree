@@ -267,12 +267,18 @@ export class PropertiesPanel{
 					</div>
 
 					<li><span data-i18n="appearance.range"></span><span id="lblIntensityRange"></span> <div id="sldIntensityRange"></div>	</li>
-					<li><span>Curve</span><span id="lblIntensityCurveOrder"></span> <div id="sldIntensityCurveOrder"></div>	</li>
-
-                    <li><span data-i18n="appearance.gamma"></span> <div id="sldIntensityGamma"></div>	</li>
+                    <li><span data-i18n="appearance.color_curve">Color curve: </span><span id="lblIntensityCurveOrder"></span> <div id="sldIntensityCurveOrder"></div>	</li>
+                    <li><span data-i18n="appearance.gamma"></span><span id="lblIntensityGamma"></span> <div id="sldIntensityGamma"></div>	</li>
 					<li><span data-i18n="appearance.brightness"></span> <span id="lblIntensityBrightness"></span> <div id="sldIntensityBrightness"></div>	</li>
-					<li><span data-i18n="appearance.contrast"></span> <div id="sldIntensityContrast"></div>	</li>
-				</div>
+					<li><span data-i18n="appearance.contrast"></span><span id="lblIntensityContrast"></span> <div id="sldIntensityContrast"></div>	</li>
+				
+                    <li>
+						<span data-i18n="appearance.gradient_scheme">Gradient Scheme:</span>
+						<div id="intensity_gradient_scheme_selection" class="gradient_scheme" style="display: flex; padding: 1em 0em">
+						</div>
+					</li>
+                
+                </div>
 
 				<div id="materials.gpstime_container">
 					<div class="divider">
@@ -1025,16 +1031,21 @@ export class PropertiesPanel{
 				let gamma = material.intensityGamma;
 				let contrast = material.intensityContrast;
 				let brightness = material.intensityBrightness;
+                let intensityCurveOrder = material.intensityCurveOrder;
 
 				updateIntensityRange();
 
 				panel.find('#lblIntensityGamma').html(gamma.toFixed(2));
 				panel.find('#lblIntensityContrast').html(contrast.toFixed(2));
 				panel.find('#lblIntensityBrightness').html(brightness.toFixed(2));
+                panel.find('#lblIntensityCurveOrder').html(intensityCurveOrder.toFixed(2));
+
 
 				panel.find('#sldIntensityGamma').slider({value: gamma});
 				panel.find('#sldIntensityContrast').slider({value: contrast});
 				panel.find('#sldIntensityBrightness').slider({value: brightness});
+                panel.find('#sldIntensityCurveOrder').slider({value: intensityCurveOrder});
+
 			};
 
 			let onRGBChange = () => {
