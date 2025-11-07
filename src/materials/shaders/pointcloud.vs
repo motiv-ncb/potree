@@ -94,7 +94,7 @@ uniform float uOpacity;
 
 uniform vec2 elevationRange;
 uniform vec2 intensityRange;
-
+uniform float intensityCurveOrder;
 // cmair distPlane
 uniform vec2 distPlaneRange;
 uniform vec3 distPlanePosition;
@@ -429,7 +429,7 @@ float getIntensity(){
 	float w = (intensity - intensityRange.x) / (intensityRange.y - intensityRange.x);
 	
 	w = clamp(w, 0.0, 1.0);
-
+    w = pow(w, intensityCurveOrder);
 	return w;
 }
 

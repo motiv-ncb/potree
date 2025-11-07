@@ -147,7 +147,8 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 			diffuse:			{ type: "fv", value: [1, 1, 1] },
 			transition:			{ type: "f", value: 0.5 },
 
-			 intensityRange:		{ type: "fv", value: [Infinity, -Infinity] },
+			intensityRange:		{ type: "fv", value: [Infinity, -Infinity] },
+            intensityCurveOrder:{ type: "f", value: 0 },
 
 			intensity_gbc: 		{ type: "fv", value: [1, 0, 0]},
 			uRGB_gbc:	 		{ type: "fv", value: [1, 0, 0]},
@@ -967,6 +968,7 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 	get intensityRange () {
 		return this.uniforms.intensityRange.value;
 	}
+    
 
 	set intensityRange (value) {
 		if (!(value instanceof Array && value.length === 2)) {
@@ -986,6 +988,20 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 			type: 'material_property_changed',
 			target: this
 		});
+	}
+
+    get intensityCurveOrder () {
+		return this.uniforms.intensityCurveOrder.value;
+	}
+
+    set intensityCurveOrder (value) {
+		if (this.uniforms.intensityCurveOrder.value !== value) {
+			this.uniforms.intensityCurveOrder.value = value;
+			this.dispatchEvent({
+				type: 'material_property_changed',
+				target: this
+			});
+		}
 	}
 
 	get intensityGamma () {

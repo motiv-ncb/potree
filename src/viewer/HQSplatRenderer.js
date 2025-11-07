@@ -230,6 +230,7 @@ export class HQSplatRenderer{
 
 				attributeMaterial.intensityRange = material.intensityRange;
 				attributeMaterial.intensityGamma = material.intensityGamma;
+                attributeMaterial.intensityCurveOrder = material.intensityCurveOrder;
 				attributeMaterial.intensityContrast = material.intensityContrast;
 				attributeMaterial.intensityBrightness = material.intensityBrightness;
 

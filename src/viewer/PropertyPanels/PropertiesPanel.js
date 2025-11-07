@@ -267,7 +267,9 @@ export class PropertiesPanel{
 					</div>
 
 					<li><span data-i18n="appearance.range"></span><span id="lblIntensityRange"></span> <div id="sldIntensityRange"></div>	</li>
-					<li><span data-i18n="appearance.gamma"></span> <div id="sldIntensityGamma"></div>	</li>
+					<li><span>Curve</span><span id="lblIntensityCurveOrder"></span> <div id="sldIntensityCurveOrder"></div>	</li>
+
+                    <li><span data-i18n="appearance.gamma"></span> <div id="sldIntensityGamma"></div>	</li>
 					<li><span data-i18n="appearance.brightness"></span> <span id="lblIntensityBrightness"></span> <div id="sldIntensityBrightness"></div>	</li>
 					<li><span data-i18n="appearance.contrast"></span> <div id="sldIntensityContrast"></div>	</li>
 				</div>
@@ -555,6 +557,14 @@ export class PropertiesPanel{
 							let max = ui.values[1];
 							material.intensityRange = [min, max];
 						}
+					});
+
+                    panel.find('#sldIntensityCurveOrder').slider({
+						min: -1.5, max: 1.5, step: 0.01,
+						values: material.intensityCurveOrder,
+						slide: (event, ui) => {
+							material.intensityCurveOrder = ui.value;
+                        }
 					});
 				}
                 else if(isSignedNorm){
