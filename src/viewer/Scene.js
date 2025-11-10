@@ -130,6 +130,24 @@ export class Scene extends EventDispatcher{
 		});
 	}
 
+    removePointCloud (pointcloud) {
+        let removed = false;
+        let index = this.pointclouds.indexOf(pointcloud);
+		if (index > -1) {
+			this.pointclouds.splice(index, 1);
+            removed = true;
+        }
+       this.scenePointCloud.remove(pointcloud);
+        if(removed){
+            this.dispatchEvent({
+                type: 'pointcloud_removed',
+                pointcloud: pointcloud
+            });
+        }
+		
+	}
+
+
 	addVolume (volume) {
 		this.volumes.push(volume);
 		this.dispatchEvent({

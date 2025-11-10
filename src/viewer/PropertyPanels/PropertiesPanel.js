@@ -84,6 +84,7 @@ export class PropertiesPanel{
 	setPointCloud(pointcloud){
 
 		let material = pointcloud.material;
+        let removeIconPath = Potree.resourcePath + '/icons/remove.svg';
         // for cmair, add "pc_filename" and "num_points"
 		let panel = $(`
             <div class="divider"><span data-i18n="appearance.properties">Properties</span></div>
@@ -293,7 +294,11 @@ export class PropertiesPanel{
 					</div>
 				</div>
 
-
+                <div style="display: flex; margin-top: 12px">
+					<span></span>
+					<span style="flex-grow: 1"></span>
+					<img name="remove" class="button-icon" src="${removeIconPath}" style="width: 16px; height: 16px"/>
+				</div>
 				</ul>
 			</div>
 		`);
@@ -1061,6 +1066,12 @@ export class PropertiesPanel{
 				panel.find('#sldRGBContrast').slider({value: contrast});
 				panel.find('#sldRGBBrightness').slider({value: brightness});
 			};
+
+            this.elRemove = panel.find("img[name=remove]");
+            this.elRemove.click( () => {
+                this.viewer.scene.removePointCloud(pointcloud);
+            });
+
 
 			this.addVolatileListener(material, "material_property_changed", updateExtraRange);
 			this.addVolatileListener(material, "material_property_changed", updateHeightRange);
