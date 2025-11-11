@@ -506,6 +506,9 @@ export class TransformationTool {
                 if(selection.syncingVolume){
                     selection.updateTransformdVolumeByConstrains();
                 }
+                if(selection.syncingPointcloud){
+                    selection.updatePointcloudPosition();
+                }
 			}
 
 			drag.pivot = I;
@@ -566,6 +569,9 @@ export class TransformationTool {
 
                     if(selection.syncingVolume){
                         selection.updateTransformdVolumeByConstrains();
+                    }
+                    if(selection.syncingPointcloud){
+                        selection.updatePointcloudPosition();
                     }
 				}
 
@@ -638,11 +644,17 @@ export class TransformationTool {
 				let diffPosition = diff.clone().multiplyScalar(0.5);
 
 				for (let selection of this.selection) {
-					selection.scale.add(diffScale);
-					selection.scale.x = Math.max(0.1, selection.scale.x);
-					selection.scale.y = Math.max(0.1, selection.scale.y);
-					selection.scale.z = Math.max(0.1, selection.scale.z);
-					selection.position.add(diffPosition);
+					
+                    if(selection.syncingPointcloud){
+                        selection.position.add(diff);
+                    }
+                    else{
+                        selection.scale.add(diffScale);
+                        selection.scale.x = Math.max(0.1, selection.scale.x);
+                        selection.scale.y = Math.max(0.1, selection.scale.y);
+                        selection.scale.z = Math.max(0.1, selection.scale.z);
+                        selection.position.add(diffPosition);
+                    }
 
                     if(selection.syncingVolume){
                         const pairMeasurement = selection.syncingVolume;    
@@ -657,6 +669,10 @@ export class TransformationTool {
                         selection.updateTransformdVolumeByConstrains();
                     }
                     
+                    if(selection.syncingPointcloud){
+                        selection.updatePointcloudPosition();
+                    }
+
 					selection.dispatchEvent({
 						type: "position_changed",
 						object: selection

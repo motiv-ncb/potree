@@ -1456,7 +1456,7 @@ export class Renderer {
             shader.setUniform3f("distPlaneNormal", material.distPlaneNormal);
 
             // cmair intensityCurveOrder
-            shader.setUniform1f("intensityCurveOrder", Math.pow(10, material.intensityCurveOrder));
+            shader.setUniform1f("intensityCurveOrder", Math.pow(10, -material.intensityCurveOrder));
 
 			shader.setUniform3f("uIntensity_gbc", [
 				material.intensityGamma, 

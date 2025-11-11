@@ -58,6 +58,59 @@ export class TransformOriginBoxVolume extends BoxVolume {
     }
 }
 
+export class TransformPointcloudBoxVolume extends BoxVolume{
+    constructor(args = {}) {
+        super(args);
+        this.showVolumeLabel = false;
+        this.material.opacity = 0;
+        this.syncingVolume = null;
+        this.frame.material = new THREE.LineBasicMaterial({color: 0xFFFFFF}) 
+        this.frame.visible = false;
+        this.syncingPointcloud = args.pointcloud;
+        let boundingBox = args.pointcloud.pcoGeometry.tightBoundingBox.clone();
+        const bMin = boundingBox.min;
+        const bMax = boundingBox.max;
+        this.localPointcloudCenter = new THREE.Vector3(0.5 * (bMin.x + bMax.x),  0.5 * (bMin.y + bMax.y), 0.5 * (bMin.z + bMax.z));
+        this.localPointcloudScale = new THREE.Vector3( (bMax.x - bMin.x), (bMax.y -bMin.y), (bMax.z - bMin.z));
+
+        this.updateBoxPosition();
+    
+    }
+
+    updateBoxPosition(){
+        this.syncingPointcloud.updateMatrixWorld();
+        let localCenterNew = this.localPointcloudCenter.clone();
+
+
+        localCenterNew.applyMatrix4(this.syncingPointcloud.matrixWorld);
+
+        this.position.set(localCenterNew.x,localCenterNew.y,localCenterNew.z)
+        this.setRotationFromEuler(new THREE.Euler(this.syncingPointcloud.rotation.x,this.syncingPointcloud.rotation.y,this.syncingPointcloud.rotation.z));
+         this.scale.set(this.localPointcloudScale.x,this.localPointcloudScale.y,this.localPointcloudScale.z);
+    
+    }
+
+    updatePointcloudPosition(){
+        this.scale.set(this.localPointcloudScale.x,this.localPointcloudScale.y,this.localPointcloudScale.z);
+
+        this.updateMatrixWorld();
+
+        const matrix = new THREE.Matrix4();
+        matrix.makeRotationFromEuler(this.rotation); // start with rotation
+        matrix.setPosition(this.position);        // then apply translation
+        let localCenterNew = new THREE.Vector3(-this.localPointcloudCenter.x,-this.localPointcloudCenter.y,-this.localPointcloudCenter.z);
+        localCenterNew.applyMatrix4(matrix);
+        this.syncingPointcloud.position.set(localCenterNew.x,localCenterNew.y,localCenterNew.z)
+        this.syncingPointcloud.setRotationFromEuler(new THREE.Euler(this.rotation.x,this.rotation.y,this.rotation.z));
+
+    }
+
+
+    getVolume() {
+        return 0;
+    }
+}
+
 
 
 export class TransformedBoxVolume extends BoxVolume {

@@ -24,7 +24,7 @@ import {CameraPanel} from "./CameraPanel.js";
 import {AnnotationPanel} from "./AnnotationPanel.js";
 import { CameraAnimationPanel } from "./CameraAnimationPanel.js";
 import { PolygonClipVolumePanel } from "./PolygonClipVolumePanel.js";
-
+import { TransformPointcloudBoxVolume } from "../../utils/TransformVolume.js";
 export class PropertiesPanel{
 
 	constructor(container, viewer){
@@ -85,6 +85,8 @@ export class PropertiesPanel{
 
 		let material = pointcloud.material;
         let removeIconPath = Potree.resourcePath + '/icons/remove.svg';
+        let moveIconPath = Potree.resourcePath + '/icons/earth_controls_1.png';
+
         // for cmair, add "pc_filename" and "num_points"
 		let panel = $(`
             <div class="divider"><span data-i18n="appearance.properties">Properties</span></div>
@@ -297,6 +299,8 @@ export class PropertiesPanel{
                 <div style="display: flex; margin-top: 12px">
 					<span></span>
 					<span style="flex-grow: 1"></span>
+                    <img name="move" class="button-icon" src="${moveIconPath}" style="width: 16px; height: 16px"/>
+
 					<img name="remove" class="button-icon" src="${removeIconPath}" style="width: 16px; height: 16px"/>
 				</div>
 				</ul>
@@ -1070,6 +1074,15 @@ export class PropertiesPanel{
             this.elRemove = panel.find("img[name=remove]");
             this.elRemove.click( () => {
                 this.viewer.scene.removePointCloud(pointcloud);
+            });
+
+            this.elMove = panel.find("img[name=move]");
+            this.elMove.click( () => {
+                if(!pointcloud.tranformingVolume){
+                    let volume = new TransformPointcloudBoxVolume({pointcloud:pointcloud});
+                    this.viewer.scene.addVolume(volume);
+                    pointcloud.tranformingVolume = volume;
+                }
             });
 
 

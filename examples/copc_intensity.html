@@ -79,11 +79,14 @@
 
 			let material = e.pointcloud.material;
 			material.size = 1;
-			material.pointSizeType = Potree.PointSizeType.ADAPTIVE;
+			material.pointSizeType = Potree.PointSizeType.ATTENUATED;
 			if (c) material.activeAttributeName = c;
             material.activeAttributeName = "intensity gradient"
-            let gradient = Potree.Gradients["RAINBOW"];
+            let gradient = Potree.Gradients["TURBO"];
             material.gradient = gradient;
+            material.shape = Potree.PointShape.CIRCLE;
+
+            material.intensityCurveOrder = 0.2;
 			viewer.fitToScreen(0.5);
 		});
 	</script>
