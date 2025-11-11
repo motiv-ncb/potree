@@ -90,6 +90,7 @@ export {PlaneMeasurement} from "./utils/PlaneMeasurement.js"
 export {AreaVolume} from "./utils/AreaVolume.js"
 export {TransformOriginBoxVolume} from "./utils/TransformVolume.js"
 export {TransformedBoxVolume} from "./utils/TransformVolume.js"
+export {TransformPointcloudBoxVolume} from "./utils/TransformVolume.js"
 //////////////////
 
 import "./extensions/OrthographicCamera.js";
