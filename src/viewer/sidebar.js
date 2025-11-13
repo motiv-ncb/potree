@@ -478,13 +478,15 @@ export class Sidebar{
 		let pcID = tree.jstree('create_node', "#", { "text": "<b data-i18n='tb.pointclouds_opt'>Point Clouds</b>", "id": "pointclouds"}, "last", false, false);
 		let measurementID = tree.jstree('create_node', "#", { "text": "<b data-i18n='tb.measurments_opt'>Measurements</b>", "id": "measurements" }, "last", false, false);
 		let annotationsID = tree.jstree('create_node', "#", { "text": "<b data-i18n='tb.annotations_opt'>Annotations</b>", "id": "annotations" }, "last", false, false);
-		let otherID = tree.jstree('create_node', "#", { "text": "<b>Other</b>", "id": "other" }, "last", false, false);
+		let BIMID = tree.jstree('create_node', "#", { "text": "<b>BIMs</b>", "id": "BIMs" }, "last", false, false);
+        let otherID = tree.jstree('create_node', "#", { "text": "<b>Other</b>", "id": "other" }, "last", false, false);
 		let vectorsID = tree.jstree('create_node', "#", { "text": "<b>Vectors</b>", "id": "vectors" }, "last", false, false);
 		let imagesID = tree.jstree('create_node', "#", { "text": "<b> Images</b>", "id": "images" }, "last", false, false);
 
 		tree.jstree("check_node", pcID);
 		tree.jstree("check_node", measurementID);
 		tree.jstree("check_node", annotationsID);
+        tree.jstree("check_node", BIMID);
 		tree.jstree("check_node", otherID);
 		tree.jstree("check_node", vectorsID);
 		tree.jstree("check_node", imagesID);
@@ -638,6 +640,20 @@ export class Sidebar{
             tree.i18n();
 		};
 
+        let onBIMPointCloudAdded = (e) => {
+            let pointcloud = e.pointcloud;
+            let cloudIcon = `${Potree.resourcePath}/icons/cloud.svg`;
+            let node = createNode(BIMID, pointcloud.name, cloudIcon, pointcloud);
+            pointcloud.addEventListener("visibility_changed", () => {
+                if (pointcloud.visible) {
+                    tree.jstree('check_node', node);
+                } else {
+                    tree.jstree('uncheck_node', node);
+                }
+            });
+            tree.i18n();
+        }
+
 		let onMeasurementAdded = (e) => {
 			let measurement = e.measurement;
 			let icon = Utils.getMeasurementIcon(measurement);
@@ -764,6 +780,8 @@ export class Sidebar{
 		};
 
 		this.viewer.scene.addEventListener("pointcloud_added", onPointCloudAdded);
+        this.viewer.scene.addEventListener("bim_pointcloud_added", onBIMPointCloudAdded);
+
 		this.viewer.scene.addEventListener("measurement_added", onMeasurementAdded);
 		this.viewer.scene.addEventListener("profile_added", onProfileAdded);
 		this.viewer.scene.addEventListener("volume_added", onVolumeAdded);
@@ -814,6 +832,13 @@ export class Sidebar{
 		let onPointcloudRemoved = (e) => {
 			let pointcloudRoot = $("#jstree_scene").jstree().get_json("pointclouds");
 			let jsonNode = pointcloudRoot.children.find(child => child.data.uuid === e.pointcloud.uuid);
+            if(jsonNode){
+                tree.jstree("delete_node", jsonNode.id);
+                tree.i18n();
+            }
+
+            pointcloudRoot = $("#jstree_scene").jstree().get_json("BIMs");
+			jsonNode = pointcloudRoot.children.find(child => child.data.uuid === e.pointcloud.uuid);
             if(jsonNode){
                 tree.jstree("delete_node", jsonNode.id);
                 tree.i18n();
@@ -904,6 +929,7 @@ export class Sidebar{
 			propertiesPanel.setScene(e.scene);
 
 			e.oldScene.removeEventListener("pointcloud_added", onPointCloudAdded);
+            e.oldScene.removeEventListener("bim_pointcloud_added", onBIMPointCloudAdded);
 			e.oldScene.removeEventListener("measurement_added", onMeasurementAdded);
 			e.oldScene.removeEventListener("profile_added", onProfileAdded);
 			e.oldScene.removeEventListener("volume_added", onVolumeAdded);
@@ -911,6 +937,7 @@ export class Sidebar{
 			e.oldScene.removeEventListener("measurement_removed", onMeasurementRemoved);
 
 			e.scene.addEventListener("pointcloud_added", onPointCloudAdded);
+            e.scene.addEventListener("bim_pointcloud_added", onBIMPointCloudAdded);
 			e.scene.addEventListener("measurement_added", onMeasurementAdded);
 			e.scene.addEventListener("profile_added", onProfileAdded);
 			e.scene.addEventListener("volume_added", onVolumeAdded);

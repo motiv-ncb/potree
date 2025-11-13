@@ -2143,10 +2143,10 @@ export class Viewer extends EventDispatcher{
             if(this.globalAxis){
                 const camera = viewer.scene.getActiveCamera();
                 if(camera.type == "PerspectiveCamera"){
-                    const axisPosition = new THREE.Vector3(0.9 * 2 - 1, -0.85 * 2 + 1, 0.5); // z = depth in NDC space (0 near, 1 far)
+                    const axisPosition = new THREE.Vector3(0.92 * 2 - 1, -0.85 * 2 + 1, 0.5); // z = depth in NDC space (0 near, 1 far)
                     axisPosition.unproject(camera); // world point camera
                     const dir = axisPosition.sub(camera.position).normalize();
-                    const distance = 10;
+                    const distance = 9;
                     const worldPoint = camera.position.clone().add(dir.multiplyScalar(distance));
                     this.globalAxis.axis.position.copy(worldPoint);
                     this.globalAxis.setPerspectiveScale();
@@ -2154,12 +2154,12 @@ export class Viewer extends EventDispatcher{
                 else{
                     const front = new THREE.Vector3();         
                     camera.getWorldDirection(front);
-                    const distance = 10;
+                    const distance = 8.5;
                     const right = new THREE.Vector3(1, 0, 0);
                     right.applyQuaternion(camera.quaternion);
                     const up = new THREE.Vector3();
                     up.crossVectors(front, right).normalize();
-                    const worldPoint = camera.position.clone().add(front.multiplyScalar(distance)).add(right.multiplyScalar(camera.right * 0.8).add(up.multiplyScalar(- camera.bottom * 0.7)));
+                    const worldPoint = camera.position.clone().add(front.multiplyScalar(distance)).add(right.multiplyScalar(camera.right * 0.85).add(up.multiplyScalar(- camera.bottom * 0.7)));
                     this.globalAxis.axis.position.copy(worldPoint);
                     this.globalAxis.setScale(camera.right /25);
                 }
