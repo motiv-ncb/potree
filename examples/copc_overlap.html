@@ -54,45 +54,32 @@
 			$("#menu_appearance").next().show();
 		});
 
-        var path = "../pointclouds/Results_week_1-4.copc.laz";
-		var name = "Results_week_1";
+        var path = "../pointclouds/Week1_aligned.copc.laz";
 
-		var getQueryParam = function(name) {
-			name = name.replace(/[\[\]]/g, "\\$&");
-			var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-				results = regex.exec(window.location.href);
-			if (!results || !results[2]) return null;
-			return decodeURIComponent(results[2].replace(/\+/g, " "));
-		}
-
-        var r = getQueryParam('r');
-        if (r) {
-			name = r;
-            var http = 'http';
-            if (r.substr(0, http.length) == http) path = name;
-            else path = "../pointclouds/" + name + "/ept.json";
-        }
-
-		var c = getQueryParam('c');
+	
 		Potree.loadPointCloud(path, name, function(e){
 			viewer.scene.addPointCloud(e.pointcloud);
-
 			let material = e.pointcloud.material;
 			material.size = 1;
-			material.pointSizeType = Potree.PointSizeType.ADAPTIVE;
-			if (c) material.activeAttributeName = c;
-            material.activeAttributeName = "signed norm";
-            // material.activeAttributeName = "DX10_Week3"
-
-            material.signedNormComponentXName = "DX10_Week3";
-            material.signedNormComponentYName = "DY10_Week3";
-            material.signedNormComponentZName = "DZ10_Week3";
-            material.setRange("signed norm", [-500, 500]);
-            material.setRange("DX10_Week3", [-500, 500]);
-
-             material.NaNThreshold = - 32767
-            let gradient = Potree.Gradients["RAINBOW"];
-            material.gradient = gradient;
+			material.pointSizeType = Potree.PointSizeType.ATTENUATED;
+            material.activeAttributeName = "color"
+             material.color =new THREE.Color( 0x0000ff )
+            material.useSignThresholdColor = true;
+            material.shape = Potree.PointShape.CIRCLE;
+            material.intensityCurveOrder = 0.2;
+			viewer.fitToScreen(0.5);
+		});
+        path = "../pointclouds/71-0183_MOT_2021_Full_100mm_dist.copc.laz";
+        Potree.loadPointCloud(path, name, function(e){
+			viewer.scene.addPointCloud(e.pointcloud);
+			let material = e.pointcloud.material;
+			material.size = 1;
+			material.pointSizeType = Potree.PointSizeType.ATTENUATED;
+            material.activeAttributeName = "color"
+             material.color =new THREE.Color( 0xff0000 )
+            material.useSignThresholdColor = true;
+            material.shape = Potree.PointShape.CIRCLE;
+            material.intensityCurveOrder = 0.2;
 			viewer.fitToScreen(0.5);
 		});
 	</script>

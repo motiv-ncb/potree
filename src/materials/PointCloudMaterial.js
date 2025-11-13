@@ -175,6 +175,15 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 			uExtraRange:		{ type: "2fv", value: [0, 1] },
 			uExtraGammaBrightContr:	{ type: "3fv", value: [1, 0, 0] },
 
+            uSignThreshold: { type: "f", value: 0},
+            uUseSignThresholdColor:      { type: "b", value: false},
+            uBelowSignThresholdColor:		{ type: "c", value: new THREE.Color( 0x0000ff ) },
+            uAboveSignThresholdColor:		{ type: "c", value: new THREE.Color( 0xff0000 ) },
+            
+            uNaNThreshold: { type: "f", value: -10000000000.0},
+            uNaNColor:			{ type: "c", value: new THREE.Color( 0xaaaaaa ) },
+
+
 			uFilterReturnNumberRange:		{ type: "fv", value: [0, 7]},
 			uFilterNumberOfReturnsRange:	{ type: "fv", value: [0, 7]},
 			uFilterGPSTimeClipRange:		{ type: "fv", value: [0, 7]},
@@ -1124,6 +1133,91 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 	set extraContrast (value) {
 		if (this.uniforms.uExtraGammaBrightContr.value[2] !== value) {
 			this.uniforms.uExtraGammaBrightContr.value[2] = value;
+			this.dispatchEvent({
+				type: 'material_property_changed',
+				target: this
+			});
+		}
+	}
+
+    get signThreshold () {
+		return this.uniforms.uSignThreshold.value;
+	}
+
+	set signThreshold (value) {
+		if(this.uniforms.uSignThreshold.value !== value){
+			this.uniforms.uSignThreshold.value = value;
+			this.dispatchEvent({
+				type: 'material_property_changed',
+				target: this
+			});
+		}
+	}
+
+    get useSignThresholdColor () {
+		return this.uniforms.uUseSignThresholdColor.value;
+	}
+
+	set useSignThresholdColor (value) {
+		if(this.uniforms.uUseSignThresholdColor.value !== value){
+			this.uniforms.uUseSignThresholdColor.value = value;
+			this.dispatchEvent({
+				type: 'material_property_changed',
+				target: this
+			});
+		}
+	}
+
+
+    get belowSignThresholdColor () {
+		return this.uniforms.uBelowSignThresholdColor.value;
+	}
+
+	set belowSignThresholdColor (value) {
+		if (!this.uniforms.uBelowSignThresholdColor.value.equals(value)) {
+			this.uniforms.uBelowSignThresholdColor.value.copy(value);
+			this.dispatchEvent({
+				type: 'material_property_changed',
+				target: this
+			});
+		}
+	}
+
+    get aboveSignThresholdColor () {
+		return this.uniforms.uAboveSignThresholdColor.value;
+	}
+
+	set aboveSignThresholdColor (value) {
+		if (!this.uniforms.uAboveSignThresholdColor.value.equals(value)) {
+			this.uniforms.uAboveSignThresholdColor.value.copy(value);
+			this.dispatchEvent({
+				type: 'material_property_changed',
+				target: this
+			});
+		}
+	}
+
+    get NaNThreshold () {
+		return this.uniforms.uNaNThreshold.value;
+	}
+
+	set NaNThreshold (value) {
+		if (!this.uniforms.uNaNThreshold.value !== (value)) {
+			this.uniforms.uNaNThreshold.value = (value);
+			this.dispatchEvent({
+				type: 'material_property_changed',
+				target: this
+			});
+		}
+	}
+
+    get nanColor () {
+		return this.uniforms.uNaNColor.value;
+	}
+
+	set nanColor (value) {
+		if (!this.uniforms.uNaNColor.value.equals(value)) {
+			this.uniforms.uNaNColor.value.copy(value);
 			this.dispatchEvent({
 				type: 'material_property_changed',
 				target: this

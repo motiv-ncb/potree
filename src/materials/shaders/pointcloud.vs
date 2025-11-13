@@ -126,6 +126,15 @@ uniform vec2 uExtraRange;
 uniform float uExtraScale;
 uniform float uExtraOffset;
 
+uniform float uSignThreshold;
+uniform vec3 uBelowSignThresholdColor;
+uniform vec3 uAboveSignThresholdColor;
+uniform bool uUseSignThresholdColor;
+
+uniform float uNaNThreshold;
+uniform vec3 uNaNColor;
+
+
 uniform vec3 uShadowColor;
 
 uniform sampler2D visibleNodes;
@@ -609,7 +618,25 @@ vec3 getMatcap(){
 }
 #endif
 
+vec3 getExtraSign(float a){
+    if(a < uSignThreshold){
+        return uBelowSignThresholdColor;
+    }
+    else{
+        return uAboveSignThresholdColor;
+    }
+}
+
 vec3 getExtra(){
+
+    if(aExtra <= uNaNThreshold){
+        return uNaNColor;
+    }
+
+    if(uUseSignThresholdColor){
+        return getExtraSign(aExtra);
+    }
+    
 
 	float w = (aExtra + uExtraOffset) * uExtraScale;
 	w = clamp(w, 0.0, 1.0);
@@ -629,35 +656,57 @@ vec3 getExtra(){
 	return color;
 }
 
-vec3 getSignedNormExtra(){
 
-    float a = sqrt(xExtra * xExtra + yExtra * yExtra + zExtra * zExtra);
-    float x_abs = abs(xExtra);
-    float y_abs = abs(yExtra);
-    float z_abs = abs(zExtra);
+
+float getSignedNormExtraValue(float x,float y,float z){
+
+    float a = sqrt(x * x + y * y + z * z);
+    float x_abs = abs(x);
+    float y_abs = abs(y);
+    float z_abs = abs(z);
     if(x_abs > y_abs && x_abs > y_abs){
-        if(xExtra < 0.0){
+        if(x < 0.0){
             a = -a;
         }
     }
     else if(y_abs > x_abs && y_abs > z_abs){
-        if(yExtra < 0.0){
+        if(y < 0.0){
             a = -a;
         }
     }
     else{
-         if(zExtra < 0.0){
+         if(z < 0.0){
             a = -a;
         }
     }
+    return a;
+}
 
+
+
+vec3 getSignedNormExtra(){
+
+    if(xExtra <= uNaNThreshold || yExtra <= uNaNThreshold || zExtra <= uNaNThreshold){
+        return uNaNColor;
+    }
+    
+    float a = getSignedNormExtraValue(xExtra, yExtra, zExtra);
+
+    if(a <= uNaNThreshold){
+        return uNaNColor;
+    }
+
+    if(uUseSignThresholdColor){
+        return getExtraSign(a);
+    }
 
 	float w = (a + uExtraOffset) * uExtraScale;
 	w = clamp(w, 0.0, 1.0);
 	vec3 color = texture2D(gradient, vec2(w,1.0-w)).rgb;
-
 	return color;
 }
+
+
 
 vec3 getColor(){
 	vec3 color;

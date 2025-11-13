@@ -619,7 +619,7 @@ export class PropertiesPanel{
                     });		
                 }else if(attribute){
 					const [min, max] = attribute.range;
-
+                    console.log(attribute)
 					let selectedRange = material.getRange(attribute.name);
 
 					if(!selectedRange){
@@ -971,12 +971,9 @@ export class PropertiesPanel{
 				let attributeName = material.activeAttributeName;
 				let attribute = pointcloud.getAttribute(attributeName);
 
-				// if(attribute == null && attributeName != "signed norm"){
-				// 	return;
-				// }
-				
-				let range = material.getRange(attributeName);
 
+				let range = material.getRange(attributeName);
+                console.log(attributeName)
 				if(range == null && attribute){
 					range = attribute.range;
 				}

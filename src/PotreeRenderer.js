@@ -971,6 +971,20 @@ export class Renderer {
 				shader.setUniform2f("uFilterPointSourceIDClipRange", uFilterPointSourceIDClipRange);
 			}
 
+            // cmair sign Threshold
+            {
+                shader.setUniform("uUseSignThresholdColor", material.uniforms.uUseSignThresholdColor.value);
+                if(material.uniforms.uUseSignThresholdColor.value){
+                    shader.setUniform1f("uSignThreshold",  material.uniforms.uSignThreshold.value);
+                    shader.setUniform3f("uBelowSignThresholdColor",  material.uniforms.uBelowSignThresholdColor.value.toArray());
+                    shader.setUniform3f("uAboveSignThresholdColor", material.uniforms.uAboveSignThresholdColor.value.toArray());
+                }
+            }
+            {
+            shader.setUniform3f("uNaNColor", material.uniforms.uNaNColor.value.toArray());
+            shader.setUniform1f("uNaNThreshold", material.uniforms.uNaNThreshold.value);
+            }
+
 			let webglBuffer = null;
 			if(!this.buffers.has(geometry)){
 				webglBuffer = this.createBuffer(geometry);

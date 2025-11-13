@@ -54,8 +54,8 @@
 			$("#menu_appearance").next().show();
 		});
 
-        var path = "../pointclouds/Results_week_1-4.copc.laz";
-		var name = "Results_week_1";
+        var path = "../pointclouds/Week1_Displacement.copc.laz";
+		var name = "Week1_Displacement";
 
 		var getQueryParam = function(name) {
 			name = name.replace(/[\[\]]/g, "\\$&");
@@ -79,20 +79,16 @@
 
 			let material = e.pointcloud.material;
 			material.size = 1;
-			material.pointSizeType = Potree.PointSizeType.ADAPTIVE;
+			material.pointSizeType = Potree.PointSizeType.ATTENUATED;
 			if (c) material.activeAttributeName = c;
-            material.activeAttributeName = "signed norm";
-            // material.activeAttributeName = "DX10_Week3"
-
-            material.signedNormComponentXName = "DX10_Week3";
-            material.signedNormComponentYName = "DY10_Week3";
-            material.signedNormComponentZName = "DZ10_Week3";
-            material.setRange("signed norm", [-500, 500]);
-            material.setRange("DX10_Week3", [-500, 500]);
-
-             material.NaNThreshold = - 32767
-            let gradient = Potree.Gradients["RAINBOW"];
+            material.activeAttributeName = "Distance_mm"
+             material.setRange("Distance_mm",[-50,50]);
+            material.useSignThresholdColor = true;
+            let gradient = Potree.Gradients["TURBO"];
             material.gradient = gradient;
+            material.shape = Potree.PointShape.CIRCLE;
+
+            material.intensityCurveOrder = 0.2;
 			viewer.fitToScreen(0.5);
 		});
 	</script>

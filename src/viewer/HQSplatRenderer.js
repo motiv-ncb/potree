@@ -225,6 +225,15 @@ export class HQSplatRenderer{
                 attributeMaterial.distPlanePosition = material.distPlanePosition;
                 attributeMaterial.distPlaneNormal = material.distPlaneNormal;
 				
+                // cmair extratreshold
+                attributeMaterial.useSignThresholdColor = material.useSignThresholdColor;
+                attributeMaterial.signThreshold = material.signThreshold;
+                attributeMaterial.belowSignThresholdColor = material.belowSignThresholdColor;
+                attributeMaterial.aboveSignThresholdColor = material.aboveSignThresholdColor;
+                attributeMaterial.nanColor = material.nanColor;
+                attributeMaterial.NaNThreshold = material.NaNThreshold;
+
+
                 attributeMaterial.gradient = material.gradient;
 				attributeMaterial.matcap = material.matcap;
 
