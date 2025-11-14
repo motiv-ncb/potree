@@ -55,33 +55,37 @@
 		});
 
         var path = "../pointclouds/Week1_aligned.copc.laz";
-
-	
-		Potree.loadPointCloud(path, name, function(e){
+        let setMaterial = function(material){
+            material.shape = Potree.PointShape.CIRCLE;
+            material.size = 5;
+            material.minSize = 2;
+            material.sizeAttenuation = true;
+            material.pointSizeType = Potree.PointSizeType.ATTENUATED;
+            material.transparent = true;
+            material.opacity = 0.4;
+            // material.blending = THREE.NormalBlending; // allows natural overlap
+        }
+		Potree.loadPointCloud(path, "Week1_aligned", function(e){
 			viewer.scene.addPointCloud(e.pointcloud);
 			let material = e.pointcloud.material;
-			material.size = 1;
-			material.pointSizeType = Potree.PointSizeType.ATTENUATED;
+            setMaterial(material);
             material.activeAttributeName = "color"
-             material.color =new THREE.Color( 0x0000ff )
-            material.useSignThresholdColor = true;
-            material.shape = Potree.PointShape.CIRCLE;
-            material.intensityCurveOrder = 0.2;
+			material.color =new THREE.Color( 0x0000ff );
+            material.updateShaderSource();
 			viewer.fitToScreen(0.5);
 		});
         path = "../pointclouds/71-0183_MOT_2021_Full_100mm_dist.copc.laz";
-        Potree.loadPointCloud(path, name, function(e){
+        Potree.loadPointCloud(path, "71-0183_MOT_2021_Full_100mm_dist", function(e){
 			viewer.scene.addPointCloud(e.pointcloud);
 			let material = e.pointcloud.material;
-			material.size = 1;
-			material.pointSizeType = Potree.PointSizeType.ATTENUATED;
+			setMaterial(material);
             material.activeAttributeName = "color"
-             material.color =new THREE.Color( 0xff0000 )
-            material.useSignThresholdColor = true;
-            material.shape = Potree.PointShape.CIRCLE;
-            material.intensityCurveOrder = 0.2;
+			material.color =new THREE.Color( 0xff0000 );
+             material.updateShaderSource();
 			viewer.fitToScreen(0.5);
 		});
+        viewer.setBackground("black");
+        viewer.setEDLEnabled(false);
 	</script>
   </body>
 </html>
