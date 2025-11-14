@@ -442,10 +442,9 @@ export class Sidebar{
 			},
 		});
 
-		let createNode = (parent, text, icon, object, title) => {
+		let createNode = (parent, text, icon, object, title, imgPath, onImgClick) => {
             let nodeID;
             if(title){
-                console.log("create node with title : " + title)
                 nodeID = tree.jstree('create_node', parent, { 
 					"text": text, 
 					"icon": icon,
@@ -455,6 +454,16 @@ export class Sidebar{
 				"last", false, false);
                 let nodeEl = tree.jstree(true).get_node(nodeID, true); // get the DOM element
                 nodeEl.children('a').attr('title', title); // set tooltip
+                if(imgPath){
+                    // nodeEl.children('a').append(`<span class="extra-btn" data-id="node1">🔧</span>'<img name="remove" class="button-icon" src="${imgPath}" style="width: 16px; height: 16px"/`);
+                    nodeEl.children('a').append(`<i name="img" class="jstree-icon" jstree-themeicon jstree-themeicon-custom" style="background-image: url(${imgPath}); background-position: center center; background-size: auto; width:16px; height:16px;  position: absolute; right: 4px; z-index:10000"></i>`);
+                    if(onImgClick){
+                        nodeEl.find("i[name=img]").click(()=>{
+                            onImgClick();
+                        })
+                    }
+                }
+               
             }
             else{
                 nodeID = tree.jstree('create_node', parent, { 
@@ -629,7 +638,9 @@ export class Sidebar{
 		let onPointCloudAdded = (e) => {
 			let pointcloud = e.pointcloud;
 			let cloudIcon = `${Potree.resourcePath}/icons/cloud.svg`;
-			let node = createNode(pcID, pointcloud.name, cloudIcon, pointcloud, pointcloud.name);
+            let removeIconPath = `${Potree.resourcePath}/icons/remove.svg`;
+
+			let node = createNode(pcID, pointcloud.name, cloudIcon, pointcloud, pointcloud.name,removeIconPath, ()=>{this.viewer.scene.removePointCloud(e.pointcloud)});
 			pointcloud.addEventListener("visibility_changed", () => {
 				if(pointcloud.visible){
 					tree.jstree('check_node', node);

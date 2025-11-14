@@ -51,12 +51,12 @@
 
 		viewer.loadGUI(() => {
 			viewer.setLanguage('en');
-			$("#menu_appearance").next().show();
+			$("#menu_scene").next().show();
 		});
 
         var path = "../pointclouds/Week1.copc.laz";
-		var name = "Week1";
-
+		var name = "This is the example of very long point cloud name";
+        name = "week1"
 		var getQueryParam = function(name) {
 			name = name.replace(/[\[\]]/g, "\\$&");
 			var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
