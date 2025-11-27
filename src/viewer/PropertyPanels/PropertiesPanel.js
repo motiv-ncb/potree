@@ -973,7 +973,6 @@ export class PropertiesPanel{
 
 
 				let range = material.getRange(attributeName);
-                console.log(attributeName)
 				if(range == null && attribute){
 					range = attribute.range;
 				}

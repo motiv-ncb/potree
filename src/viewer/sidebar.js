@@ -348,6 +348,26 @@ export class Sidebar{
 		}
 	}
 
+    setPointcloudTreeNodes(e, data){
+        let tree = $("#jstree_scene");
+            $(".jstree-anchor").each(function () {
+                const $a = $(this);
+                if ($a.find(".pc-remove-btn").length === 0) {
+                    let nodeEl = tree.jstree(true).get_node($a[0].parentNode.id); // get the DOM element
+                    if(nodeEl.parent === "pointclouds"){
+                        let nodeElDOM = tree.jstree(true).get_node($a[0].parentNode.id,true); // get the DOM element
+                        if(nodeEl.data && nodeEl.data.name){
+                            console.log("Adding remove button for pointcloud:", nodeEl.data.name);
+                            nodeElDOM.children('a').attr('title', nodeEl.data.name);
+                            $a.append(`<span class="pc-remove-btn" style="position: absolute; right: 4px; z-index:10000; color:red;" data-id="${nodeEl.data.uuid}">✖</span>`);
+                        }
+                    }
+                }
+            }
+        );
+        tree.i18n();
+    }
+
 	initScene(){
 
 		let elScene = $("#menu_scene");
@@ -442,39 +462,14 @@ export class Sidebar{
 			},
 		});
 
-		let createNode = (parent, text, icon, object, title, imgPath, onImgClick) => {
-            let nodeID;
-            if(title){
-                nodeID = tree.jstree('create_node', parent, { 
-					"text": text, 
-					"icon": icon,
-					"data": object,
-                    "title":title
-				}, 
-				"last", false, false);
-                let nodeEl = tree.jstree(true).get_node(nodeID, true); // get the DOM element
-                nodeEl.children('a').attr('title', title); // set tooltip
-                if(imgPath){
-                    // nodeEl.children('a').append(`<span class="extra-btn" data-id="node1">🔧</span>'<img name="remove" class="button-icon" src="${imgPath}" style="width: 16px; height: 16px"/`);
-                    nodeEl.children('a').append(`<i name="img" class="jstree-icon" jstree-themeicon jstree-themeicon-custom" style="background-image: url(${imgPath}); background-position: center center; background-size: auto; width:16px; height:16px;  position: absolute; right: 4px; z-index:10000"></i>`);
-                    if(onImgClick){
-                        nodeEl.find("i[name=img]").click(()=>{
-                            onImgClick();
-                        })
-                    }
-                }
-               
-            }
-            else{
-                nodeID = tree.jstree('create_node', parent, { 
+		let createNode = (parent, text, icon, object, title) => {
+            let nodeID = tree.jstree('create_node', parent, { 
 					"text": text, 
 					"icon": icon,
 					"data": object,
 				}, 
 				"last", false, false);
-            }
-			
-			
+ 
 			if(object.visible){
 				tree.jstree('check_node', nodeID);
 			}else{
@@ -502,7 +497,13 @@ export class Sidebar{
 
 		tree.on('create_node.jstree', (e, data) => {
 			tree.jstree("open_all");
+            this.setPointcloudTreeNodes(e, data);
 		});
+        tree.on('after_open.jstree', this.setPointcloudTreeNodes);
+        tree.on('refresh.jstree', this.setPointcloudTreeNodes);
+        tree.on('ready.jstree', this.setPointcloudTreeNodes);
+       
+      
 
 		tree.on("select_node.jstree", (e, data) => {
 			let object = data.node.data;
@@ -523,6 +524,9 @@ export class Sidebar{
 
 		tree.on("delete_node.jstree", (e, data) => {
 			propertiesPanel.set(null);
+            setTimeout(() => {
+                this.setPointcloudTreeNodes(e, data);
+            }, 50);
 		});
 
 		tree.on('dblclick','.jstree-anchor', (e) => {
@@ -634,14 +638,21 @@ export class Sidebar{
 			}
 		});
 
+        tree.on("click", ".pc-remove-btn", function(e) {
+            e.stopPropagation();  // prevent node selection
+            const pcid = $(this).data("id");
+            const pointcloud = viewer.scene.pointclouds.find(pc => pc.uuid === pcid);
+            if (pointcloud) {
+                    viewer.scene.removePointCloud(pointcloud)
+            }
+        });
+
 
 		let onPointCloudAdded = (e) => {
 			let pointcloud = e.pointcloud;
 			let cloudIcon = `${Potree.resourcePath}/icons/cloud.svg`;
-            let removeIconPath = `${Potree.resourcePath}/icons/remove.svg`;
-
-			let node = createNode(pcID, pointcloud.name, cloudIcon, pointcloud, pointcloud.name,removeIconPath, ()=>{this.viewer.scene.removePointCloud(e.pointcloud)});
-			pointcloud.addEventListener("visibility_changed", () => {
+			let node = createNode(pcID, pointcloud.name, cloudIcon, pointcloud);
+            pointcloud.addEventListener("visibility_changed", () => {
 				if(pointcloud.visible){
 					tree.jstree('check_node', node);
 				}else{
@@ -687,8 +698,8 @@ export class Sidebar{
             let node;
             if(volume.constructor.name == "TransformedBoxVolume"){             
                 let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
-                let parenetNode = measurementsRoot.children.find(child => child.data.uuid === volume.syncingVolume.uuid);
-                node = createNode(parenetNode.id, volume.name, icon, volume);
+                let parentNode = measurementsRoot.children.find(child => child.data.uuid === volume.syncingVolume.uuid);
+                node = createNode(parentNode.id, volume.name, icon, volume);
             }
             else{
                 node = createNode(measurementID, volume.name, icon, volume);
