@@ -981,8 +981,16 @@ export class Renderer {
                 }
             }
             {
-            shader.setUniform3f("uNaNColor", material.uniforms.uNaNColor.value.toArray());
-            shader.setUniform1f("uNaNThreshold", material.uniforms.uNaNThreshold.value);
+                shader.setUniform3f("uNaNColor", material.uniforms.uNaNColor.value.toArray());
+                shader.setUniform1f("uNaNThreshold", material.uniforms.uNaNThreshold.value);
+            }
+
+            // refpoints
+            {
+                shader.setUniform("uUseRefPoint", material.uniforms.uUseRefPoint.value);
+                shader.setUniform3f("uRefPoint", material.uniforms.uRefPoint.value);
+                shader.setUniform1i("uRefDirection", material.uniforms.uRefDirection.value);
+
             }
 
 			let webglBuffer = null;
@@ -1019,7 +1027,7 @@ export class Renderer {
 					gl.disableVertexAttribArray(zAttributeLocation);
 				}
 
-				const xAttName = material.signedNormComponentXName;
+				const xAttName = material.xActiveAttributeName;
 				const xBufferAttribute = geometry.attributes[xAttName];
 				const xVbo = webglBuffer.vbos.get(xAttName);
 				if(xBufferAttribute !== undefined && xVbo !== undefined){
@@ -1030,7 +1038,7 @@ export class Renderer {
 					gl.enableVertexAttribArray(xAttributeLocation);
 				}
 
-                const yAttName = material.signedNormComponentYName;
+                const yAttName = material.yActiveAttributeName;
 				const yBufferAttribute = geometry.attributes[yAttName];
 				const yVbo = webglBuffer.vbos.get(yAttName);
                 if(yBufferAttribute !== undefined && yVbo !== undefined){
@@ -1041,7 +1049,7 @@ export class Renderer {
 					gl.enableVertexAttribArray(yAttributeLocation);
 				}
 
-                const zAttName = material.signedNormComponentZName;
+                const zAttName = material.zActiveAttributeName;
 				const zBufferAttribute = geometry.attributes[zAttName];
 				const zVbo = webglBuffer.vbos.get(zAttName);
                 if(zBufferAttribute !== undefined && zVbo !== undefined){

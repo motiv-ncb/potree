@@ -131,6 +131,11 @@ uniform vec3 uBelowSignThresholdColor;
 uniform vec3 uAboveSignThresholdColor;
 uniform bool uUseSignThresholdColor;
 
+// point to compare with point position
+uniform bool uUseRefPoint;
+uniform vec3 uRefPoint;
+uniform int uRefDirection; //0 or x, 1 for y, 2 for z
+
 uniform float uNaNThreshold;
 uniform vec3 uNaNColor;
 
@@ -627,18 +632,65 @@ vec3 getExtraSign(float a){
     }
 }
 
+
+
+float getRelativeVectorExtra(){
+	vec4 world = modelMatrix * vec4( position, 1.0 );
+    vec3 relativePosition = world.xyz - uRefPoint;
+    vec3 vecExtra = vec3(xExtra,yExtra,zExtra);
+    float dotValue = dot(relativePosition, vecExtra);
+    float normExtra = sqrt(xExtra * xExtra + yExtra * yExtra + zExtra * zExtra);
+    
+    if (dotValue * normExtra > 0.0){
+        return normExtra;
+    }
+    else{
+        return -normExtra;
+    }
+    return 0.0;
+}
+
+float getRelativeExtra(){
+	vec4 world = modelMatrix * vec4( position, 1.0 );
+    float relative = 0.0;
+    if (uRefDirection == 3){
+        return getRelativeVectorExtra();
+    }
+    if (uRefDirection == 0){
+        relative = world.x - uRefPoint.x;
+    }
+    else if (uRefDirection == 1){
+        relative = world.y - uRefPoint.y;
+    }
+    else if (uRefDirection == 2){
+        relative = world.z - uRefPoint.z;
+    }
+    if (relative * aExtra > 0.0){
+        return abs(aExtra);
+    }
+    else{
+        return -abs(aExtra);
+    }
+    return 0.0;
+}
+
 vec3 getExtra(){
 
     if(aExtra <= uNaNThreshold){
         return uNaNColor;
     }
 
-    if(uUseSignThresholdColor){
-        return getExtraSign(aExtra);
-    }
-    
+    float displayExtra = aExtra;
 
-	float w = (aExtra + uExtraOffset) * uExtraScale;
+    if (uUseRefPoint){
+        displayExtra = getRelativeExtra();
+    }
+
+    if(uUseSignThresholdColor){
+        return getExtraSign(displayExtra);
+    }
+
+	float w = (displayExtra + uExtraOffset) * uExtraScale;
 	w = clamp(w, 0.0, 1.0);
 
 	vec3 color = texture2D(gradient, vec2(w,1.0-w)).rgb;
@@ -691,6 +743,11 @@ vec3 getSignedNormExtra(){
     }
     
     float a = getSignedNormExtraValue(xExtra, yExtra, zExtra);
+
+
+    if (uUseRefPoint){
+        a = getRelativeVectorExtra();
+    }
 
     if(a <= uNaNThreshold){
         return uNaNColor;

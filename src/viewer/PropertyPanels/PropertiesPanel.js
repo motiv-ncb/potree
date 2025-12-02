@@ -544,9 +544,9 @@ export class PropertiesPanel{
 			let updateMaterialPanel = (event, ui) => {
 				let selectedValue = attributeSelection.selectmenu().val();
 				material.activeAttributeName = selectedValue;
-                material.signedNormComponentXName = signedNormSelectionX.val();
-                material.signedNormComponentYName = signedNormSelectionY.val();
-                material.signedNormComponentZName = signedNormSelectionZ.val();
+                material.xActiveAttributeName = signedNormSelectionX.val();
+                material.yActiveAttributeName = signedNormSelectionY.val();
+                material.zActiveAttributeName = signedNormSelectionZ.val();
                 
 				let attribute = pointcloud.getAttribute(selectedValue);
 
@@ -586,15 +586,15 @@ export class PropertiesPanel{
                     let [xmin, xmax] = [0,1];
                     let [ymin, ymax] = [0,1];
                     let [zmin, zmax] =[0,1];
-                    let xAttribute = pointcloud.getAttribute(material.signedNormComponentXName);
+                    let xAttribute = pointcloud.getAttribute(material.xActiveAttributeName);
                     if(xAttribute){
                          [xmin, xmax] =  xAttribute.range;
                     }
-                    let yAttribute = pointcloud.getAttribute(material.signedNormComponentYName);
+                    let yAttribute = pointcloud.getAttribute(material.yActiveAttributeName);
                     if(yAttribute){
                          [ymin, ymax] =  yAttribute.range;
                     }
-                    let zAttribute = pointcloud.getAttribute(material.signedNormComponentZName);
+                    let zAttribute = pointcloud.getAttribute(material.zActiveAttributeName);
                     if(zAttribute){
                          [zmin, zmax] =  zAttribute.range;
                     }
@@ -715,9 +715,9 @@ export class PropertiesPanel{
             signedNormSelectionZ.selectmenu({change: updateMaterialPanel});
 			let update = () => {
 				attributeSelection.val(material.activeAttributeName).selectmenu('refresh');
-                signedNormSelectionX.val(material.signedNormComponentXName).selectmenu('refresh');
-                signedNormSelectionY.val(material.signedNormComponentYName).selectmenu('refresh');
-                signedNormSelectionZ.val(material.signedNormComponentZName).selectmenu('refresh');
+                signedNormSelectionX.val(material.xActiveAttributeName).selectmenu('refresh');
+                signedNormSelectionY.val(material.yActiveAttributeName).selectmenu('refresh');
+                signedNormSelectionZ.val(material.zActiveAttributeName).selectmenu('refresh');
 			};
 			this.addVolatileListener(material, "point_color_type_changed", update);
 			this.addVolatileListener(material, "active_attribute_changed", update);

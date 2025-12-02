@@ -59,9 +59,9 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 
 		this._activeAttributeName = null;
 
-        this._signedNormComponentXName = null;
-        this._signedNormComponentYName = null;
-        this._signedNormComponentZName = null;
+        this._xActiveAttributeName = null;
+        this._yActiveAttributeName = null;
+        this._zActiveAttributeName = null;
         
 
 		this._defaultIntensityRangeChanged = false;
@@ -183,7 +183,11 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
             uNaNThreshold: { type: "f", value: -10000000000.0},
             uNaNColor:			{ type: "c", value: new THREE.Color( 0xaaaaaa ) },
 
+            uUseRefPoint: { type: "b", value: false },
+            uRefPoint: { type: "3fv", value: [0, 0, 0] },
+            uRefDirection: { type: "i", value: 0 },
 
+            
 			uFilterReturnNumberRange:		{ type: "fv", value: [0, 7]},
 			uFilterNumberOfReturnsRange:	{ type: "fv", value: [0, 7]},
 			uFilterGPSTimeClipRange:		{ type: "fv", value: [0, 7]},
@@ -673,13 +677,13 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 		}
 	}
 
-    get signedNormComponentXName(){
-        return this._signedNormComponentXName;
+    get xActiveAttributeName(){
+        return this._xActiveAttributeName;
     }
     
-    set signedNormComponentXName(value){
-        if (this._signedNormComponentXName !== value) {
-			this._signedNormComponentXName = value;
+    set xActiveAttributeName(value){
+        if (this._xActiveAttributeName !== value) {
+			this._xActiveAttributeName = value;
 			this.updateShaderSource();
 			this.dispatchEvent({
 				type: 'active_attribute_changed',
@@ -693,13 +697,13 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 		}
     }
 
-    get signedNormComponentYName(){
-        return this._signedNormComponentYName;
+    get yActiveAttributeName(){
+        return this._yActiveAttributeName;
     }
     
-    set signedNormComponentYName(value){
-        if (this._signedNormComponentYName !== value) {
-			this._signedNormComponentYName = value;
+    set yActiveAttributeName(value){
+        if (this._yActiveAttributeName !== value) {
+			this._yActiveAttributeName = value;
 			this.updateShaderSource();
 			this.dispatchEvent({
 				type: 'active_attribute_changed',
@@ -713,13 +717,13 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 		}
     }
 
-    get signedNormComponentZName(){
-        return this._signedNormComponentZName;
+    get zActiveAttributeName(){
+        return this._zActiveAttributeName;
     }
     
-    set signedNormComponentZName(value){
-        if (this._signedNormComponentZName !== value) {
-			this._signedNormComponentZName = value;
+    set zActiveAttributeName(value){
+        if (this._zActiveAttributeName !== value) {
+			this._zActiveAttributeName = value;
 			this.updateShaderSource();
 			this.dispatchEvent({
 				type: 'active_attribute_changed',
@@ -1211,11 +1215,11 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 		}
 	}
 
-    get nanColor () {
+    get NaNColor () {
 		return this.uniforms.uNaNColor.value;
 	}
 
-	set nanColor (value) {
+	set NaNColor (value) {
 		if (!this.uniforms.uNaNColor.value.equals(value)) {
 			this.uniforms.uNaNColor.value.copy(value);
 			this.dispatchEvent({
@@ -1224,6 +1228,47 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 			});
 		}
 	}
+
+    get refPoint(){
+        return this.uniforms.uRefPoint.value;
+    }
+    set refPoint(value){
+        if (this.uniforms.uRefPoint.value !== value) {
+            this.uniforms.uRefPoint.value = value;
+            this.dispatchEvent({
+                type: 'material_property_changed',
+                target: this
+            });
+        }
+    }
+
+    get useRefPoint(){
+        return this.uniforms.uUseRefPoint.value;
+    }
+
+    set useRefPoint(value){
+       if (this.uniforms.uUseRefPoint.value !== value) {
+			this.uniforms.uUseRefPoint.value = value;
+			this.dispatchEvent({
+				type: 'material_property_changed',
+				target: this
+			});
+		}
+    }
+
+    get refDirection(){
+        return this.uniforms.uRefDirection.value;
+    }
+
+    set refDirection(value){
+       if (this.uniforms.uRefDirection.value !== value) {
+			this.uniforms.uRefDirection.value = value;
+			this.dispatchEvent({
+				type: 'material_property_changed',
+				target: this
+			});
+		}
+    }
 
 	getRange(attributeName){
 		return this.ranges.get(attributeName);
