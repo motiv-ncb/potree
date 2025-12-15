@@ -26,7 +26,6 @@ export class Scene extends EventDispatcher{
 		this.cameraMode = CameraMode.PERSPECTIVE;
 		this.overrideCamera = null;
 		this.pointclouds = [];
-        this.BIMPointclouds = [];
 		this.measurements = [];
 		this.profiles = [];
 		this.volumes = [];
@@ -130,11 +129,8 @@ export class Scene extends EventDispatcher{
 		});
 	}
 
-    addBIMPointCloud (pointcloud) {
-        
-        // add it for vaious functionality
+    addBIMPointCloud (pointcloud) {        
         this.pointclouds.push(pointcloud);
-        this.BIMPointclouds.push(pointcloud);
         this.scenePointCloud.add(pointcloud);
 
         this.dispatchEvent({
