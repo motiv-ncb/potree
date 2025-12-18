@@ -5,7 +5,7 @@ import {CameraMode} from "../defines.js";
 import {View} from "./View.js";
 import {Utils} from "../utils.js";
 import {EventDispatcher} from "../EventDispatcher.js";
-
+import {SceneRecord} from "./SceneRecord.js";
 
 export class Scene extends EventDispatcher{
 
@@ -46,6 +46,8 @@ export class Scene extends EventDispatcher{
 
 		this.directionalLight = null;
 
+        this.sceneRecord = new SceneRecord(this);
+        
 		this.initialize();
 	}
 

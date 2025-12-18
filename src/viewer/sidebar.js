@@ -354,10 +354,10 @@ export class Sidebar{
                 const $a = $(this);
                 if ($a.find(".pc-remove-btn").length === 0) {
                     let nodeEl = tree.jstree(true).get_node($a[0].parentNode.id); // get the DOM element
-                    if(nodeEl.parent === "pointclouds"){
+                    if(nodeEl.parent === "pointclouds" || nodeEl.parent === "BIMs"){
                         let nodeElDOM = tree.jstree(true).get_node($a[0].parentNode.id,true); // get the DOM element
                         if(nodeEl.data && nodeEl.data.name){
-                            console.log("Adding remove button for pointcloud:", nodeEl.data.name);
+                         
                             nodeElDOM.children('a').attr('title', nodeEl.data.name);
                             $a.append(`<span class="pc-remove-btn" style="position: absolute; right: 4px; z-index:10000; color:red;" data-id="${nodeEl.data.uuid}">✖</span>`);
                         }

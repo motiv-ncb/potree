@@ -180,7 +180,7 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
             uBelowSignThresholdColor:		{ type: "c", value: new THREE.Color( 0x0000ff ) },
             uAboveSignThresholdColor:		{ type: "c", value: new THREE.Color( 0xff0000 ) },
             
-            uNaNThreshold: { type: "f", value: -10000000000.0},
+            uNaNThreshold: { type: "f", value: -10000000.0},
             uNaNColor:			{ type: "c", value: new THREE.Color( 0xaaaaaa ) },
 
             uUseRefPoint: { type: "b", value: false },

@@ -538,17 +538,11 @@ export class AreaVolume extends Volume {
 			};
 
 			let drop = e => {
-				// let i = this.spheres.indexOf(e.drag.object);
-				// if (i !== -1) {
-				// 	this.dispatchEvent({
-				// 		'type': 'marker_dropped',
-				// 		'measurement': this,
-				// 		'index': i
-				// 	});
-                //     this.updateVolumeGeometry();
-                //     this.updateTopBottomMarkerPosition();
-				// }
-                // console.log("drop");
+                viewer.scene.sceneRecord.addRecord({
+                    action: "move_points",
+                    objects: [this]
+                });
+				
 			};
 
             // let mouseover = (e) => e.object.material.emissive.setHex(0x888888);
@@ -713,6 +707,12 @@ export class AreaVolume extends Volume {
 			};
 
 			let drop = e => {
+                if(this.topSphere && this.bottomSphere){
+                    viewer.scene.sceneRecord.addRecord({
+                        action: "move_points",
+                        objects: [this]
+                    });
+                }
 				let i = this.spheres.indexOf(e.drag.object);
 				if (i !== -1) {
 					this.dispatchEvent({

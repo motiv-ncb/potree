@@ -38,6 +38,10 @@ export class VolumeTool extends EventDispatcher{
 
 		this.viewer.inputHandler.addEventListener('delete', e => {
 			let volumes = e.selection.filter(e => (e instanceof Volume));
+            this.viewer.scene.sceneRecord.addRecord({
+                action: "remove_volume",
+                objects: volumes
+            });
 			volumes.forEach(e => this.viewer.scene.removeVolume(e));
 		});
 
@@ -82,7 +86,10 @@ export class VolumeTool extends EventDispatcher{
 
 		this.viewer.scene.addVolume(volume);
 		this.scene.add(volume);
-        
+        this.viewer.scene.sceneRecord.addRecord({
+            action: "add_volume",
+            object: volume
+        });
 
 		let cancel = {
 			callback: null
@@ -121,6 +128,17 @@ export class VolumeTool extends EventDispatcher{
                 object: volume
             });
 
+            // check last record is insertion of this volume
+            if (this.viewer.scene.sceneRecord.records.length > 0){
+                const lastRecord = this.viewer.scene.sceneRecord.records[this.viewer.scene.sceneRecord.records.length -1];
+                if(lastRecord.action === "add_volume"){
+                    const sameRecordObject = lastRecord.objects.find(ro => ro.object.uuid === volume.uuid);
+                    if(sameRecordObject){
+                        sameRecordObject.state.matrix = volume.matrix.clone();
+                    }
+                }
+            }
+           
             // CMAIR : Initialize transforming volume
             if(volume.constructor.name == "TransformOriginBoxVolume"){
                 if(! volume.syncingVolume){
@@ -317,6 +335,11 @@ export class VolumeTool extends EventDispatcher{
                 measure.update();
                 measure.makeSelection();
             }
+
+            this.viewer.scene.sceneRecord.addRecord({
+                action: "add_volume",
+                objects: [measure]
+            });
             measure.dispatchEvent({
                 type: 'position_changed',
                 object: measure
@@ -332,7 +355,6 @@ export class VolumeTool extends EventDispatcher{
         this.viewer.inputHandler.startDragging(
             measure.spheres[measure.spheres.length - 1]);
 
-      //  this.viewer.scene.addMeasurement(measure);
         return measure;
     }
 

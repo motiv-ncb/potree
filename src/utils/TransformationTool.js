@@ -518,6 +518,7 @@ export class TransformationTool {
 	dropRotationHandle(e){
 		this.dragging = false;
 		this.setActiveHandle(null);
+        this.addMoveRecord();
 	}
 
 	dragTranslationHandle(e){
@@ -583,11 +584,13 @@ export class TransformationTool {
 	dropTranslationHandle(e){
 		this.dragging = false;
 		this.setActiveHandle(null);
+        this.addMoveRecord();
 	}
 
 	dropScaleHandle(e){
 		this.dragging = false;
 		this.setActiveHandle(null);
+        this.addMoveRecord();
 	}
 
 	dragScaleHandle(e){
@@ -778,6 +781,22 @@ export class TransformationTool {
 
 		
 	}
+
+    addMoveRecord(){
+        let movingObjects = [...this.selection];
+        for(let selection of this.selection){
+            if(selection.syncingVolume){
+                movingObjects.push(selection.syncingVolume)
+            }
+            if(selection.syncingPointcloud){
+                movingObjects.push(selection.syncingPointcloud);
+            }
+        }
+        this.viewer.scene.sceneRecord.addRecord({
+            action: "move_object",
+            objects: movingObjects,
+        });
+    }
 
 	update () {
 
