@@ -175,10 +175,11 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 			uExtraRange:		{ type: "2fv", value: [0, 1] },
 			uExtraGammaBrightContr:	{ type: "3fv", value: [1, 0, 0] },
 
-            uSignThreshold: { type: "f", value: 0},
-            uUseSignThresholdColor:      { type: "b", value: false},
-            uBelowSignThresholdColor:		{ type: "c", value: new THREE.Color( 0x0000ff ) },
-            uAboveSignThresholdColor:		{ type: "c", value: new THREE.Color( 0xff0000 ) },
+            uUseThresholdColor:      { type: "b", value: false},
+            uAboveThreshold: { type: "f", value: 0},
+            uBelowThreshold: { type: "f", value: 0},
+            uBelowThresholdColor:		{ type: "c", value: new THREE.Color( 0x0000ff ) },
+            uAboveThresholdColor:		{ type: "c", value: new THREE.Color( 0xff0000 ) },
             
             uNaNThreshold: { type: "f", value: -1000000000.0},
             uNaNColor:			{ type: "c", value: new THREE.Color( 0xaaaaaa ) },
@@ -1144,13 +1145,13 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 		}
 	}
 
-    get signThreshold () {
-		return this.uniforms.uSignThreshold.value;
+    get aboveThreshold () {
+		return this.uniforms.uAboveThreshold.value;
 	}
 
-	set signThreshold (value) {
-		if(this.uniforms.uSignThreshold.value !== value){
-			this.uniforms.uSignThreshold.value = value;
+	set aboveThreshold (value) {
+		if(this.uniforms.uAboveThreshold.value !== value){
+			this.uniforms.uAboveThreshold.value = value;
 			this.dispatchEvent({
 				type: 'material_property_changed',
 				target: this
@@ -1158,13 +1159,27 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 		}
 	}
 
-    get useSignThresholdColor () {
-		return this.uniforms.uUseSignThresholdColor.value;
+    get belowThreshold () {
+		return this.uniforms.uBelowThreshold.value;
 	}
 
-	set useSignThresholdColor (value) {
-		if(this.uniforms.uUseSignThresholdColor.value !== value){
-			this.uniforms.uUseSignThresholdColor.value = value;
+	set belowThreshold (value) {
+		if(this.uniforms.uBelowThreshold.value !== value){
+			this.uniforms.uBelowThreshold.value = value;
+			this.dispatchEvent({
+				type: 'material_property_changed',
+				target: this
+			});
+		}
+	}
+
+    get useThresholdColor () {
+		return this.uniforms.uUseThresholdColor.value;
+	}
+
+	set useThresholdColor (value) {
+		if(this.uniforms.uUseThresholdColor.value !== value){
+			this.uniforms.uUseThresholdColor.value = value;
 			this.dispatchEvent({
 				type: 'material_property_changed',
 				target: this
@@ -1173,13 +1188,13 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 	}
 
 
-    get belowSignThresholdColor () {
-		return this.uniforms.uBelowSignThresholdColor.value;
+    get belowThresholdColor () {
+		return this.uniforms.uBelowThresholdColor.value;
 	}
 
-	set belowSignThresholdColor (value) {
-		if (!this.uniforms.uBelowSignThresholdColor.value.equals(value)) {
-			this.uniforms.uBelowSignThresholdColor.value.copy(value);
+	set belowThresholdColor (value) {
+		if (!this.uniforms.uBelowThresholdColor.value.equals(value)) {
+			this.uniforms.uBelowThresholdColor.value.copy(value);
 			this.dispatchEvent({
 				type: 'material_property_changed',
 				target: this
@@ -1187,13 +1202,13 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 		}
 	}
 
-    get aboveSignThresholdColor () {
-		return this.uniforms.uAboveSignThresholdColor.value;
+    get aboveThresholdColor () {
+		return this.uniforms.uAboveThresholdColor.value;
 	}
 
-	set aboveSignThresholdColor (value) {
-		if (!this.uniforms.uAboveSignThresholdColor.value.equals(value)) {
-			this.uniforms.uAboveSignThresholdColor.value.copy(value);
+	set aboveThresholdColor (value) {
+		if (!this.uniforms.uAboveThresholdColor.value.equals(value)) {
+			this.uniforms.uAboveThresholdColor.value.copy(value);
 			this.dispatchEvent({
 				type: 'material_property_changed',
 				target: this

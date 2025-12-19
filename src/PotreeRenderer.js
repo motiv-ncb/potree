@@ -973,11 +973,12 @@ export class Renderer {
 
             // cmair sign Threshold
             {
-                shader.setUniform("uUseSignThresholdColor", material.uniforms.uUseSignThresholdColor.value);
-                if(material.uniforms.uUseSignThresholdColor.value){
-                    shader.setUniform1f("uSignThreshold",  material.uniforms.uSignThreshold.value);
-                    shader.setUniform3f("uBelowSignThresholdColor",  material.uniforms.uBelowSignThresholdColor.value.toArray());
-                    shader.setUniform3f("uAboveSignThresholdColor", material.uniforms.uAboveSignThresholdColor.value.toArray());
+                shader.setUniform("uUseThresholdColor", material.uniforms.uUseThresholdColor.value);
+                if(material.uniforms.uUseThresholdColor.value){
+                    shader.setUniform1f("uAboveThreshold",  material.uniforms.uAboveThreshold.value);
+                    shader.setUniform1f("uBelowThreshold",  material.uniforms.uBelowThreshold.value);
+                    shader.setUniform3f("uBelowThresholdColor",  material.uniforms.uBelowThresholdColor.value.toArray());
+                    shader.setUniform3f("uAboveThresholdColor", material.uniforms.uAboveThresholdColor.value.toArray());
                 }
             }
             {

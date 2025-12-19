@@ -81,13 +81,14 @@
 			material.size = 1;
 			material.pointSizeType = Potree.PointSizeType.ATTENUATED;
 			if (c) material.activeAttributeName = c;
-            material.activeAttributeName = "Distance_mm"
-             material.setRange("Distance_mm",[-50,50]);
-            material.useSignThresholdColor = true;
+            material.activeAttributeName = "Distance_X_mm"
+            material.setRange("Distance_X_mm",[-300,300]);
+            material.useThresholdColor = true;
             let gradient = Potree.Gradients["TURBO"];
             material.gradient = gradient;
             material.shape = Potree.PointShape.CIRCLE;
-
+            material.aboveThreshold = 50;
+            material.belowThreshold = -50
             material.intensityCurveOrder = 0.2;
 			viewer.fitToScreen(0.5);
 		});

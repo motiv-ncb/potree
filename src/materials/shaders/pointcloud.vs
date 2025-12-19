@@ -126,10 +126,11 @@ uniform vec2 uExtraRange;
 uniform float uExtraScale;
 uniform float uExtraOffset;
 
-uniform float uSignThreshold;
-uniform vec3 uBelowSignThresholdColor;
-uniform vec3 uAboveSignThresholdColor;
-uniform bool uUseSignThresholdColor;
+uniform float uAboveThreshold;
+uniform float uBelowThreshold;
+uniform vec3 uBelowThresholdColor;
+uniform vec3 uAboveThresholdColor;
+uniform bool uUseThresholdColor;
 
 // point to compare with point position
 uniform bool uUseRefPoint;
@@ -623,12 +624,12 @@ vec3 getMatcap(){
 }
 #endif
 
-vec3 getExtraSign(float a){
-    if(a < uSignThreshold){
-        return uBelowSignThresholdColor;
+vec3 getThresholdExtra(float a){
+    if(a <= uBelowThreshold){
+        return uBelowThresholdColor;
     }
     else{
-        return uAboveSignThresholdColor;
+        return uAboveThresholdColor;
     }
 }
 
@@ -686,8 +687,8 @@ vec3 getExtra(){
         displayExtra = getRelativeExtra();
     }
 
-    if(uUseSignThresholdColor){
-        return getExtraSign(displayExtra);
+    if(uUseThresholdColor && (displayExtra < uBelowThreshold || displayExtra > uAboveThreshold)){
+        return getThresholdExtra(displayExtra);
     }
 
 	float w = (displayExtra + uExtraOffset) * uExtraScale;
@@ -695,15 +696,6 @@ vec3 getExtra(){
 
 	vec3 color = texture2D(gradient, vec2(w,1.0-w)).rgb;
 
-	// vec2 r = uExtraNormalizedRange;
-
-	// float w = aExtra * (r.y - r.x) + r.x;
-
-	// w = (w - uExtraRange.x) / (uExtraRange.y - uExtraRange.x);
-
-	// w = clamp(w, 0.0, 1.0);
-
-	// vec3 color = texture2D(gradient, vec2(w,1.0-w)).rgb;
 
 	return color;
 }
@@ -753,8 +745,8 @@ vec3 getSignedNormExtra(){
         return uNaNColor;
     }
 
-    if(uUseSignThresholdColor){
-        return getExtraSign(a);
+    if(uUseThresholdColor){
+        return getThresholdExtra(a);
     }
 
 	float w = (a + uExtraOffset) * uExtraScale;
