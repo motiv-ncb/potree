@@ -193,7 +193,9 @@ export class MeasuringTool extends EventDispatcher{
 		measure.showCircle = pick(args.showCircle, false);
 		measure.showAzimuth = pick(args.showAzimuth, false);
 		measure.showEdges = pick(args.showEdges, true);
-		measure.closed = pick(args.closed, false);
+		measure.showAttributes = pick(args.showAttributes, false);
+        measure.closed = pick(args.closed, false);
+
 		measure.maxMarkers = pick(args.maxMarkers, Infinity);
 
 		measure.name = this.createUniqueName(args.name || 'Measurement');

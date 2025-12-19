@@ -5,6 +5,18 @@ import {Utils} from "../utils.js";
 import {Line2} from "../../libs/three.js/lines/Line2.js";
 import {LineGeometry} from "../../libs/three.js/lines/LineGeometry.js";
 import {LineMaterial} from "../../libs/three.js/lines/LineMaterial.js";
+import { MultiLineTextSprite } from "../MultiLineTextSprite.js";
+
+const nonExtraAttributeNames = [
+    "position",
+    "rgba",
+    "intensity",
+    "classification",
+    "return number",
+    "number of returns",
+    'source id',
+    "gps-time",
+]
 
 function createHeightLine(){
 	let lineGeometry = new LineGeometry();
@@ -402,7 +414,7 @@ export class Measure extends THREE.Object3D {
 		}
 
 		{ // coordinate labels
-			let coordinateLabel = new TextSprite();
+			let coordinateLabel = new MultiLineTextSprite();
 			coordinateLabel.setBorderColor({r: 0, g: 0, b: 0, a: 1.0});
 			coordinateLabel.setBackgroundColor({r: 0, g: 0, b: 0, a: 1.0});
 			coordinateLabel.fontsize = 16;
@@ -639,6 +651,20 @@ export class Measure extends THREE.Object3D {
                         coordinateLabel.setText(`Distance :`);
                     }
                 }
+                else if (this.showAttributes && this.points[0]){
+                    const lines = [msg];
+     
+                    const p = this.points[0];
+                    // console.log(p)
+                    for(let attributeName in p){
+                        if(!nonExtraAttributeNames.includes(attributeName)){
+                            lines.push(attributeName + " : " + p[attributeName][0].toFixed(1));
+
+                        }
+                        // console.log(p[att]);
+                    }
+                    coordinateLabel.setText(lines.join("\n"));
+                }
                 else {
                     coordinateLabel.setText(msg);
                 }
@@ -647,6 +673,7 @@ export class Measure extends THREE.Object3D {
                 //coordinateLabel.setText(msg);
 
 				coordinateLabel.visible = this.showCoordinates;
+            
 			}
 
 			return;

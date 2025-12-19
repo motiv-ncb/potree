@@ -676,7 +676,7 @@ float getRelativeExtra(){
 
 vec3 getExtra(){
 
-    if(aExtra <= uNaNThreshold){
+    if(!(aExtra >= uNaNThreshold)){
         return uNaNColor;
     }
 
@@ -738,7 +738,7 @@ float getSignedNormExtraValue(float x,float y,float z){
 
 vec3 getSignedNormExtra(){
 
-    if(xExtra <= uNaNThreshold || yExtra <= uNaNThreshold || zExtra <= uNaNThreshold){
+    if(!(xExtra >= uNaNThreshold) || !(yExtra >= uNaNThreshold) || !(zExtra >= uNaNThreshold)){
         return uNaNColor;
     }
     
@@ -749,7 +749,7 @@ vec3 getSignedNormExtra(){
         a = getRelativeVectorExtra();
     }
 
-    if(a <= uNaNThreshold){
+    if(!(a >= uNaNThreshold)){
         return uNaNColor;
     }
 

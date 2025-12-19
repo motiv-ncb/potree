@@ -107,6 +107,29 @@ export class Sidebar{
 			}
 		));
 
+        // Attribute POINT
+		elToolbar.append(this.createToolIcon(
+			Potree.resourcePath + '/icons/point_attribute.svg',
+			'[title]tt.point_attribute',
+			() => {
+				$('#menu_measurements').next().slideDown();
+				let measurement = this.measuringTool.startInsertion({
+					showDistances: false,
+					showAngles: false,
+					showCoordinates: true,
+					showArea: false,
+					closed: true,
+                    showAttributes:true,
+					maxMarkers: 1,
+					name: 'Point'});
+
+				let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
+				let jsonNode = measurementsRoot.children.find(child => child.data.uuid === measurement.uuid);
+				$.jstree.reference(jsonNode.id).deselect_all();
+				$.jstree.reference(jsonNode.id).select_node(jsonNode.id);
+			}
+		));
+
 		// DISTANCE
 		elToolbar.append(this.createToolIcon(
 			Potree.resourcePath + '/icons/distance.svg',
