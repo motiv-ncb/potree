@@ -180,7 +180,8 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
             uBelowThreshold: { type: "f", value: 0},
             uBelowThresholdColor:		{ type: "c", value: new THREE.Color( 0x0000ff ) },
             uAboveThresholdColor:		{ type: "c", value: new THREE.Color( 0xff0000 ) },
-            
+            uBetweenThresholdColor:		{ type: "c", value: new THREE.Color( 0xffffff ) },
+
             uNaNThreshold: { type: "f", value: -1000000000.0},
             uNaNColor:			{ type: "c", value: new THREE.Color( 0xaaaaaa ) },
 
@@ -1209,6 +1210,20 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 	set aboveThresholdColor (value) {
 		if (!this.uniforms.uAboveThresholdColor.value.equals(value)) {
 			this.uniforms.uAboveThresholdColor.value.copy(value);
+			this.dispatchEvent({
+				type: 'material_property_changed',
+				target: this
+			});
+		}
+	}
+
+    get betweenThresholdColor () {
+		return this.uniforms.uBetweenThresholdColor.value;
+	}
+
+	set betweenThresholdColor (value) {
+		if (!this.uniforms.uBetweenThresholdColor.value.equals(value)) {
+			this.uniforms.uBetweenThresholdColor.value.copy(value);
 			this.dispatchEvent({
 				type: 'material_property_changed',
 				target: this

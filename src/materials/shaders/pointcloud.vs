@@ -130,6 +130,7 @@ uniform float uAboveThreshold;
 uniform float uBelowThreshold;
 uniform vec3 uBelowThresholdColor;
 uniform vec3 uAboveThresholdColor;
+uniform vec3 uBetweenThresholdColor;
 uniform bool uUseThresholdColor;
 
 // point to compare with point position
@@ -628,8 +629,11 @@ vec3 getThresholdExtra(float a){
     if(a <= uBelowThreshold){
         return uBelowThresholdColor;
     }
-    else{
+    else if (a >= uAboveThreshold){
         return uAboveThresholdColor;
+    }
+    else{
+        return uBetweenThresholdColor;
     }
 }
 
@@ -687,7 +691,7 @@ vec3 getExtra(){
         displayExtra = getRelativeExtra();
     }
 
-    if(uUseThresholdColor && (displayExtra < uBelowThreshold || displayExtra > uAboveThreshold)){
+    if(uUseThresholdColor){
         return getThresholdExtra(displayExtra);
     }
 

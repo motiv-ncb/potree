@@ -979,6 +979,7 @@ export class Renderer {
                     shader.setUniform1f("uBelowThreshold",  material.uniforms.uBelowThreshold.value);
                     shader.setUniform3f("uBelowThresholdColor",  material.uniforms.uBelowThresholdColor.value.toArray());
                     shader.setUniform3f("uAboveThresholdColor", material.uniforms.uAboveThresholdColor.value.toArray());
+                    shader.setUniform3f("uBetweenThresholdColor", material.uniforms.uBetweenThresholdColor.value.toArray());
                 }
             }
             {

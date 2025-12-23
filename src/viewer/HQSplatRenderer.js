@@ -231,6 +231,7 @@ export class HQSplatRenderer{
                 attributeMaterial.belowThreshold = material.belowThreshold;
                 attributeMaterial.belowThresholdColor = material.belowThresholdColor;
                 attributeMaterial.aboveThresholdColor = material.aboveThresholdColor;
+                attributeMaterial.betweenThresholdColor = material.betweenThresholdColor;
                 attributeMaterial.NaNColor = material.NaNColor;
                 attributeMaterial.NaNThreshold = material.NaNThreshold;
 
