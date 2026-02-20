@@ -1740,6 +1740,15 @@ export class Sidebar{
 			}
 		));
 
+        elNavigation.append(this.createToolIcon(
+			Potree.resourcePath + '/icons/fps_controls.svg',
+			'[title]tt.flight_control',
+			() => {
+				this.viewer.setControls(this.viewer.fixedControls);
+				this.viewer.fixedControls.lockElevation = false;
+			}
+		));
+
 		elNavigation.append(this.createToolIcon(
 			Potree.resourcePath + '/icons/helicopter_controls.svg',
 			'[title]tt.heli_control',

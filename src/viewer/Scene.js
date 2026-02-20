@@ -36,6 +36,7 @@ export class Scene extends EventDispatcher{
 		this.geopackages = [];
 		
 		this.fpControls = null;
+        this.fixedControls = null;
 		this.orbitControls = null;
 		this.earthControls = null;
 		this.geoControls = null;

@@ -27,6 +27,7 @@ import {NavigationCube} from "./NavigationCube.js";
 import {Compass} from "../utils/Compass.js";
 import {OrbitControls} from "../navigation/OrbitControls.js";
 import {FirstPersonControls} from "../navigation/FirstPersonControls.js";
+import { FixedPositionControls } from "../navigation/FixedPositionControls.js";
 import {EarthControls} from "../navigation/EarthControls.js";
 import {DeviceOrientationControls} from "../navigation/DeviceOrientationControls.js";
 import {VRControls} from "../navigation/VRControls.js";
@@ -1119,6 +1120,13 @@ export class Viewer extends EventDispatcher{
 			this.fpControls.enabled = false;
 			this.fpControls.addEventListener('start', this.disableAnnotations.bind(this));
 			this.fpControls.addEventListener('end', this.enableAnnotations.bind(this));
+		}
+
+        { // create FIRST PERSON CONTROLS
+			this.fixedControls = new FixedPositionControls(this);
+			this.fixedControls.enabled = false;
+			this.fixedControls.addEventListener('start', this.disableAnnotations.bind(this));
+			this.fixedControls.addEventListener('end', this.enableAnnotations.bind(this));
 		}
 
 		// { // create GEO CONTROLS
