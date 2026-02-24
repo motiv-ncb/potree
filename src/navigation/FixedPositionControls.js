@@ -45,18 +45,20 @@ export class FixedPositionControls extends EventDispatcher{
                 }
     
                 let moveSpeed = this.viewer.getMoveSpeed();
-    
+                let fov = this.viewer.getFOV();
+                let fovSpeedFactor = fov / 60;
                 let ndrag = {
                     x: e.drag.lastDrag.x / this.renderer.domElement.clientWidth,
                     y: e.drag.lastDrag.y / this.renderer.domElement.clientHeight
                 };
-    
+                
                 if (e.drag.mouse === MOUSE.LEFT) {
-                    this.yawDelta += ndrag.x * this.rotationSpeed;
-                    this.pitchDelta += ndrag.y * this.rotationSpeed;
+                    this.yawDelta += ndrag.x * this.rotationSpeed * fovSpeedFactor;
+                    this.pitchDelta += ndrag.y * this.rotationSpeed * fovSpeedFactor;
                 } else if (e.drag.mouse === MOUSE.RIGHT) {
-                    // this.translationDelta.x -= ndrag.x * moveSpeed * 100;
-                    // this.translationDelta.z += ndrag.y * moveSpeed * 100;
+                    this.yawDelta += ndrag.x * this.rotationSpeed * fovSpeedFactor;
+                    this.pitchDelta += ndrag.y * this.rotationSpeed * fovSpeedFactor;
+
                 }
             };
     
@@ -73,7 +75,7 @@ export class FixedPositionControls extends EventDispatcher{
                 } else if (e.delta > 0) {
                     fov = fov * 0.9;
                 }
-                fov = Math.max(1, Math.min(fov, 100))
+                fov = Math.max(0.01, Math.min(fov, 100))
                 this.viewer.setFOV(fov);
            
             };
@@ -127,7 +129,18 @@ export class FixedPositionControls extends EventDispatcher{
     
             let d = this.scene.view.direction.multiplyScalar(-1);
             let cameraTargetPosition = new THREE.Vector3().addVectors(I.location, d.multiplyScalar(targetRadius));
-            // TODO Unused: let controlsTargetPosition = I.location;
+           
+            let controlsTargetPosition = I.location;
+            let startFOV = this.viewer.getFOV();
+
+            let targetDirection = new THREE.Vector3().subVectors(controlsTargetPosition, this.scene.view.position);
+            let startDirection = this.scene.view.direction.clone();
+           
+            let distance = targetDirection.length();
+            const targetSize = 1;
+            let targetFOV = Math.atan2(targetSize, distance) * 2 * 180 / Math.PI;
+            let controlStartPosition = new THREE.Vector3().addVectors(this.scene.view.position, startDirection.clone().multiplyScalar(distance));
+            targetDirection.normalize();
     
             let animationDuration = 600;
             let easing = TWEEN.Easing.Quartic.Out;
@@ -137,20 +150,18 @@ export class FixedPositionControls extends EventDispatcher{
                 let tween = new TWEEN.Tween(value).to({x: 1}, animationDuration);
                 tween.easing(easing);
                 this.tweens.push(tween);
-    
-                let startPos = this.scene.view.position.clone();
-                let targetPos = cameraTargetPosition.clone();
+
                 let startRadius = this.scene.view.radius;
                 let targetRadius = cameraTargetPosition.distanceTo(I.location);
     
                 tween.onUpdate(() => {
                     let t = value.x;
-                    this.scene.view.position.x = (1 - t) * startPos.x + t * targetPos.x;
-                    this.scene.view.position.y = (1 - t) * startPos.y + t * targetPos.y;
-                    this.scene.view.position.z = (1 - t) * startPos.z + t * targetPos.z;
-    
+                   
+                    const interpolatedVector = controlStartPosition.clone();
+                    interpolatedVector.lerp(controlsTargetPosition, t);
+                    this.scene.view.lookAt(interpolatedVector);
+                    this.viewer.setFOV((1 - t) * startFOV + t * targetFOV)
                     this.scene.view.radius = (1 - t) * startRadius + t * targetRadius;
-                    this.viewer.setMoveSpeed(this.scene.view.radius / 2.5);
                 });
     
                 tween.onComplete(() => {

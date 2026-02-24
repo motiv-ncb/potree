@@ -816,6 +816,10 @@ export class Viewer extends EventDispatcher{
 
 		let startPosition = view.position.clone();
 		let endPosition = camera.position.clone();
+        if(this.controls == this.fixedControls){
+            // make the position not move for fixedControls
+            endPosition = startPosition.clone();
+        }
 		let startTarget = view.getPivot();
 		let endTarget = bs.center;
 		let startRadius = view.radius;
@@ -850,6 +854,30 @@ export class Viewer extends EventDispatcher{
 			this.dispatchEvent({type: 'focusing_started', target: this});
 			tween.start();
 		}
+
+         if(this.controls == this.fixedControls){
+            let value = {x: 0};
+            let startFOV = this.getFOV();
+            let distance = startPosition.distanceTo(endTarget);
+            let targetRadius = 1;
+            if(bs.radius){
+                targetRadius = bs.radius;
+            }
+            let targetFOV = Math.atan2(targetRadius, distance) * 2 * 180 / Math.PI;
+            let tween = new TWEEN.Tween(value).to({x: 1}, animationDuration);
+			tween.easing(easing);
+			tween.onUpdate(() => {
+				let t = value.x;
+                this.setFOV((1 - t) * startFOV + t * targetFOV)
+			});
+			tween.onComplete(() => {
+				this.setFOV(targetFOV)
+			});
+
+			this.dispatchEvent({type: 'focusing_started', target: this});
+			tween.start();
+        }
+
 	};
 
 	moveToGpsTimeVicinity(time){
