@@ -864,6 +864,9 @@ export class Viewer extends EventDispatcher{
                 targetRadius = bs.radius;
             }
             let targetFOV = Math.atan2(targetRadius, distance) * 2 * 180 / Math.PI;
+            if(targetFOV > 150){
+                targetFOV = 150;
+            }
             let tween = new TWEEN.Tween(value).to({x: 1}, animationDuration);
 			tween.easing(easing);
 			tween.onUpdate(() => {
@@ -962,43 +965,49 @@ export class Viewer extends EventDispatcher{
 	setTopView(){
 		this.scene.view.yaw = 0;
 		this.scene.view.pitch = -Math.PI / 2;
-
-		this.fitToScreen();
+        if(this.controls!= this.fixedControls){
+		    this.fitToScreen();
+        }
 	};
 	
 	setBottomView(){
 		this.scene.view.yaw = -Math.PI;
 		this.scene.view.pitch = Math.PI / 2;
-		
-		this.fitToScreen();
+		if(this.controls!= this.fixedControls){
+		    this.fitToScreen();
+        }
 	};
 
 	setFrontView(){
 		this.scene.view.yaw = 0;
 		this.scene.view.pitch = 0;
-
-		this.fitToScreen();
+        if(this.controls!= this.fixedControls){
+            this.fitToScreen();
+        }
 	};
 	
 	setBackView(){
 		this.scene.view.yaw = Math.PI;
 		this.scene.view.pitch = 0;
-		
-		this.fitToScreen();
+		if(this.controls!= this.fixedControls){
+		    this.fitToScreen();
+        }
 	};
 
 	setLeftView(){
 		this.scene.view.yaw = -Math.PI / 2;
 		this.scene.view.pitch = 0;
-
-		this.fitToScreen();
+        if(this.controls!= this.fixedControls){
+		    this.fitToScreen();
+        }
 	};
 
 	setRightView () {
 		this.scene.view.yaw = Math.PI / 2;
 		this.scene.view.pitch = 0;
-
-		this.fitToScreen();
+        if(this.controls!= this.fixedControls){
+		    this.fitToScreen();
+        }
 	};
 
 	flipYZ () {

@@ -371,25 +371,6 @@ export class Sidebar{
 		}
 	}
 
-    setPointcloudTreeNodes(e, data){
-        let tree = $("#jstree_scene");
-            $(".jstree-anchor").each(function () {
-                const $a = $(this);
-                if ($a.find(".pc-remove-btn").length === 0) {
-                    let nodeEl = tree.jstree(true).get_node($a[0].parentNode.id); // get the DOM element
-                    if(nodeEl.parent === "pointclouds" || nodeEl.parent === "BIMs"){
-                        let nodeElDOM = tree.jstree(true).get_node($a[0].parentNode.id,true); // get the DOM element
-                        if(nodeEl.data && nodeEl.data.name){
-                         
-                            nodeElDOM.children('a').attr('title', nodeEl.data.name);
-                            $a.append(`<span class="pc-remove-btn" style="position: absolute; right: 4px; z-index:10000; color:red;" data-id="${nodeEl.data.uuid}">✖</span>`);
-                        }
-                    }
-                }
-            }
-        );
-        tree.i18n();
-    }
 
 	initScene(){
 
@@ -520,11 +501,8 @@ export class Sidebar{
 
 		tree.on('create_node.jstree', (e, data) => {
 			tree.jstree("open_all");
-            this.setPointcloudTreeNodes(e, data);
 		});
-        tree.on('after_open.jstree', this.setPointcloudTreeNodes);
-        tree.on('refresh.jstree', this.setPointcloudTreeNodes);
-        tree.on('ready.jstree', this.setPointcloudTreeNodes);
+  
        
       
 
@@ -547,9 +525,6 @@ export class Sidebar{
 
 		tree.on("delete_node.jstree", (e, data) => {
 			propertiesPanel.set(null);
-            setTimeout(() => {
-                this.setPointcloudTreeNodes(e, data);
-            }, 50);
 		});
 
 		tree.on('dblclick','.jstree-anchor', (e) => {
@@ -663,7 +638,7 @@ export class Sidebar{
 
         tree.on("click", ".pc-remove-btn", function(e) {
             e.stopPropagation();  // prevent node selection
-            const pcid = $(this).data("id");
+            const pcid = $(this).data("uuid");
             const pointcloud = viewer.scene.pointclouds.find(pc => pc.uuid === pcid);
             if (pointcloud) {
                     viewer.scene.removePointCloud(pointcloud)
@@ -674,7 +649,20 @@ export class Sidebar{
 		let onPointCloudAdded = (e) => {
 			let pointcloud = e.pointcloud;
 			let cloudIcon = `${Potree.resourcePath}/icons/cloud.svg`;
-			let node = createNode(pcID, pointcloud.name, cloudIcon, pointcloud);
+            let node;
+            // let text = pointcloud.name;
+            let text = ` 
+            <div style = "display: inline-flex;justify-content: space-between;align-items: center;width: calc(100% - 80px);">
+                <div style ="
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;"
+                    title="${pointcloud.name}"
+                    >${pointcloud.name}
+                </div>
+                <span class="pc-remove-btn" style="position: absolute; right: 4px; z-index:10000; color:red;" data-uuid= "${pointcloud.uuid}">✖</span>
+                </div> `
+            node = createNode(pcID, text, cloudIcon, pointcloud);
             pointcloud.addEventListener("visibility_changed", () => {
 				if(pointcloud.visible){
 					tree.jstree('check_node', node);
@@ -687,15 +675,28 @@ export class Sidebar{
 
         let onBIMPointCloudAdded = (e) => {
             let pointcloud = e.pointcloud;
-            let cloudIcon = `${Potree.resourcePath}/icons/cloud.svg`;
-            let node = createNode(BIMID, pointcloud.name, cloudIcon, pointcloud);
+			let cloudIcon = `${Potree.resourcePath}/icons/cloud.svg`;
+            let node;
+            // let text = pointcloud.name;
+            let text = ` 
+            <div style = "display: inline-flex;justify-content: space-between;align-items: center;width: calc(100% - 80px);">
+                <div style ="
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;"
+                    title="${pointcloud.name}"
+                    >${pointcloud.name}
+                </div>
+                <span class="pc-remove-btn" style="position: absolute; right: 4px; z-index:10000; color:red;" data-uuid= "${pointcloud.uuid}">✖</span>
+                </div> `
+            node = createNode(BIMID, text, cloudIcon, pointcloud);
             pointcloud.addEventListener("visibility_changed", () => {
-                if (pointcloud.visible) {
-                    tree.jstree('check_node', node);
-                } else {
-                    tree.jstree('uncheck_node', node);
-                }
-            });
+				if(pointcloud.visible){
+					tree.jstree('check_node', node);
+				}else{
+					tree.jstree('uncheck_node', node);
+				}
+			});
             tree.i18n();
         }
 
@@ -1740,14 +1741,14 @@ export class Sidebar{
 			}
 		));
 
-        elNavigation.append(this.createToolIcon(
-			Potree.resourcePath + '/icons/fps_controls.svg',
-			'[title]tt.flight_control',
-			() => {
-				this.viewer.setControls(this.viewer.fixedControls);
-				this.viewer.fixedControls.lockElevation = false;
-			}
-		));
+        // elNavigation.append(this.createToolIcon(
+		// 	Potree.resourcePath + '/icons/fps_controls.svg',
+		// 	'[title]tt.flight_control',
+		// 	() => {
+		// 		this.viewer.setControls(this.viewer.fixedControls);
+		// 		this.viewer.fixedControls.lockElevation = false;
+		// 	}
+		// ));
 
 		elNavigation.append(this.createToolIcon(
 			Potree.resourcePath + '/icons/helicopter_controls.svg',
