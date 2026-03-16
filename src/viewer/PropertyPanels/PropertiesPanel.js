@@ -98,8 +98,14 @@ export class PropertiesPanel{
 
         // for cmair, add "pc_filename" and "num_points"
 		let panel = $(`
-             <div class="divider"><span data-i18n="appearance.properties">Properties</span></div>
-			<div class="scene_content selectable">
+             <div class="divider">
+                <span>
+                 <span data-i18n="appearance.properties">Properties</span>
+                    <button id="pc_properties_shrinking" class="transparent-background-btn" style="background-color: transparent;color: #FFFFFF; border: none; outline: none; cursor: pointer; width:15px;">▲</button>
+                    <button id="pc_properties_show" class="transparent-background-btn" style="background-color: transparent;color: #FFFFFF; border: none; outline: none; cursor: pointer; width:15px;">▼</button>
+                </span>   
+             </div>
+			<div id="pc_properties_panel" class="scene_content selectable">
 				<ul class="pv-menu-list">
                
 				<li>
@@ -320,6 +326,33 @@ export class PropertiesPanel{
 
 		panel.i18n();
 		this.container.append(panel);
+
+        // show hide
+        {
+            let pc_properties_shrinking = panel.find(`#pc_properties_shrinking`);
+            let pc_properties_show = panel.find(`#pc_properties_show`);
+            
+            pc_properties_shrinking.off("click");
+            pc_properties_shrinking.on("click", ()=>{         
+                const elements = panel.filter("#pc_properties_panel");
+                if(elements){
+                    elements.hide();
+                }
+                pc_properties_shrinking.hide();
+                pc_properties_show.show();
+            })
+            
+            pc_properties_show.off("click");
+            pc_properties_show.on("click", ()=>{
+                const elements = panel.filter("#pc_properties_panel");
+                if(elements){
+                    elements.show();
+                }
+                pc_properties_shrinking.show();
+                pc_properties_show.hide();
+            })     
+            pc_properties_show.click();
+        }
 
        // cmair ADDED: rcd - number of points and filename
         {

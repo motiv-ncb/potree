@@ -900,16 +900,15 @@ export class Sidebar{
 
         
 		let onPointcloudRemoved = (e) => {
-			let pointcloudRoot = $("#jstree_scene").jstree().get_json("pointclouds");
-			let jsonNode = pointcloudRoot.children.find(child => child.data.uuid === e.pointcloud.uuid);
-            if(jsonNode){
-                tree.jstree("delete_node", jsonNode.id);
-                tree.i18n();
-            }
-
-            pointcloudRoot = $("#jstree_scene").jstree().get_json("BIMs");
-			jsonNode = pointcloudRoot.children.find(child => child.data.uuid === e.pointcloud.uuid);
-            if(jsonNode){
+			let allNodes = $("#jstree_scene").jstree().get_json(null, { flat: true });
+	          	let jsonNode = allNodes.find(child => child.data.uuid === e.pointcloud.uuid);  
+                const parentId = tree.jstree("get_parent",jsonNode.id); 
+	            if(jsonNode){
+                    for(let node of allNodes){
+                        if(tree.jstree("get_parent",node.id) == jsonNode.id){
+                            tree.jstree("move_node", node.id, parentId,"last");
+	                }
+                }
                 tree.jstree("delete_node", jsonNode.id);
                 tree.i18n();
             }
