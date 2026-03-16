@@ -1075,6 +1075,24 @@ export class Utils {
 
 	}
 
+    static set_data_i18n_ForSelectionGroup(id, title, labelTexts){
+    // prevent error if the element is not found
+    try{
+        let elSelect = $(id);
+        elSelect.find("legend").attr('data-i18n', title);
+        const labels = elSelect.find("label");
+        if(labelTexts && labelTexts.length == labels.length){
+            for(let i = 0; i < labels.length; i++){
+            let label = $(labels[i]);
+            label.attr('data-i18n', labelTexts[i]);
+        }
+        }
+    }
+    catch(e){
+        console.error("Error in assignLanguage: ", e);
+    }
+}
+
 }
 
 Utils.screenPass = new function () {
@@ -1096,3 +1114,5 @@ Utils.screenPass = new function () {
 		}
 	};
 }();
+
+

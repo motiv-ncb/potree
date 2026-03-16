@@ -81,18 +81,27 @@ export class PropertiesPanel{
 		});
 	}
 
+    getSelectedPointclouds(){
+        const results = [];
+        let pointclouds = $("#jstree_scene").jstree().get_json("pointclouds", { flat: true }).filter(x => x.state.selected && x.data.type).map(x => x.data);
+        results.push(...pointclouds);
+        pointclouds = $("#jstree_scene").jstree().get_json("BIMs", { flat: true }).filter(x => x.state.selected && x.data.type).map(x => x.data);
+        results.push(...pointclouds);
+        return results;
+    }
+
 	setPointCloud(pointcloud){
 
+        let self = this;
+
 		let material = pointcloud.material;
-        let removeIconPath = Potree.resourcePath + '/icons/remove.svg';
-        let moveIconPath = Potree.resourcePath + '/icons/earth_controls_1.png';
 
         // for cmair, add "pc_filename" and "num_points"
 		let panel = $(`
-            <div class="divider"><span data-i18n="appearance.properties">Properties</span></div>
+             <div class="divider"><span data-i18n="appearance.properties">Properties</span></div>
 			<div class="scene_content selectable">
 				<ul class="pv-menu-list">
-
+               
 				<li>
 				    <span data-i18n="appearance.file_name">Filename:</span>
 				</li>
@@ -106,6 +115,13 @@ export class PropertiesPanel{
 				    <input id="num_points" value="" disabled style="width: 255px; height: 27px; margin-bottom: 10px; color: #111111 !important"/>
 				</li>
 
+                <li>
+				    <span id="sidebar_pc_transform_ref_span" data-i18n="transform.transform_ref">Reference Pointcloud</span>
+				</li>
+                <li>
+				    <input id="sidebar_pc_transform_ref" value="" disabled style="width: 255px; height: 27px; margin-bottom: 10px; color: #111111 !important"/>
+				</li>
+                
 				<li>
 				<span data-i18n="appearance.point_size"></span>:&nbsp;<span id="lblPointSize"></span> <div id="sldPointSize"></div>
 				</li>
@@ -114,7 +130,7 @@ export class PropertiesPanel{
 				</li>
 
 				<!-- SIZE TYPE -->
-				<li>
+				<li style="display:none;">
 					<label for="optPointSizing" class="pv-select-label" data-i18n="appearance.point_size_type">Point Sizing </label>
 					<select id="optPointSizing" name="optPointSizing">
 						<option value="FIXED" data-i18n="appearance.FIXED">FIXED</option>
@@ -124,7 +140,7 @@ export class PropertiesPanel{
 				</li>
 
 				<!-- SHAPE -->
-				<li>
+				<li style="display:none;">
 					<label for="optShape" class="pv-select-label" data-i18n="appearance.point_shape"></label><br>
 					<select id="optShape" name="optShape">
 						<option value="SQUARE" data-i18n="appearance.SQUARE">SQUARE</option>
@@ -133,12 +149,12 @@ export class PropertiesPanel{
 					</select>
 				</li>
 
-				<li id="materials_backface_container">
+				<li id="materials_backface_container" style="display:none;">
 				<label><input id="set_backface_culling" type="checkbox" /><span data-i18n="appearance.backface_culling"></span></label>
 				</li>
 				
 				<!-- OPACITY -->
-				<li><span data-i18n="appearance.point_opacity"></span>:<span id="lblOpacity"></span><div id="sldOpacity"></div></li>
+				<li  style="display:none;"><span data-i18n="appearance.point_opacity"></span>:<span id="lblOpacity"></span><div id="sldOpacity"></div></li>
 
 				<div class="divider">
 					<span data-i18n="appearance.attribute">Attribute</span>
@@ -191,6 +207,8 @@ export class PropertiesPanel{
 					<li><span data-i18n="appearance.gamma"></span> <span id="lblRGBGamma"></span> <div id="sldRGBGamma"></div>	</li>
 					<li><span data-i18n="appearance.brightness"></span> <div id="sldRGBBrightness"></div>	</li>
 					<li><span data-i18n="appearance.contrast"></span> <div id="sldRGBContrast"></div>	</li>
+
+                    <div id="color_enhance_area" class="scene_content selectable"></div>
 				</div>
 
 				<div id="materials.extra_container">
@@ -296,25 +314,22 @@ export class PropertiesPanel{
 					</div>
 				</div>
 
-                <div style="display: flex; margin-top: 12px">
-					<span></span>
-					<span style="flex-grow: 1"></span>
-                    <img name="move" class="button-icon" src="${moveIconPath}" style="width: 16px; height: 16px"/>
-
-					<img name="remove" class="button-icon" src="${removeIconPath}" style="width: 16px; height: 16px"/>
-				</div>
-				</ul>
+               
 			</div>
 		`);
 
 		panel.i18n();
 		this.container.append(panel);
 
-        // cmair ADDED: rcd - number of points and filename
+       // cmair ADDED: rcd - number of points and filename
         {
             if(pointcloud.pcoGeometry.points){
                 let num_points = panel.find(`#num_points`);
                 num_points.val(pointcloud.pcoGeometry.points.toLocaleString());
+            }
+            if(pointcloud.pcoGeometry.copc){
+                let num_points = panel.find(`#num_points`);
+                num_points.val(pointcloud.pcoGeometry.copc.header.pointCount.toLocaleString());
             }
            
 
@@ -322,166 +337,206 @@ export class PropertiesPanel{
             pc_filename.val(pointcloud.name);
         }
 
-		{ // POINT SIZE
-			let sldPointSize = panel.find(`#sldPointSize`);
-			let lblPointSize = panel.find(`#lblPointSize`);
+        // cmair ADDED: Transformation info
+        {
+            let lang = localStorage.getItem("language");
+            if(!lang){
+                lang = "jp";
+            }
+            if(pointcloud.transformRefPointcloud){
+                panel.find(`#sidebar_pc_transform_ref`).val(pointcloud.transformRefPointcloud.name);
+            }
+            else{
+               if(lang == "jp"){
+                    panel.find(`#sidebar_pc_transform_ref`).val("変換なし");
+                }
+                else{
+                    panel.find(`#sidebar_pc_transform_ref`).val("Not transformed");
+                }
+            }
+        }
 
-			sldPointSize.slider({
-				value: material.size,
-				min: 0,
-				max: 3,
-				step: 0.01,
-				slide: function (event, ui) { material.size = ui.value; }
-			});
+        { // POINT SIZE
+            let sldPointSize = panel.find(`#sldPointSize`);
+            let lblPointSize = panel.find(`#lblPointSize`);
 
-			let update = (e) => {
-				lblPointSize.html(material.size.toFixed(2));
+            sldPointSize.slider({
+                value: material.size,
+                min: 0,
+                max: 3,
+                step: 0.01,
+                slide: function (event, ui) {
+                    material.size = ui.value;
+                    let pointClouds = self.getSelectedPointclouds();
+                    for (let point of pointClouds) {
+                        point.material.size = ui.value;
+                    }
+
+                }
+            });
+
+            let update = (e) => {
+                lblPointSize.html(material.size.toFixed(2));
 				sldPointSize.slider({value: material.size});
-			};
-			this.addVolatileListener(material, "point_size_changed", update);
-			
-			update();
-		}
+            };
+            this.addVolatileListener(material, "point_size_changed", update);
 
-		{ // MINIMUM POINT SIZE
-			let sldMinPointSize = panel.find(`#sldMinPointSize`);
-			let lblMinPointSize = panel.find(`#lblMinPointSize`);
+            update();
+        }
 
-			sldMinPointSize.slider({
-				value: material.size,
-				min: 0,
-				max: 3,
-				step: 0.01,
-				slide: function (event, ui) { material.minSize = ui.value; }
-			});
+        { // MINIMUM POINT SIZE
+            let sldMinPointSize = panel.find(`#sldMinPointSize`);
+            let lblMinPointSize = panel.find(`#lblMinPointSize`);
 
-			let update = (e) => {
-				lblMinPointSize.html(material.minSize.toFixed(2));
+            sldMinPointSize.slider({
+                value: material.size,
+                min: 0,
+                max: 3,
+                step: 0.01,
+                slide: function (event, ui) {
+                    material.minSize = ui.value;
+                    let pointClouds = self.getSelectedPointclouds();
+                    for (let point of pointClouds) {
+                        point.material.minSize = ui.value;
+                    }
+                }
+            });
+
+            let update = (e) => {
+                lblMinPointSize.html(material.minSize.toFixed(2));
 				sldMinPointSize.slider({value: material.minSize});
-			};
-			this.addVolatileListener(material, "point_size_changed", update);
-			
-			update();
-		}
+            };
+            this.addVolatileListener(material, "point_size_changed", update);
 
-		{ // POINT SIZING
+            update();
+        }
+
+        { // POINT SIZING
 			let strSizeType = Object.keys(PointSizeType)[material.pointSizeType];
 
-			let opt = panel.find(`#optPointSizing`);
-			opt.selectmenu();
-			opt.val(strSizeType).selectmenu('refresh');
+            let opt = panel.find(`#optPointSizing`);
+            opt.selectmenu();
+            opt.val(strSizeType).selectmenu('refresh');
 
-			opt.selectmenu({
-				change: (event, ui) => {
-					material.pointSizeType = PointSizeType[ui.item.value];
-				}
-			});
-		}
+            opt.selectmenu({
+                change: (event, ui) => {
+                    material.pointSizeType = PointSizeType[ui.item.value];
+                    let pointClouds = self.getSelectedPointclouds();
+                    for (let point of pointClouds) {
+                        point.material.pointSizeType = PointSizeType[ui.item.value];
+                    }
+                }
+            });
+        }
 
-		{ // SHAPE
-			let opt = panel.find(`#optShape`);
+        { // SHAPE
+            let opt = panel.find(`#optShape`);
 
-			opt.selectmenu({
-				change: (event, ui) => {
-					let value = ui.item.value;
+            opt.selectmenu({
+                change: (event, ui) => {
+                    let value = ui.item.value;
+                    material.shape = PointShape[value];
+                    let pointClouds = self.getSelectedPointclouds();
+                    for (let point of pointClouds) {
+                        point.material.shape = PointShape[value];
+                    }
 
-					material.shape = PointShape[value];
-				}
-			});
+                }
+            });
 
-			let update = () => {
-				let typename = Object.keys(PointShape)[material.shape];
+            let update = () => {
+                let typename = Object.keys(PointShape)[material.shape];
 
-				opt.selectmenu().val(typename).selectmenu('refresh');
-			};
-			this.addVolatileListener(material, "point_shape_changed", update);
+                opt.selectmenu().val(typename).selectmenu('refresh');
+            };
+            this.addVolatileListener(material, "point_shape_changed", update);
 
-			update();
-		}
+            update();
+        }
 
-		{ // BACKFACE CULLING
-			
-			let opt = panel.find(`#set_backface_culling`);
-			opt.click(() => {
-				material.backfaceCulling = opt.prop("checked");
-			});
-			let update = () => {
-				let value = material.backfaceCulling;
-				opt.prop("checked", value);
-			};
-			this.addVolatileListener(material, "backface_changed", update);
-			update();
+        { // BACKFACE CULLING
 
-			let blockBackface = $('#materials_backface_container');
-			blockBackface.css('display', 'none');
+            let opt = panel.find(`#set_backface_culling`);
+            opt.click(() => {
+                material.backfaceCulling = opt.prop("checked");
+            });
+            let update = () => {
+                let value = material.backfaceCulling;
+                opt.prop("checked", value);
+            };
+            this.addVolatileListener(material, "backface_changed", update);
+            update();
 
-			const pointAttributes = pointcloud.pcoGeometry.pointAttributes;
-			const hasNormals = pointAttributes.hasNormals ? pointAttributes.hasNormals() : false;
-			if(hasNormals) {
-				blockBackface.css('display', 'block');
-			}
-			/*
-			opt.checkboxradio({
-				clicked: (event, ui) => {
-					// let value = ui.item.value;
-					let value = ui.item.checked;
-					console.log(value);
-					material.backfaceCulling = value; // $('#set_freeze').prop("checked");
-				}
-			});
-			*/
-		}
+            let blockBackface = $('#materials_backface_container');
+            blockBackface.css('display', 'none');
 
-		{ // OPACITY
-			let sldOpacity = panel.find(`#sldOpacity`);
-			let lblOpacity = panel.find(`#lblOpacity`);
+            const pointAttributes = pointcloud.pcoGeometry.pointAttributes;
+            const hasNormals = pointAttributes.hasNormals ? pointAttributes.hasNormals() : false;
+            if (hasNormals) {
+                blockBackface.css('display', 'block');
+            }
+            /*
+            opt.checkboxradio({
+                clicked: (event, ui) => {
+                    // let value = ui.item.value;
+                    let value = ui.item.checked;
+                    console.log(value);
+                    material.backfaceCulling = value; // $('#set_freeze').prop("checked");
+                }
+            });
+            */
+        }
 
-			sldOpacity.slider({
-				value: material.opacity,
-				min: 0,
-				max: 1,
-				step: 0.001,
-				slide: function (event, ui) { 
-					material.opacity = ui.value;
-				}
-			});
+        { // OPACITY
+            let sldOpacity = panel.find(`#sldOpacity`);
+            let lblOpacity = panel.find(`#lblOpacity`);
 
-			let update = (e) => {
-				lblOpacity.html(material.opacity.toFixed(2));
-				sldOpacity.slider({value: material.opacity});
-			};
-			this.addVolatileListener(material, "opacity_changed", update);
+            sldOpacity.slider({
+                value: material.opacity,
+                min: 0,
+                max: 1,
+                step: 0.001,
+                slide: function (event, ui) {
+                    material.opacity = ui.value;
+                }
+            });
 
-			update();
-		}
+            let update = (e) => {
+                lblOpacity.html(material.opacity.toFixed(2));
+                sldOpacity.slider({ value: material.opacity });
+            };
+            this.addVolatileListener(material, "opacity_changed", update);
 
-		{
+            update();
+        }
 
-			const attributes = pointcloud.pcoGeometry.pointAttributes.attributes;
+        {
 
-			let options = [];
+            const attributes = pointcloud.pcoGeometry.pointAttributes.attributes;
 
-			options.push(...attributes.map(a => a.name));
+            let options = [];
 
-			const intensityIndex = options.indexOf("intensity");
+            options.push(...attributes.map(a => a.name));
+
+            const intensityIndex = options.indexOf("intensity");
 			if(intensityIndex >= 0){
-				options.splice(intensityIndex + 1, 0, "intensity gradient");
-			}
+                options.splice(intensityIndex + 1, 0, "intensity gradient");
+            }
 
-			options.push(
-				"elevation",
-				"color",
-				'matcap',
-				'indices',
-				'level of detail',
-				'composite',
-                'signed norm'
-			);
+            options.push(
+                "elevation",
+                "color",
+                'matcap',
+                'indices',
+                'level of detail',
+                'composite',
+            );
 
-			const blacklist = [
-				"POSITION_CARTESIAN",
-				"position",
-			];
+            const blacklist = [
+                "POSITION_CARTESIAN",
+                "position",
+                "intensity"
+            ];
 
             const translationOptions = {
                 "intensity":"attribute.intensity",
@@ -501,25 +556,25 @@ export class PropertiesPanel{
                 'signed norm':"attribute.signed_norm"
             };
 
-			options = options.filter(o => !blacklist.includes(o));
-			let attributeSelection = panel.find('#optMaterial');
+            options = options.filter(o => !blacklist.includes(o));
+            let attributeSelection = panel.find('#optMaterial');
 			for(let option of options){
                 if(translationOptions[option]){
                     let elOption = $(`<option value="${option}" data-i18n="${translationOptions[option]}">${option}</option>`);
-				    attributeSelection.append(elOption);
+                    attributeSelection.append(elOption);
                 }
                 else{
                     let elOption = $(`<option>${option}</option>`);
-				    attributeSelection.append(elOption);
+                    attributeSelection.append(elOption);
                 }
-				
-			}
+
+            }
             attributeSelection.i18n();
 
             const extarBlacklist = [
-				"POSITION_CARTESIAN",
+                "POSITION_CARTESIAN",
                 'intensity',
-				"position",
+                "position",
                 "rgba",
                 "classification",
                 "gps-time",
@@ -527,9 +582,9 @@ export class PropertiesPanel{
                 "number of returns",
                 "return number",
                 "source id"
-			];
-             let extraoptions = [];
-			extraoptions.push(...attributes.map(a => a.name));
+            ];
+            let extraoptions = [];
+            extraoptions.push(...attributes.map(a => a.name));
             extraoptions = extraoptions.filter(o => !extarBlacklist.includes(o));
 
             let signedNormSelectionX = panel.find('#optSignedNormX');
@@ -541,47 +596,77 @@ export class PropertiesPanel{
                 signedNormSelectionZ.append( $(`<option>${option}</option>`));
             }
 
-			let updateMaterialPanel = (event, ui) => {
-				let selectedValue = attributeSelection.selectmenu().val();
-				material.activeAttributeName = selectedValue;
+            let updateMaterialPanel = (event, ui) => {
+                let selectedValue = attributeSelection.selectmenu().val();
+                material.activeAttributeName = selectedValue;
                 material.xActiveAttributeName = signedNormSelectionX.val();
                 material.yActiveAttributeName = signedNormSelectionY.val();
                 material.zActiveAttributeName = signedNormSelectionZ.val();
-                
-				let attribute = pointcloud.getAttribute(selectedValue);
+
+                let pointclouds = this.getSelectedPointclouds();
+                for (let point of pointclouds) {
+                    point.material.activeAttributeName = selectedValue;
+                    point.material.xActiveAttributeName = signedNormSelectionX.val();
+                    point.material.yActiveAttributeName = signedNormSelectionY.val();
+                    point.material.zActiveAttributeName = signedNormSelectionZ.val();
+                }
+
+                let attribute = pointcloud.getAttribute(selectedValue);
 
 				if(selectedValue === "intensity gradient"){
-					attribute = pointcloud.getAttribute("intensity");
-				}
+                    attribute = pointcloud.getAttribute("intensity");
+                }
 
-				const isIntensity = attribute ? ["intensity", "intensity gradient"].includes(attribute.name) : false;
+                const isIntensity = attribute ? ["intensity", "intensity gradient"].includes(attribute.name) : false;
                 const isSignedNorm = selectedValue == "signed norm";
 				if(isIntensity){
 					if(pointcloud.material.intensityRange[0] === Infinity){
-						pointcloud.material.intensityRange = attribute.range;
-					}
+                        pointcloud.material.intensityRange = attribute.range;
+                    }
+                    // for (let point of pointclouds) {
+                    //     point.material.intensityRange = attribute.range;
+                    // }
 
-					const [min, max] = attribute.range;
+                    let range = material.intensityRange;
 
-					panel.find('#sldIntensityRange').slider({
-						range: true,
-						min: min, max: max, step: 0.01,
-						values: [min, max],
-						slide: (event, ui) => {
-							let min = ui.values[0];
-							let max = ui.values[1];
-							material.intensityRange = [min, max];
-						}
-					});
+                    let step = 1;
+                    let maxRange = range[1];
+                    if (range[1] <= 5) {
+                        step = 0.01;
+                    }
+                    const [min, max] = attribute.range;
 
-                    panel.find('#sldIntensityCurveOrder').slider({
-						min: -1.5, max: 1.5, step: 0.01,
-						values: material.intensityCurveOrder,
-						slide: (event, ui) => {
-							material.intensityCurveOrder = ui.value;
+                    panel.find('#sldIntensityRange').slider({
+                        range: true,
+                        min: 0,
+                        max: 65535,
+                        step: step,
+                        // min: min, max: max, step: 0.01,
+                        values: [range[0], range[1]],
+                        slide: (event, ui) => {
+                            let min = ui.values[0];
+                            let max = ui.values[1];
+                            material.intensityRange = [min, max];
+                            let pointClouds = self.getSelectedPointclouds();
+                            for (let point of pointClouds) {
+                                point.material.intensityRange = [min, max];
+                            }
                         }
-					});
-				}
+                    });
+                  
+
+                     panel.find('#sldIntensityCurveOrder').slider({
+							min: -1.5, max: 1.5, step: 0.01,
+							values: material.intensityCurveOrder,
+							slide: (event, ui) => {
+								material.intensityCurveOrder = ui.value;
+                                let pointClouds = self.getSelectedPointclouds();
+                                for (let point of pointClouds) {
+                                    point.material.intensityCurveOrder = ui.value;
+                                }
+                            }
+						});
+                }
                 else if(isSignedNorm){
                     let [xmin, xmax] = [0,1];
                     let [ymin, ymax] = [0,1];
@@ -598,162 +683,220 @@ export class PropertiesPanel{
                     if(zAttribute){
                          [zmin, zmax] =  zAttribute.range;
                     }
-                   
+
                     let min = Math.min(Math.min(xmin, ymin), zmin);
                     let max = Math.min(Math.min(xmax, ymax), zmax);
-                    
-					let selectedRange = material.getRange("signed norm");
+
+                    let selectedRange = material.getRange("signed norm");
 					if(!selectedRange){
                          selectedRange = [min,max];
-					}         
+                    }
                     panel.find('#sldExtraRange').slider({
                         range: true,
-                        min: min, 
-                        max: max, 
+                        min: min,
+                        max: max,
                         step: 0.01,
                         values: selectedRange,
                         slide: (event, ui) => {
                             let [a, b] = ui.values;
                             material.setRange("signed norm", [a, b]);
                         }
-                    });		
+                    });
                 }else if(attribute){
-					const [min, max] = attribute.range;
-                    console.log(attribute)
-					let selectedRange = material.getRange(attribute.name);
+                    const [min, max] = attribute.range;
+
+                    let selectedRange = material.getRange(attribute.name);
 
 					if(!selectedRange){
-						selectedRange = [...attribute.range];
-					}
+                        selectedRange = [...attribute.range];
+                    }
 
-					let minMaxAreNumbers = typeof min === "number" && typeof max === "number";
+                    let minMaxAreNumbers = typeof min === "number" && typeof max === "number";
 
 					if(minMaxAreNumbers){
-						panel.find('#sldExtraRange').slider({
-							range: true,
-							min: min, 
-							max: max, 
-							step: 0.01,
-							values: selectedRange,
-							slide: (event, ui) => {
-								let [a, b] = ui.values;
+                        panel.find('#sldExtraRange').slider({
+                            range: true,
+                            min: min,
+                            max: max,
+                            step: 0.01,
+                            values: selectedRange,
+                            slide: (event, ui) => {
+                                let [a, b] = ui.values;
 
-								material.setRange(attribute.name, [a, b]);
-							}
-						});
-					}
+                                material.setRange(attribute.name, [a, b]);
+                            }
+                        });
+                    }
 
-				}
+                }
 
-				let blockWeights = $('#materials\\.composite_weight_container');
-				let blockElevation = $('#materials\\.elevation_container');
-				let blockRGB = $('#materials\\.rgb_container');
-				let blockExtra = $('#materials\\.extra_container');
-				let blockColor = $('#materials\\.color_container');
-				let blockIntensity = $('#materials\\.intensity_container');
-				let blockIndex = $('#materials\\.index_container');
-				let blockTransition = $('#materials\\.transition_container');
-				let blockGps = $('#materials\\.gpstime_container');
-				let blockMatcap = $('#materials\\.matcap_container');
+                let blockWeights = $('#materials\\.composite_weight_container');
+                let blockElevation = $('#materials\\.elevation_container');
+                let blockRGB = $('#materials\\.rgb_container');
+                let blockExtra = $('#materials\\.extra_container');
+                let blockColor = $('#materials\\.color_container');
+                let blockIntensity = $('#materials\\.intensity_container');
+                let blockIndex = $('#materials\\.index_container');
+                let blockTransition = $('#materials\\.transition_container');
+                let blockGps = $('#materials\\.gpstime_container');
+                let blockMatcap = $('#materials\\.matcap_container');
                 let blockSignedNorm = $('#materials\\.signed_norm_container');
 
-				blockIndex.css('display', 'none');
-				blockIntensity.css('display', 'none');
-				blockElevation.css('display', 'none');
-				blockRGB.css('display', 'none');
-				blockExtra.css('display', 'none');
-				blockColor.css('display', 'none');
-				blockWeights.css('display', 'none');
-				blockTransition.css('display', 'none');
-				blockMatcap.css('display', 'none');
-				blockGps.css('display', 'none');
+                blockIndex.css('display', 'none');
+                blockIntensity.css('display', 'none');
+                blockElevation.css('display', 'none');
+                blockRGB.css('display', 'none');
+                blockExtra.css('display', 'none');
+                blockColor.css('display', 'none');
+                blockWeights.css('display', 'none');
+                blockTransition.css('display', 'none');
+                blockMatcap.css('display', 'none');
+                blockGps.css('display', 'none');
                 blockSignedNorm.css('display', 'none');
 
-				if (selectedValue === 'composite') {
-					blockWeights.css('display', 'block');
-					blockElevation.css('display', 'block');
-					blockRGB.css('display', 'block');
-					blockIntensity.css('display', 'block');
-				} else if (selectedValue === 'elevation') {
-					blockElevation.css('display', 'block');
-				} else if (selectedValue === 'RGB and Elevation') {
-					blockRGB.css('display', 'block');
-					blockElevation.css('display', 'block');
-				} else if (selectedValue === 'rgba') {
-					blockRGB.css('display', 'block');
-				} else if (selectedValue === 'color') {
-					blockColor.css('display', 'block');
-				} else if (selectedValue === 'intensity') {
-					blockIntensity.css('display', 'block');
-				} else if (selectedValue === 'intensity gradient') {
-					blockIntensity.css('display', 'block');
+                if (selectedValue === 'composite') {
+                    blockWeights.css('display', 'block');
+                    blockElevation.css('display', 'block');
+                    blockRGB.css('display', 'block');
+                    blockIntensity.css('display', 'block');
+                } else if (selectedValue === 'elevation') {
+                    blockElevation.css('display', 'block');
+                } else if (selectedValue === 'RGB and Elevation') {
+                    blockRGB.css('display', 'block');
+                    blockElevation.css('display', 'block');
+                } else if (selectedValue === 'rgba') {
+                    blockRGB.css('display', 'block');
+                } else if (selectedValue === 'color') {
+                    blockColor.css('display', 'block');
+                } else if (selectedValue === 'intensity') {
+                    blockIntensity.css('display', 'block');
+                } else if (selectedValue === 'intensity gradient') {
+                    blockIntensity.css('display', 'block');
 				} else if (selectedValue === "indices" ){
-					blockIndex.css('display', 'block');
+                    blockIndex.css('display', 'block');
 				} else if (selectedValue === "matcap" ){
-					blockMatcap.css('display', 'block');
+                    blockMatcap.css('display', 'block');
 				} else if (selectedValue === "classification" ){
-					// add classification color selctor?
+                    // add classification color selctor?
 				} else if (selectedValue === "gps-time" ){
-					blockGps.css('display', 'block');
+                    blockGps.css('display', 'block');
 				} else if(selectedValue === "number of returns"){
-					
+
 				} else if(selectedValue === "return number"){
-					
+
 				} else if(["source id", "point source id"].includes(selectedValue)){
-					
+
 				} else if(selectedValue === "signed norm"){
                     blockSignedNorm.css('display', 'block');
-					blockExtra.css('display', 'block');
+                    blockExtra.css('display', 'block');
 				} else{
-					blockExtra.css('display', 'block');
-				}
-			};
+                    blockExtra.css('display', 'block');
+                }
+            };
 
 			attributeSelection.selectmenu({change: updateMaterialPanel});
             signedNormSelectionX.selectmenu({change: updateMaterialPanel});
             signedNormSelectionY.selectmenu({change: updateMaterialPanel});
             signedNormSelectionZ.selectmenu({change: updateMaterialPanel});
-			let update = () => {
-				attributeSelection.val(material.activeAttributeName).selectmenu('refresh');
+            let update = () => {
+                attributeSelection.val(material.activeAttributeName).selectmenu('refresh');
                 signedNormSelectionX.val(material.xActiveAttributeName).selectmenu('refresh');
                 signedNormSelectionY.val(material.yActiveAttributeName).selectmenu('refresh');
                 signedNormSelectionZ.val(material.zActiveAttributeName).selectmenu('refresh');
-			};
-			this.addVolatileListener(material, "point_color_type_changed", update);
-			this.addVolatileListener(material, "active_attribute_changed", update);
+            };
+            this.addVolatileListener(material, "point_color_type_changed", update);
+            this.addVolatileListener(material, "active_attribute_changed", update);
 
-			update();
-			updateMaterialPanel();
-		}
+            update();
+            updateMaterialPanel();
+        }
 
-		{
+        {
 			const schemes = Object.keys(Potree.Gradients).map(name => ({name: name, values: Gradients[name]}));
 
-			let elSchemeContainers = panel.find("div.gradient_scheme");
+            let elSchemeContainer = panel.find("#elevation_gradient_scheme_selection");
 
-			for(let scheme of schemes){
-				elSchemeContainers.each(function(index, container){
-					let elScheme = $(`
-						<span style="flex-grow: 1;">
-						</span>
-					`);
+            for (let scheme of schemes) {
+                let elScheme = $(`
+                            <span style="flex-grow: 1;">
+                            </span>
+                        `);
 
-					const svg = Potree.Utils.createSvgGradient(scheme.values);
-					svg.setAttributeNS(null, "class", `button-icon`);
+                const svg = Potree.Utils.createSvgGradient(scheme.values);
+                svg.setAttributeNS(null, "class", `button-icon`);
 
-					elScheme.append($(svg));
+                elScheme.append($(svg));
 
-					elScheme.click( () => {
-						material.gradient = Gradients[scheme.name];
-					});
+                elScheme.click(() => {
+                    material.gradient = Potree.Gradients[scheme.name];
+                    let pointClouds = self.getSelectedPointclouds();
+                    for (let point of pointClouds) {
+                        point.material.gradient = Potree.Gradients[scheme.name]
+                    }
+                });
 
-					$(container).append(elScheme);
-				});
-			}
-		}
+                elSchemeContainer.append(elScheme);
+            }
+        }
 
-		{
-			let matcaps = [
+        {
+            const schemes = Object.keys(Potree.Gradients).map(name => ({ name: name, values: Potree.Gradients[name] }));
+
+            let elSchemeContainer = panel.find("#extra_gradient_scheme_selection");
+
+            for (let scheme of schemes) {
+                let elScheme = $(`
+                <span style="flex-grow: 1;">
+                </span>
+            `);
+
+                const svg = Utils.createSvgGradient(scheme.values);
+                svg.setAttributeNS(null, "class", `button-icon`);
+
+                elScheme.append($(svg));
+
+                elScheme.click(() => {
+                    material.gradient = Potree.Gradients[scheme.name];
+                    let pointClouds = self.getSelectedPointclouds();
+                    for (let point of pointClouds) {
+                        point.material.gradient = Potree.Gradients[scheme.name]
+                    }
+                });
+
+                elSchemeContainer.append(elScheme);
+            }
+        }
+
+        {
+            const schemes = Object.keys(Potree.Gradients).map(name => ({ name: name, values: Potree.Gradients[name] }));
+
+            let elSchemeContainer = panel.find("#intensity_gradient_scheme_selection");
+
+            for (let scheme of schemes) {
+                let elScheme = $(`
+                <span style="flex-grow: 1;">
+                </span>
+            `);
+
+                const svg = Utils.createSvgGradient(scheme.values);
+                svg.setAttributeNS(null, "class", `button-icon`);
+
+                elScheme.append($(svg));
+
+                elScheme.click(() => {
+                    material.gradient = Potree.Gradients[scheme.name];
+                    let pointClouds = self.getSelectedPointclouds();
+                    for (let point of pointClouds) {
+                        point.material.gradient = Potree.Gradients[scheme.name]
+                    }
+                });
+
+                elSchemeContainer.append(elScheme);
+            }
+        }
+
+        {
+            let matcaps = [
 				{name: "Normals", icon: `${Potree.resourcePath}/icons/matcap/check_normal+y.jpg`}, 
 				{name: "Basic 1", icon: `${Potree.resourcePath}/icons/matcap/basic_1.jpg`}, 
 				{name: "Basic 2", icon: `${Potree.resourcePath}/icons/matcap/basic_2.jpg`}, 
@@ -780,205 +923,302 @@ export class PropertiesPanel{
 				{name: "Contours 3", icon: `${Potree.resourcePath}/icons/matcap/contours_3.jpg`}, 
 				{name: "Reflection Check Horizontal", icon: `${Potree.resourcePath}/icons/matcap/reflection_check_horizontal.jpg`}, 
 				{name: "Reflection Check Vertical", icon: `${Potree.resourcePath}/icons/matcap/reflection_check_vertical.jpg`}, 
-			];
+            ];
 
-			let elMatcapContainer = panel.find("#matcap_scheme_selection");
+            let elMatcapContainer = panel.find("#matcap_scheme_selection");
 
 			for(let matcap of matcaps){
-				let elMatcap = $(`
-						<img src="${matcap.icon}" class="button-icon" style="width: 25%;" />
-				`);
+                let elMatcap = $(`
+                            <img src="${matcap.icon}" class="button-icon" style="width: 25%;" />
+                    `);
 
 				elMatcap.click( () => {
-					material.matcap = matcap.icon.substring(matcap.icon.lastIndexOf('/'));
-				});
+                    material.matcap = matcap.icon.substring(matcap.icon.lastIndexOf('/'));
+                    let pointClouds = self.getSelectedPointclouds();
+                    for (let point of pointClouds) {
+                        point.material.matcap = matcap.icon.substring(matcap.icon.lastIndexOf('/'));
+                    }
+                });
 
-				elMatcapContainer.append(elMatcap);
-			}
-		}
+                elMatcapContainer.append(elMatcap);
+            }
+        }
 
-		{
-			panel.find('#sldRGBGamma').slider({
-				value: material.rgbGamma,
-				min: 0, max: 4, step: 0.01,
-				slide: (event, ui) => {material.rgbGamma = ui.value}
-			});
+        {
+            panel.find('#sldRGBGamma').slider({
+                value: material.rgbGamma,
+                min: 0, max: 4, step: 0.01,
+                slide: (event, ui) => {
+                    material.rgbGamma = ui.value;
+                    let pointClouds = self.getSelectedPointclouds();
+                    for (let point of pointClouds) {
+                        point.material.rgbGamma = ui.value;
+                    }
+                }
+            });
 
-			panel.find('#sldRGBContrast').slider({
-				value: material.rgbContrast,
-				min: -1, max: 1, step: 0.01,
-				slide: (event, ui) => {material.rgbContrast = ui.value}
-			});
+            panel.find('#sldRGBContrast').slider({
+                value: material.rgbContrast,
+                min: -1, max: 1, step: 0.01,
+                slide: (event, ui) => {
+                    material.rgbContrast = ui.value;
+                    let pointClouds = self.getSelectedPointclouds();
+                    for (let point of pointClouds) {
+                        point.material.rgbContrast = ui.value;
+                    }
+                }
+            });
 
-			panel.find('#sldRGBBrightness').slider({
-				value: material.rgbBrightness,
-				min: -1, max: 1, step: 0.01,
-				slide: (event, ui) => {material.rgbBrightness = ui.value}
-			});
+            panel.find('#sldRGBBrightness').slider({
+                value: material.rgbBrightness,
+                min: -1, max: 1, step: 0.01,
+                slide: (event, ui) => {
+                    material.rgbBrightness = ui.value;
+                    let pointClouds = self.getSelectedPointclouds();
+                    for (let point of pointClouds) {
+                        point.material.rgbBrightness = ui.value;
+                    }
+                }
+            });
 
-			panel.find('#sldExtraGamma').slider({
-				value: material.extraGamma,
-				min: 0, max: 4, step: 0.01,
-				slide: (event, ui) => {material.extraGamma = ui.value}
-			});
+            panel.find('#sldExtraGamma').slider({
+                value: material.extraGamma,
+                min: 0, max: 4, step: 0.01,
+                slide: (event, ui) => {
+                    material.extraGamma = ui.value;
+                    let pointClouds = self.getSelectedPointclouds();
+                    for (let point of pointClouds) {
+                        point.material.extraGamma = ui.value;
+                    }
+                }
+            });
 
-			panel.find('#sldExtraBrightness').slider({
-				value: material.extraBrightness,
-				min: -1, max: 1, step: 0.01,
-				slide: (event, ui) => {material.extraBrightness = ui.value}
-			});
+            panel.find('#sldExtraBrightness').slider({
+                value: material.extraBrightness,
+                min: -1, max: 1, step: 0.01,
+                slide: (event, ui) => {
+                    material.extraBrightness = ui.value;
+                    let pointClouds = self.getSelectedPointclouds();
+                    for (let point of pointClouds) {
+                        point.material.extraBrightness = ui.value;
+                    }
+                }
+            });
 
-			panel.find('#sldExtraContrast').slider({
-				value: material.extraContrast,
-				min: -1, max: 1, step: 0.01,
-				slide: (event, ui) => {material.extraContrast = ui.value}
-			});
+            panel.find('#sldExtraContrast').slider({
+                value: material.extraContrast,
+                min: -1, max: 1, step: 0.01,
+                slide: (event, ui) => {
+                    material.extraContrast = ui.value;
+                    let pointClouds = self.getSelectedPointclouds();
+                    for (let point of pointClouds) {
+                        point.material.extraContrast = ui.value;
+                    }
+                }
+            });
 
-			panel.find('#sldHeightRange').slider({
-				range: true,
-				min: 0, max: 1000, step: 0.01,
-				values: [0, 1000],
-				slide: (event, ui) => {
-					material.heightMin = ui.values[0];
-					material.heightMax = ui.values[1];
-				}
-			});
-            // cmair distPlane
-            panel.find('#sldDistPlaneRange').slider({
+            panel.find('#sldHeightRange').slider({
                 range: true,
                 min: 0, max: 1000, step: 0.01,
                 values: [0, 1000],
                 slide: (event, ui) => {
-                    material.distPlaneMin = ui.values[0];
-                    material.distPlaneMax = ui.values[1];
+                    material.heightMin = ui.values[0];
+                    material.heightMax = ui.values[1];
+                    let pointClouds = self.getSelectedPointclouds();
+                    for (let point of pointClouds) {
+                        point.material.heightMin = ui.values[0];
+                        point.material.heightMax = ui.values[1];
+                    }
                 }
             });
 
-			panel.find('#sldIntensityGamma').slider({
-				value: material.intensityGamma,
-				min: 0, max: 4, step: 0.01,
-				slide: (event, ui) => {material.intensityGamma = ui.value}
-			});
+            panel.find('#sldIntensityGamma').slider({
+                value: material.intensityGamma,
+                min: 0, max: 4, step: 0.01,
+                slide: (event, ui) => {
+                    material.intensityGamma = ui.value;
+                    let pointClouds = self.getSelectedPointclouds();
+                    for (let point of pointClouds) {
+                        point.material.intensityGamma = ui.value;
+                    }
+                }
+            });
 
-			panel.find('#sldIntensityContrast').slider({
-				value: material.intensityContrast,
-				min: -1, max: 1, step: 0.01,
-				slide: (event, ui) => {material.intensityContrast = ui.value}
-			});
+            panel.find('#sldIntensityContrast').slider({
+                value: material.intensityContrast,
+                min: -1, max: 1, step: 0.01,
+                slide: (event, ui) => {
+                    material.intensityContrast = ui.value;
+                    let pointClouds = self.getSelectedPointclouds();
+                    for (let point of pointClouds) {
+                        point.material.intensityContrast = ui.value;
+                    }
+                }
+            });
 
-			panel.find('#sldIntensityBrightness').slider({
-				value: material.intensityBrightness,
-				min: -1, max: 1, step: 0.01,
-				slide: (event, ui) => {material.intensityBrightness = ui.value}
-			});
+            panel.find('#sldIntensityBrightness').slider({
+                value: material.intensityBrightness,
+                min: -1, max: 1, step: 0.01,
+                slide: (event, ui) => {
+                    material.intensityBrightness = ui.value;
+                    let pointClouds = self.getSelectedPointclouds();
+                    for (let point of pointClouds) {
+                        point.material.intensityBrightness = ui.value;
+                    }
+                }
+            });
 
-			panel.find('#sldWeightRGB').slider({
-				value: material.weightRGB,
-				min: 0, max: 1, step: 0.01,
-				slide: (event, ui) => {material.weightRGB = ui.value}
-			});
+            panel.find('#sldWeightRGB').slider({
+                value: material.weightRGB,
+                min: 0, max: 1, step: 0.01,
+                slide: (event, ui) => {
+                    material.weightRGB = ui.value;
+                    let pointClouds = self.getSelectedPointclouds();
+                    for (let point of pointClouds) {
+                        point.material.weightRGB = ui.value;
+                    }
+                }
+            });
 
-			panel.find('#sldWeightIntensity').slider({
-				value: material.weightIntensity,
-				min: 0, max: 1, step: 0.01,
-				slide: (event, ui) => {material.weightIntensity = ui.value}
-			});
+            panel.find('#sldWeightIntensity').slider({
+                value: material.weightIntensity,
+                min: 0, max: 1, step: 0.01,
+                slide: (event, ui) => {
+                    material.weightIntensity = ui.value;
+                    let pointClouds = self.getSelectedPointclouds();
+                    for (let point of pointClouds) {
+                        point.material.weightIntensity = ui.value;
+                    }
+                }
+            });
 
-			panel.find('#sldWeightElevation').slider({
-				value: material.weightElevation,
-				min: 0, max: 1, step: 0.01,
-				slide: (event, ui) => {material.weightElevation = ui.value}
-			});
+            panel.find('#sldWeightElevation').slider({
+                value: material.weightElevation,
+                min: 0, max: 1, step: 0.01,
+                slide: (event, ui) => {
+                    material.weightElevation = ui.value;
+                    let pointClouds = self.getSelectedPointclouds();
+                    for (let point of pointClouds) {
+                        point.material.weightElevation = ui.value;
+                    }
+                }
+            });
 
-			panel.find('#sldWeightClassification').slider({
-				value: material.weightClassification,
-				min: 0, max: 1, step: 0.01,
-				slide: (event, ui) => {material.weightClassification = ui.value}
-			});
+            panel.find('#sldWeightClassification').slider({
+                value: material.weightClassification,
+                min: 0, max: 1, step: 0.01,
+                slide: (event, ui) => {
+                    material.weightClassification = ui.value;
+                    let pointClouds = self.getSelectedPointclouds();
+                    for (let point of pointClouds) {
+                        point.material.weightClassification = ui.value;
+                    }
+                }
+            });
 
-			panel.find('#sldWeightReturnNumber').slider({
-				value: material.weightReturnNumber,
-				min: 0, max: 1, step: 0.01,
-				slide: (event, ui) => {material.weightReturnNumber = ui.value}
-			});
+            panel.find('#sldWeightReturnNumber').slider({
+                value: material.weightReturnNumber,
+                min: 0, max: 1, step: 0.01,
+                slide: (event, ui) => {
+                    material.weightReturnNumber = ui.value;
+                    let pointClouds = self.getSelectedPointclouds();
+                    for (let point of pointClouds) {
+                        point.material.weightReturnNumber = ui.value;
+                    }
+                }
+            });
 
-			panel.find('#sldWeightSourceID').slider({
-				value: material.weightSourceID,
-				min: 0, max: 1, step: 0.01,
-				slide: (event, ui) => {material.weightSourceID = ui.value}
-			});
+            panel.find('#sldWeightSourceID').slider({
+                value: material.weightSourceID,
+                min: 0, max: 1, step: 0.01,
+                slide: (event, ui) => {
+                    material.weightSourceID = ui.value;
+                    let pointClouds = self.getSelectedPointclouds();
+                    for (let point of pointClouds) {
+                        point.material.weightSourceID = ui.value;
+                    }
+                }
+            });
 
-			panel.find(`#materials\\.color\\.picker`).spectrum({
-				flat: true,
-				showInput: true,
-				preferredFormat: 'rgb',
-				cancelText: '',
-				chooseText: 'Apply',
-				color: `#${material.color.getHexString()}`,
-				move: color => {
-					let cRGB = color.toRgb();
-					let tc = new THREE.Color().setRGB(cRGB.r / 255, cRGB.g / 255, cRGB.b / 255);
-					material.color = tc;
-				},
-				change: color => {
-					let cRGB = color.toRgb();
-					let tc = new THREE.Color().setRGB(cRGB.r / 255, cRGB.g / 255, cRGB.b / 255);
-					material.color = tc;
-				}
-			});
+            panel.find(`#materials\\.color\\.picker`).spectrum({
+                flat: true,
+                showInput: true,
+                preferredFormat: 'rgb',
+                cancelText: '',
+                chooseText: 'Apply',
+                color: `#${material.color.getHexString()}`,
+                move: color => {
+                    let cRGB = color.toRgb();
+                    let tc = new THREE.Color().setRGB(cRGB.r / 255, cRGB.g / 255, cRGB.b / 255);
+                    material.color = tc;
+                    let pointClouds = self.getSelectedPointclouds();
+                    for (let point of pointClouds) {
+                        point.material.color = tc;
+                    }
+                },
+                change: color => {
+                    let cRGB = color.toRgb();
+                    let tc = new THREE.Color().setRGB(cRGB.r / 255, cRGB.g / 255, cRGB.b / 255);
+                    	material.color = tc;
+                    let pointClouds = self.getSelectedPointclouds();
+                    for(let point of pointClouds){
+                    	point.material.color = tc;
+                    }
+                }
+            });
 
-			this.addVolatileListener(material, "color_changed", () => {
-				panel.find(`#materials\\.color\\.picker`)
-					.spectrum('set', `#${material.color.getHexString()}`);
-			});
+            this.addVolatileListener(material, "color_changed", () => {
+                // panel.find(`#materials\\.color\\.picker`)
+                // 	.spectrum('set', `#${material.color.getHexString()}`);
+            });
 
-			let updateHeightRange = function () {
-				
+            let updateHeightRange = function () {
 
-				let aPosition = pointcloud.getAttribute("position");
 
-				let bMin, bMax;
+                let aPosition = pointcloud.getAttribute("position");
+
+                let bMin, bMax;
 
 				if(aPosition){
-					// for new format 2.0 and loader that contain precomputed min/max of attributes
-					let min = aPosition.range[0][2];
-					let max = aPosition.range[1][2];
-					let width = max - min;
+                    // for new format 2.0 and loader that contain precomputed min/max of attributes
+                    let min = aPosition.range[0][2];
+                    let max = aPosition.range[1][2];
+                    let width = max - min;
 
-					bMin = min - 0.2 * width;
-					bMax = max + 0.2 * width;
+                    bMin = min - 0.2 * width;
+                    bMax = max + 0.2 * width;
 				}else{
-					// for format up until exlusive 2.0
-					let box = [pointcloud.pcoGeometry.tightBoundingBox, pointcloud.getBoundingBoxWorld()]
-						.find(v => v !== undefined);
+                    // for format up until exlusive 2.0
+                    let box = [pointcloud.pcoGeometry.tightBoundingBox, pointcloud.getBoundingBoxWorld()]
+                        .find(v => v !== undefined);
 
-					pointcloud.updateMatrixWorld(true);
+                    pointcloud.updateMatrixWorld(true);
 					box = Utils.computeTransformedBoundingBox(box, pointcloud.matrixWorld);
 
-					let bWidth = box.max.z - box.min.z;
-					bMin = box.min.z - 0.2 * bWidth;
-					bMax = box.max.z + 0.2 * bWidth;
-				}
+                    let bWidth = box.max.z - box.min.z;
+                    bMin = box.min.z - 0.2 * bWidth;
+                    bMax = box.max.z + 0.2 * bWidth;
+                }
 
-				let range = material.elevationRange;
+                let range = material.elevationRange;
 
-				panel.find('#lblHeightRange').html(`${range[0].toFixed(2)} to ${range[1].toFixed(2)}`);
+                panel.find('#lblHeightRange').html(`${range[0].toFixed(2)} to ${range[1].toFixed(2)}`);
 				panel.find('#sldHeightRange').slider({min: bMin, max: bMax, values: range});
-			};
+            };
 
-			let updateExtraRange = function () {
+            let updateExtraRange = function () {
 
-				let attributeName = material.activeAttributeName;
-				let attribute = pointcloud.getAttribute(attributeName);
+                let attributeName = material.activeAttributeName;
+                let attribute = pointcloud.getAttribute(attributeName);
 
 
-				let range = material.getRange(attributeName);
+                let range = material.getRange(attributeName);
 				if(range == null && attribute){
-					range = attribute.range;
-				}
+                    range = attribute.range;
+                }
 
-				// currently only supporting scalar ranges.
-				// rgba, normals, positions, etc have vector ranges, however
+                // currently only supporting scalar ranges.
+                // rgba, normals, positions, etc have vector ranges, however
                 if(range){
                     let isValidRange = (typeof range[0] === "number") && (typeof range[1] === "number");
                     if(!isValidRange){
@@ -987,62 +1227,79 @@ export class PropertiesPanel{
                 }
 
 				if(range){
-					let msg = `${range[0].toFixed(2)} to ${range[1].toFixed(2)}`;
-					panel.find('#lblExtraRange').html(msg);
+                    let msg = `${range[0].toFixed(2)} to ${range[1].toFixed(2)}`;
+                    panel.find('#lblExtraRange').html(msg);
 				}else{
-					panel.find("could not deduce range");
-				}
-			};
+                    panel.find("could not deduce range");
+                }
+            };
 
-			let updateIntensityRange = function () {
-				let range = material.intensityRange;
+            let updateIntensityRange = function () {
+                let range = material.intensityRange;
 
-				panel.find('#lblIntensityRange').html(`${parseInt(range[0])} to ${parseInt(range[1])}`);
-			};
+              
 
-			{
-				updateHeightRange();
-				panel.find(`#sldHeightRange`).slider('option', 'min');
-				panel.find(`#sldHeightRange`).slider('option', 'max');
-			}
+                let val1 = range[0].toFixed(2);
+                let val2 = range[1].toFixed(2);
 
-			{
-				let elGradientRepeat = panel.find("#gradient_repeat_option");
+                // if (range[1] <= 2.5) {
+                //     val1 = ((range[0] * 65535) / 2.5).toFixed(2);
+                //     val2 = ((range[1] * 65535) / 2.5).toFixed(2);
+                // }
+
+
+                panel.find('#lblIntensityRange').html(`${val1} to ${val2}`);
+            };
+
+            {
+                updateHeightRange();
+                panel.find(`#sldHeightRange`).slider('option', 'min');
+                panel.find(`#sldHeightRange`).slider('option', 'max');
+            }
+
+            {
+                let elGradientRepeat = panel.find("#gradient_repeat_option");
 				elGradientRepeat.selectgroup({title: "Gradient"});
 
-				elGradientRepeat.find("input").click( (e) => {
-					this.viewer.setElevationGradientRepeat(ElevationGradientRepeat[e.target.value]);
-				});
+                Utils.set_data_i18n_ForSelectionGroup("#gradient_repeat_option", "appearance.gradient", ["appearance.clamp", "appearance.repeat", "appearance.mirrored_repeat"])
+
+                elGradientRepeat.find("input").click((e) => {
+                    this.viewer.setElevationGradientRepeat(Potree.ElevationGradientRepeat[e.target.value]);
+                });
 
 				let current = Object.keys(ElevationGradientRepeat)
 					.filter(key => ElevationGradientRepeat[key] === this.viewer.elevationGradientRepeat);
-				elGradientRepeat.find(`input[value=${current}]`).trigger("click");
-			}
+                elGradientRepeat.find(`input[value=${current}]`).trigger("click");
+                panel.i18n();
+            }
 
-			{
-				let elGradientRepeat = panel.find("#extra_gradient_repeat_option");
+            {
+                let elGradientRepeat = panel.find("#extra_gradient_repeat_option");
 				elGradientRepeat.selectgroup({title: "Gradient"});
 
-				elGradientRepeat.find("input").click( (e) => {
-					this.viewer.setElevationGradientRepeat(ElevationGradientRepeat[e.target.value]);
-				});
+                Utils.set_data_i18n_ForSelectionGroup("#extra_gradient_repeat_option", "appearance.gradient", ["appearance.clamp", "appearance.repeat", "appearance.mirrored_repeat"])
+
+
+                elGradientRepeat.find("input").click((e) => {
+                    this.viewer.setElevationGradientRepeat(ElevationGradientRepeat[e.target.value]);
+                });
 
 				let current = Object.keys(ElevationGradientRepeat)
 					.filter(key => ElevationGradientRepeat[key] === this.viewer.elevationGradientRepeat);
-				elGradientRepeat.find(`input[value=${current}]`).trigger("click");
-			}
+                elGradientRepeat.find(`input[value=${current}]`).trigger("click");
+            }
 
-			let onIntensityChange = () => {
-				let gamma = material.intensityGamma;
-				let contrast = material.intensityContrast;
-				let brightness = material.intensityBrightness;
+            let onIntensityChange = () => {
+                let gamma = material.intensityGamma;
+                let contrast = material.intensityContrast;
+                let brightness = material.intensityBrightness;
                 let intensityCurveOrder = material.intensityCurveOrder;
 
-				updateIntensityRange();
+                updateIntensityRange();
 
-				panel.find('#lblIntensityGamma').html(gamma.toFixed(2));
-				panel.find('#lblIntensityContrast').html(contrast.toFixed(2));
-				panel.find('#lblIntensityBrightness').html(brightness.toFixed(2));
+                panel.find('#lblIntensityGamma').html(gamma.toFixed(2));
+                panel.find('#lblIntensityContrast').html(contrast.toFixed(2));
+                panel.find('#lblIntensityBrightness').html(brightness.toFixed(2));
                 panel.find('#lblIntensityCurveOrder').html(intensityCurveOrder.toFixed(2));
 
 
@@ -1051,46 +1308,33 @@ export class PropertiesPanel{
 				panel.find('#sldIntensityBrightness').slider({value: brightness});
                 panel.find('#sldIntensityCurveOrder').slider({value: intensityCurveOrder});
 
-			};
+            };
 
-			let onRGBChange = () => {
-				let gamma = material.rgbGamma;
-				let contrast = material.rgbContrast;
-				let brightness = material.rgbBrightness;
+            let onRGBChange = () => {
+                let gamma = material.rgbGamma;
+                let contrast = material.rgbContrast;
+                let brightness = material.rgbBrightness;
 
-				panel.find('#lblRGBGamma').html(gamma.toFixed(2));
-				panel.find('#lblRGBContrast').html(contrast.toFixed(2));
-				panel.find('#lblRGBBrightness').html(brightness.toFixed(2));
+                panel.find('#lblRGBGamma').html(gamma.toFixed(2));
+                panel.find('#lblRGBContrast').html(contrast.toFixed(2));
+                panel.find('#lblRGBBrightness').html(brightness.toFixed(2));
 
 				panel.find('#sldRGBGamma').slider({value: gamma});
 				panel.find('#sldRGBContrast').slider({value: contrast});
 				panel.find('#sldRGBBrightness').slider({value: brightness});
-			};
+            };
 
-            this.elRemove = panel.find("img[name=remove]");
-            this.elRemove.click( () => {
-                this.viewer.scene.removePointCloud(pointcloud);
-            });
+           
 
-            this.elMove = panel.find("img[name=move]");
-            this.elMove.click( () => {
-                if(!pointcloud.tranformingVolume){
-                    let volume = new TransformPointcloudBoxVolume({pointcloud:pointcloud});
-                    this.viewer.scene.addVolume(volume);
-                    pointcloud.tranformingVolume = volume;
-                }
-            });
+            this.addVolatileListener(material, "material_property_changed", updateExtraRange);
+            this.addVolatileListener(material, "material_property_changed", updateHeightRange);
+            this.addVolatileListener(material, "material_property_changed", onIntensityChange);
+            this.addVolatileListener(material, "material_property_changed", onRGBChange);
 
-
-			this.addVolatileListener(material, "material_property_changed", updateExtraRange);
-			this.addVolatileListener(material, "material_property_changed", updateHeightRange);
-			this.addVolatileListener(material, "material_property_changed", onIntensityChange);
-			this.addVolatileListener(material, "material_property_changed", onRGBChange);
-
-			updateExtraRange();
-			updateHeightRange();
-			onIntensityChange();
-			onRGBChange();
+            updateExtraRange();
+            updateHeightRange();
+            onIntensityChange();
+            onRGBChange();
 		}
 
 	}
