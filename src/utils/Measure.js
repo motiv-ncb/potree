@@ -658,7 +658,7 @@ export class Measure extends THREE.Object3D {
                     // console.log(p)
                     for(let attributeName in p){
                         if(!nonExtraAttributeNames.includes(attributeName)){
-                            lines.push(attributeName + " : " + p[attributeName][0].toFixed(1));
+                            lines.push(attributeName + " : " + p[attributeName][0].toFixed(3));
 
                         }
                         // console.log(p[att]);
