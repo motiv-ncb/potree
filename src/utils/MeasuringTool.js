@@ -166,10 +166,173 @@ export class MeasuringTool extends EventDispatcher{
 		e.scene.addEventListener('measurement_removed', this.onRemove);
 	}
 
+	parseDirectionInput(input){
+		if(input == null){
+			return null;
+		}
+
+		let value = `${input}`.trim().toUpperCase();
+		if(value.length === 0){
+			return undefined;
+		}
+
+		const compassMap = {
+			N: 0,
+			NE: 45,
+			E: 90,
+			SE: 135,
+			S: 180,
+			SW: 225,
+			W: 270,
+			NW: 315,
+		};
+
+		if(compassMap[value] != null){
+			return compassMap[value];
+		}
+
+		value = value.replace("°", "");
+		let degrees = parseFloat(value);
+		if(!isFinite(degrees)){
+			return undefined;
+		}
+
+		degrees = ((degrees % 360) + 360) % 360;
+
+		return degrees;
+	}
+
+	showDirectionInput(callback){
+		let overlay = document.createElement('div');
+		overlay.style.position = 'fixed';
+		overlay.style.top = '0';
+		overlay.style.left = '0';
+		overlay.style.width = '100%';
+		overlay.style.height = '100%';
+		overlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
+		overlay.style.zIndex = '10000';
+		overlay.style.display = 'flex';
+		overlay.style.alignItems = 'center';
+		overlay.style.justifyContent = 'center';
+
+		let dialog = document.createElement('div');
+		dialog.style.backgroundColor = 'white';
+		dialog.style.padding = '20px';
+		dialog.style.borderRadius = '5px';
+		dialog.style.boxShadow = '0 0 10px rgba(0,0,0,0.5)';
+		dialog.style.minWidth = '300px';
+
+		let title = document.createElement('h3');
+		title.textContent = 'Enter Direction';
+		title.style.marginTop = '0';
+
+		let label = document.createElement('p');
+		label.textContent = 'Enter the 2nd point direction (azimuth in degrees clockwise from North, or N/NE/E/SE/S/SW/W/NW):';
+
+		let input = document.createElement('input');
+		input.type = 'text';
+		input.value = '0';
+		input.style.width = '100%';
+		input.style.padding = '8px';
+		input.style.fontSize = '16px';
+		input.style.marginBottom = '10px';
+
+		let buttonContainer = document.createElement('div');
+		buttonContainer.style.textAlign = 'right';
+
+		let cancelButton = document.createElement('button');
+		cancelButton.textContent = 'Cancel';
+		cancelButton.style.marginRight = '10px';
+		cancelButton.style.padding = '8px 16px';
+
+		let okButton = document.createElement('button');
+		okButton.textContent = 'OK';
+		okButton.style.padding = '8px 16px';
+
+		buttonContainer.appendChild(cancelButton);
+		buttonContainer.appendChild(okButton);
+
+		dialog.appendChild(title);
+		dialog.appendChild(label);
+		dialog.appendChild(input);
+		dialog.appendChild(buttonContainer);
+
+		overlay.appendChild(dialog);
+
+		document.body.appendChild(overlay);
+
+		input.focus();
+		input.select();
+
+		let remove = () => {
+			if (document.body.contains(overlay)) {
+				document.body.removeChild(overlay);
+			}
+		};
+
+		let onOk = () => {
+			let value = input.value.trim();
+			let degrees = this.parseDirectionInput(value);
+			if (degrees == null || !isFinite(degrees)) {
+				this.viewer.postError("Invalid direction. Use values like 0, 45, 90 or N, NE, E.", {duration: 4000});
+				input.focus();
+				input.select();
+				return;
+			}
+			remove();
+			callback(true, degrees);
+		};
+
+		let onCancel = () => {
+			remove();
+			callback(false);
+		};
+
+		okButton.onclick = onOk;
+		cancelButton.onclick = onCancel;
+
+		input.onkeydown = (e) => {
+			if (e.key === 'Enter') onOk();
+			if (e.key === 'Escape') onCancel();
+		};
+	}
+
+	getHorizontalDirectionFromAngle(origin, degrees){
+		let north = Utils.getNorthVec(origin, 1, this.viewer.getProjection());
+		north.z = 0;
+
+		if(north.lengthSq() === 0){
+			north.set(0, 1, 0);
+		}else{
+			north.normalize();
+		}
+
+		let east = new THREE.Vector3(north.y, -north.x, 0);
+		if(east.lengthSq() === 0){
+			east.set(1, 0, 0);
+		}else{
+			east.normalize();
+		}
+
+		let radians = THREE.Math.degToRad(degrees);
+		let direction = new THREE.Vector3()
+			.add(north.clone().multiplyScalar(Math.cos(radians)))
+			.add(east.clone().multiplyScalar(Math.sin(radians)));
+
+		if(direction.lengthSq() === 0){
+			direction.copy(north);
+		}else{
+			direction.normalize();
+		}
+
+		return direction;
+	}
+
 	startInsertion (args = {}) {
 		let domElement = this.viewer.renderer.domElement;
 
 		let measure = new Measure();
+		measure.viewer = this.viewer;
 
 		this.dispatchEvent({
 			type: 'start_inserting_measurement',
@@ -194,6 +357,8 @@ export class MeasuringTool extends EventDispatcher{
 		measure.showAzimuth = pick(args.showAzimuth, false);
 		measure.showEdges = pick(args.showEdges, true);
 		measure.showAttributes = pick(args.showAttributes, false);
+		measure.horizontal = pick(args.horizontal, false);
+		measure.horizontalAngle = pick(args.horizontalAngle, null);
         measure.closed = pick(args.closed, false);
 
 		measure.maxMarkers = pick(args.maxMarkers, Infinity);
@@ -212,14 +377,43 @@ export class MeasuringTool extends EventDispatcher{
 
 		let insertionCallback = (e) => {
 			if (e.button === THREE.MOUSE.LEFT) {
-				measure.addMarker(measure.points[measure.points.length - 1].position.clone());
+				let rect = this.viewer.renderer.domElement.getBoundingClientRect();
+				let mouse = new THREE.Vector2(
+					e.clientX - rect.left,
+					e.clientY - rect.top
+				);
+				let I = Utils.getMousePointCloudIntersection(
+					mouse, 
+					this.viewer.scene.getActiveCamera(), 
+					this.viewer, 
+					this.viewer.scene.pointclouds,
+					{pickClipped: true});
 
-				if (measure.points.length >= measure.maxMarkers) {
-					cancel.callback();
+				if (I) {
+					if (measure.horizontal && measure.points.length === 1 && !measure.horizontalDirection) {
+						measure.horizontalDirection = this.getHorizontalDirectionFromAngle(measure.points[0].position, measure.horizontalAngle);
+						this.viewer.postMessage(`Direction locked to ${measure.horizontalAngle.toFixed(1)}°`, {duration: 2500});
+					}
+
+					let newPosition = I.location;
+					newPosition = measure.getConstrainedPosition(measure.points.length, newPosition, mouse);
+					measure.addMarker(newPosition);
+
+					if (measure.points.length >= measure.maxMarkers) {
+						cancel.callback();
+					}
+
+					this.viewer.inputHandler.startDragging(
+						measure.spheres[measure.spheres.length - 1]);
+				} else {
+					measure.addMarker(measure.points[measure.points.length - 1].position.clone());
+
+					if (measure.points.length >= measure.maxMarkers) {
+						cancel.callback();
+					}
+
+					this.viewer.inputHandler.startDragging(measure.spheres[measure.spheres.length - 1]);
 				}
-
-				this.viewer.inputHandler.startDragging(
-					measure.spheres[measure.spheres.length - 1]);
 			} else if (e.button === THREE.MOUSE.RIGHT) {
 				cancel.callback();
 			}

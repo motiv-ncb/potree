@@ -310,6 +310,8 @@ export class Measure extends THREE.Object3D {
 		this._showEdges = true;
 		this._showAzimuth = false;
 		this.maxMarkers = Number.MAX_SAFE_INTEGER;
+		this.horizontal = false;
+		this.horizontalDirection = null;
 
 		this.sphereGeometry = new THREE.SphereGeometry(0.4, 10, 10);
 		this.color = new THREE.Color(0xff0000);
@@ -341,6 +343,20 @@ export class Measure extends THREE.Object3D {
 
 		this.add(this.azimuth.node);
 
+	}
+
+	getConstrainedPosition(markerIndex, position, mousePos) {
+		if (this.horizontal && markerIndex === 1 && this.points.length >= 1 && this.horizontalDirection) {
+			// Constrain second point to the horizontal direction from first point
+			const basePoint = this.points[0].position;
+			const direction = this.horizontalDirection;
+			const vector = position.clone().sub(basePoint);
+			const distance = vector.dot(direction);
+			const constrainedPosition = basePoint.clone().add(direction.clone().multiplyScalar(distance));
+			constrainedPosition.z = basePoint.z; // Keep same elevation
+			return constrainedPosition;
+		}
+		return position;
 	}
 
 	createSphereMaterial () {
@@ -450,7 +466,8 @@ export class Measure extends THREE.Object3D {
 							point[key] = I.point[key];
 						}
 
-						this.setPosition(i, I.location);
+						let constrainedLocation = this.getConstrainedPosition(i, I.location, e.drag.end);
+						this.setPosition(i, constrainedLocation);
 					}
 				}
 			};

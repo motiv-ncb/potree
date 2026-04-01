@@ -149,6 +149,31 @@ export class Sidebar{
 			}
 		));
 
+		// NEW TOOL TO CALCULATE DISTANCE ONLY SELECTED DIRECTION
+		elToolbar.append(this.createToolIcon(
+			Potree.resourcePath + '/icons/dist_dirc.png',
+			'[title]tt.distance_on_selected_direction_distance_measurement',
+			() => {
+				$('#menu_measurements').next().slideDown();
+				this.measuringTool.showDirectionInput((accepted, degrees) => {
+					if (!accepted) return;
+					let measurement = this.measuringTool.startInsertion({
+						showDistances: true,
+						showArea: false,
+						closed: false,
+						horizontal: true,
+						horizontalAngle: degrees,
+						maxMarkers: 2,
+						name: 'Horizontal Distance'});
+						
+					let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
+					let jsonNode = measurementsRoot.children.find(child => child.data.uuid === measurement.uuid);
+					$.jstree.reference(jsonNode.id).deselect_all();
+					$.jstree.reference(jsonNode.id).select_node(jsonNode.id);
+				});
+			}
+		));
+
 		// HEIGHT
 		elToolbar.append(this.createToolIcon(
 			Potree.resourcePath + '/icons/height.svg',
