@@ -517,7 +517,8 @@ export class Sidebar{
         let annotationsID = tree.jstree('create_node', "#", { "text": "<b data-i18n='tb.annotations_opt'>Annotations</b>", "id": "annotations" }, "last", false, false);
         let otherID = tree.jstree('create_node', "#", { "text": "<b>Other</b>", "id": "other" }, "last", false, false);
 		let vectorsID = tree.jstree('create_node', "#", { "text": "<b>Vectors</b>", "id": "vectors" }, "last", false, false);
-		let imagesID = tree.jstree('create_node', "#", { "text": "<b> Images</b>", "id": "images" }, "last", false, false);
+		let imagesID = tree.jstree('create_node', "#", { "text": "<b>Images</b>", "id": "images" }, "last", false, false);
+        let hiddenID = tree.jstree('create_node', "#", { "text": "<b>Hidden</b>", "id": "hidden" }, "last", false, false);
 
 		tree.jstree("check_node", pcID);
 		tree.jstree("check_node", measurementID);
@@ -529,6 +530,8 @@ export class Sidebar{
         tree.jstree("check_node", ROIID);
         tree.jstree("check_node", SRPID);
         tree.jstree("check_node", measurementBoxID);
+        tree.jstree("check_node", hiddenID);
+        
 
 		tree.on('create_node.jstree', (e, data) => {
 			tree.jstree("open_all");
@@ -757,7 +760,10 @@ export class Sidebar{
                 node = createNode(parentNode.id, volume.name, icon, volume);
             }
             else{
-                if(volume.volumeType == "ROI"){
+                if(volume.volumeType == "Volume" || volume.volumeType == "Clipping"){
+	                    node = createNode(measurementID, volume.name, icon, volume);
+	                }
+	            else if(volume.volumeType == "ROI"){
                     node = createNode(ROIID, volume.name, icon, volume);
                 }
                  else if(volume.volumeType == "SRP"){
@@ -767,7 +773,11 @@ export class Sidebar{
                     node = createNode(measurementBoxID, volume.name, icon, volume);
                 }
                 else{
-                    node = createNode(measurementID, volume.name, icon, volume);
+                    node = createNode(hiddenID, volume.name, icon, volume);
+                    node = $("#jstree_scene")[0].querySelectorAll("#hidden");
+                        if (node.length > 0) {
+                            node[0].style.display = "none";
+                        }
                 }
             }
 
@@ -932,6 +942,16 @@ export class Sidebar{
             if(jsonNode){
                 tree.jstree("delete_node", jsonNode.id);
                 tree.i18n();
+            }
+            measurementsRoot = $("#jstree_scene").jstree().get_json("hidden");
+            jsonNode = measurementsRoot.children.find(child => child.data.uuid === e.volume.uuid);
+            if(jsonNode){
+                tree.jstree("delete_node", jsonNode.id);
+                tree.i18n();
+                let node = $("#jstree_scene")[0].querySelectorAll("#hidden");
+                if (node.length > 0) {
+                    node[0].style.display = "none";
+                }
             }
 		};
 
