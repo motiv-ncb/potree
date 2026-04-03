@@ -1503,6 +1503,8 @@ export class Renderer {
 			shader.setUniform1f("wSourceID", material.weightSourceID);
 
 			shader.setUniform("backfaceCulling", material.uniforms.backfaceCulling.value);
+			shader.setUniform("fresnelOutline", material.uniforms.fresnelOutline.value);
+			shader.setUniform1f("uFresnelPower", material.fresnelPower);
 
 			let vnWebGLTexture = this.textures.get(material.visibleNodesTexture);
 			if(vnWebGLTexture){

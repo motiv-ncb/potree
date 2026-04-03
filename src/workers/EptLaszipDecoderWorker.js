@@ -96,7 +96,9 @@ async function readUsingDataView(event) {
 		'gpsTime',
 		'color'
 	];
-
+    let hasNormalx = false;
+    let hasNormaly = false;
+    let hasNormalz = false;
     let extraDimensions = [];
     for(let dimension in view.dimensions){
         if(!existingDimenions.includes(dimension) && !get.hasOwnProperty(dimension)){     
@@ -106,7 +108,23 @@ async function readUsingDataView(event) {
             extraDimensions.push(dim);
             buffers[dim] = new ArrayBuffer(pointCount * 4);
             views[dim] =  new Float32Array(buffers[dim]);
+            const d = dimension.toLowerCase();
+            if(d == "normal_x" || d == "normalx"){
+                hasNormalx = true;
+            }
+            if(d == "normal_y" || d == "normaly"){
+                hasNormaly = true;
+            }
+            if(d == "normal_z" || d == "normalz"){
+                hasNormalz = true;
+            }
         }
+    }
+
+    const hasNormal = hasNormalx && hasNormaly && hasNormalz;
+    if(hasNormal){
+        buffers.normal = new ArrayBuffer(pointCount * 3 * 4);
+        views.normal = new Float32Array(buffers.normal);
     }
 
 	const ranges = dimensionNames.reduce((map, name) => ({ ...map, [name]: [Infinity, -Infinity] }), {})
@@ -174,8 +192,23 @@ async function readUsingDataView(event) {
 
         for(let extraDimension of extraDimensions){
             const extraData = get[extraDimension](i);
-                update(ranges[extraDimension], extraData);
+            if(isNaN(extraData)){
+                continue;
+            }
+            update(ranges[extraDimension], extraData);
             views[extraDimension][i] = extraData;
+            if(hasNormal){
+                const extraDimensionLower = extraDimension.toLowerCase(); 
+                if(extraDimensionLower == "normalx" || extraDimensionLower == "normal_x"){
+                    views.normal[3 * i + 0] = extraData;
+                }
+                if(extraDimensionLower == "normaly" || extraDimensionLower == "normal_y"){
+                    views.normal[3 * i + 1] = extraData;
+                }
+                if(extraDimensionLower == "normalz" || extraDimensionLower == "normal_z"){
+                    views.normal[3 * i + 2] = extraData;
+                }
+            } 
         }
 	}
 

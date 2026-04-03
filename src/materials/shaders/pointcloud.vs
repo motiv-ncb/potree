@@ -153,6 +153,9 @@ uniform sampler2D matcapTextureUniform;
 #endif
 uniform bool backfaceCulling;
 
+uniform bool fresnelOutline;
+uniform float uFresnelPower;
+
 #if defined(num_shadowmaps) && num_shadowmaps > 0
 uniform sampler2D uShadowMap[num_shadowmaps];
 uniform mat4 uShadowWorldView[num_shadowmaps];
@@ -611,6 +614,36 @@ bool applyBackfaceCulling() {
 	}
 }
 
+float getFresnelOutlineFactor() {
+	// vec3 e = normalize(vec3(modelViewMatrix * vec4( position, 1. )));
+	vec3 n = getNormal(); 
+    return pow(abs(n.z), uFresnelPower);
+    // if(uUseOrthographicCamera){
+    //     return pow(abs(n.z), uFresnelPower);
+    // }
+    // else{
+    //     return pow(abs(dot( n, e )), uFresnelPower);
+    // }
+    
+}
+
+float getFresnelOutlineFactorWithBackfaceCulling() {
+    // vec3 e = normalize(vec3(modelViewMatrix * vec4( position, 1. )));
+	vec3 n = getNormal(); 
+
+    if(n.z <= 0.) { 
+		return 0.;
+    } 
+    return pow(n.z, uFresnelPower);
+    // if(uUseOrthographicCamera){
+    //     return pow(n.z, uFresnelPower);
+    // }
+    // else{
+    //     return pow(-dot( n, e ), uFresnelPower);
+    // }
+    
+}
+
 #if defined(color_type_matcap)
 // Matcap Material
 vec3 getMatcap(){ 
@@ -829,9 +862,19 @@ vec3 getColor(){
 		color = getExtra();
 	#endif
 	
-	if (backfaceCulling && applyBackfaceCulling()) {
-		color = vec3(0.);
-	}
+    if(backfaceCulling && fresnelOutline){
+        float fresnelOutlineFactor = getFresnelOutlineFactorWithBackfaceCulling();
+        color =  fresnelOutlineFactor * color;
+    }
+    else{
+        if (backfaceCulling && applyBackfaceCulling()) {
+		    color = vec3(0.);
+        }
+        if(fresnelOutline){
+            float fresnelOutlineFactor = getFresnelOutlineFactor();
+            color =  fresnelOutlineFactor * color;
+        }
+    }
 
 	return color;
 }
