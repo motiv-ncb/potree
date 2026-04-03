@@ -24,7 +24,9 @@
         "focus_control": "Vue complète",
         "orbit_control": "Orbite",
         "flight_control": "Vol",
-        "earth_control": "Earth"
+        "earth_control": "Earth",
+        "direction_input": "Saisie de direction",
+        "enter_direction_angle": "Entrez l'angle (°) ou l'axe (X / Y)"
     },
     "appearance": {
         "nb_max_pts": "Nb points max", 

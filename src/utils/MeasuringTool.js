@@ -166,99 +166,92 @@ export class MeasuringTool extends EventDispatcher{
 		e.scene.addEventListener('measurement_removed', this.onRemove);
 	}
 
-	parseDirectionInput(input){
-		if(input == null){
-			return null;
-		}
-
-		let value = `${input}`.trim().toUpperCase();
-		if(value.length === 0){
-			return undefined;
-		}
-
-		const compassMap = {
-			N: 0,
-			NE: 45,
-			E: 90,
-			SE: 135,
-			S: 180,
-			SW: 225,
-			W: 270,
-			NW: 315,
-		};
-
-		if(compassMap[value] != null){
-			return compassMap[value];
-		}
-
-		value = value.replace("°", "");
-		let degrees = parseFloat(value);
-		if(!isFinite(degrees)){
-			return undefined;
-		}
-
-		degrees = ((degrees % 360) + 360) % 360;
-
-		return degrees;
-	}
-
 	showDirectionInput(callback){
+
 		let overlay = document.createElement('div');
 		overlay.style.position = 'fixed';
 		overlay.style.top = '0';
 		overlay.style.left = '0';
 		overlay.style.width = '100%';
 		overlay.style.height = '100%';
-		overlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
+		overlay.style.background = 'rgba(0,0,0,0.6)';
 		overlay.style.zIndex = '10000';
 		overlay.style.display = 'flex';
 		overlay.style.alignItems = 'center';
 		overlay.style.justifyContent = 'center';
 
 		let dialog = document.createElement('div');
-		dialog.style.backgroundColor = 'white';
-		dialog.style.padding = '20px';
-		dialog.style.borderRadius = '5px';
-		dialog.style.boxShadow = '0 0 10px rgba(0,0,0,0.5)';
-		dialog.style.minWidth = '300px';
+		dialog.style.background = '#111';
+		dialog.style.border = '1px solid #2a2a2a';
+		dialog.style.borderRadius = '6px';
+		dialog.style.boxShadow = '0 0 20px rgba(0,0,0,0.8)';
+		dialog.style.width = '320px';
+		dialog.style.fontFamily = 'sans-serif';
+		dialog.style.color = '#ddd';
 
-		let title = document.createElement('h3');
-		title.textContent = 'Enter Direction';
-		title.style.marginTop = '0';
+		// Header
+		let header = document.createElement('div');
+		header.style.padding = '10px 15px';
+		header.style.borderBottom = '1px solid #2a2a2a';
+		header.style.color = '#f0c040';
+		header.style.fontSize = '14px';
+		header.textContent = i18n.t('tt.direction_input');
 
-		let label = document.createElement('p');
-		label.textContent = 'Enter the 2nd point direction (azimuth in degrees clockwise from North, or N/NE/E/SE/S/SW/W/NW):';
+		// Body
+		let body = document.createElement('div');
+		body.style.padding = '15px 18px';
+
+		let label = document.createElement('div');
+		label.textContent = i18n.t('tt.enter_direction_angle');
+		label.style.fontSize = '12px';
+		label.style.marginBottom = '8px';
+		label.style.color = '#aaa';
 
 		let input = document.createElement('input');
-		input.type = 'text';
-		input.value = '0';
 		input.style.width = '100%';
-		input.style.padding = '8px';
-		input.style.fontSize = '16px';
-		input.style.marginBottom = '10px';
+		input.style.padding = '8px 10px';   // add horizontal padding
+		input.style.background = '#1a1a1a';
+		input.style.border = '1px solid #333';
+		input.style.borderRadius = '4px';
+		input.style.color = '#fff';
+		input.style.outline = 'none';
+		input.style.boxSizing = 'border-box'; // 🔥 IMPORTANT FIX
 
-		let buttonContainer = document.createElement('div');
-		buttonContainer.style.textAlign = 'right';
+		input.onfocus = () => input.style.border = '1px solid #4da3ff';
+		input.onblur = () => input.style.border = '1px solid #333';
 
-		let cancelButton = document.createElement('button');
-		cancelButton.textContent = 'Cancel';
-		cancelButton.style.marginRight = '10px';
-		cancelButton.style.padding = '8px 16px';
+		body.appendChild(label);
+		body.appendChild(input);
 
-		let okButton = document.createElement('button');
-		okButton.textContent = 'OK';
-		okButton.style.padding = '8px 16px';
+		// Footer buttons
+		let footer = document.createElement('div');
+		footer.style.padding = '10px';
+		footer.style.borderTop = '1px solid #2a2a2a';
+		footer.style.textAlign = 'right';
 
-		buttonContainer.appendChild(cancelButton);
-		buttonContainer.appendChild(okButton);
+		function makeButton(text, isPrimary){
+			let btn = document.createElement('button');
+			btn.textContent = text;
+			btn.style.padding = '6px 14px';
+			btn.style.marginLeft = '8px';
+			btn.style.borderRadius = '4px';
+			btn.style.border = '1px solid #333';
+			btn.style.cursor = 'pointer';
+			btn.style.background = isPrimary ? '#2d6cdf' : '#222';
+			btn.style.color = isPrimary ? '#fff' : '#ccc';
+			return btn;
+		}
 
-		dialog.appendChild(title);
-		dialog.appendChild(label);
-		dialog.appendChild(input);
-		dialog.appendChild(buttonContainer);
+		let cancelButton = makeButton(i18n.t('common.cancel'), false);
+		let okButton = makeButton(i18n.t('common.ok'), true);
 
+		footer.appendChild(cancelButton);
+		footer.appendChild(okButton);
+
+		dialog.appendChild(header);
+		dialog.appendChild(body);
+		dialog.appendChild(footer);
 		overlay.appendChild(dialog);
-
 		document.body.appendChild(overlay);
 
 		input.focus();
@@ -271,14 +264,21 @@ export class MeasuringTool extends EventDispatcher{
 		};
 
 		let onOk = () => {
-			let value = input.value.trim();
-			let degrees = this.parseDirectionInput(value);
+			let value = input.value.trim().toLowerCase();
+
+			// NEW: X/Y axis support
+			let degrees;
+			if (value === 'x') degrees = 0;
+			else if (value === 'y') degrees = 90;
+			else degrees = parseFloat(value);
+
 			if (degrees == null || !isFinite(degrees)) {
-				this.viewer.postError("Invalid direction. Use values like 0, 45, 90 or N, NE, E.", {duration: 4000});
+				this.viewer.postError("Invalid input. Use values like 0, 45, 90 or X / Y.", {duration: 4000});
 				input.focus();
 				input.select();
 				return;
 			}
+
 			remove();
 			callback(true, degrees);
 		};

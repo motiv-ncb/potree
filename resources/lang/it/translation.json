@@ -40,7 +40,9 @@
 		"orthographic_camera_control": "Vista ortografica",
 		"remove_all_clipping_volumes": "Rimuovere tutti i volumi ritagliati",
 		"compass": "Bussola",
-		"camera_animation": "Animazione"
+		"camera_animation": "Animazione",
+		"direction_input": "Immissione direzione",
+		"enter_direction_angle": "Inserire angolo (°) o asse (X / Y)"
     },
     "appearance": {
         "nb_max_pts": "Numero di punti", 

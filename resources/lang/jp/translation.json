@@ -129,7 +129,9 @@
         "height_panel_hight": "高さ:",
         "position": "位置",
         "distances": "距離",
-        "total": "合計"
+        "total": "合計",
+        "direction_input": "方向入力",
+        "enter_direction_angle": "角度(°)または軸(X / Y)を入力"
     },
     "appearance": {
         "nb_max_pts": "表示するポイント数を設定",

@@ -46,7 +46,9 @@
 		"navigation_cube_control": "导航立方体",
 		"remove_all_clipping_volumes": "移除裁剪对象",
 		"compass": "指北针",
-		"camera_animation": "相机动画"
+		"camera_animation": "相机动画",
+		"direction_input": "方向输入",
+		"enter_direction_angle": "输入角度(°)或轴(X / Y)"
 	},
 	"appearance": {
 		"nb_max_pts": "显示点数",

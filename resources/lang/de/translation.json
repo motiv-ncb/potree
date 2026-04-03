@@ -33,7 +33,9 @@
         "perspective_camera_control": "Perspektivische Kamera",
         "orthographic_camera_control": "Orthografische Kamera",
         "navigation_cube_control": "Navigationswürfel",
-        "remove_all_clipping_volumes": "Alle Clipvolumen entfernen"
+        "remove_all_clipping_volumes": "Alle Clipvolumen entfernen",
+        "direction_input": "Richtungseingabe",
+        "enter_direction_angle": "Winkel eingeben (°) oder Achse (X / Y)"
     },
     "appearance": {
         "nb_max_pts": "Max Punkte", 

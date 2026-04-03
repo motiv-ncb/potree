@@ -129,7 +129,9 @@
         "height_panel_hight": "Height:",
         "position": "Position",
         "distances": "Distances",
-        "total": "Total"
+        "total": "Total",
+        "direction_input": "Direction Input",
+        "enter_direction_angle": "Enter angle (°) or axis (X / Y)"
     },
     "appearance": {
         "nb_max_pts": "Point budget",

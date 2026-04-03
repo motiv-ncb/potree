@@ -151,7 +151,7 @@ export class Sidebar{
 
 		// NEW TOOL TO CALCULATE DISTANCE ONLY SELECTED DIRECTION
 		elToolbar.append(this.createToolIcon(
-			Potree.resourcePath + '/icons/dist_dirc.png',
+			Potree.resourcePath + '/icons/dist_dirc.svg',
 			'[title]tt.distance_on_selected_direction_distance_measurement',
 			() => {
 				$('#menu_measurements').next().slideDown();
