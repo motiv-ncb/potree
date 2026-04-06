@@ -168,6 +168,12 @@ export class HQSplatRenderer{
 				depthMaterial.uniforms.uFilterGPSTimeClipRange.value = material.uniforms.uFilterGPSTimeClipRange.value;
 				depthMaterial.uniforms.uFilterPointSourceIDClipRange.value = material.uniforms.uFilterPointSourceIDClipRange.value;
 
+                depthMaterial.fresnelOutline = material.fresnelOutline;
+                depthMaterial.fresnelPower = material.fresnelPower;
+                
+                depthMaterial.deformed = material.deformed;
+                depthMaterial.deformationFactor = material.deformationFactor;
+
 				depthMaterial.clipTask = material.clipTask;
 				depthMaterial.clipMethod = material.clipMethod;
 				depthMaterial.setClipBoxes(material.clipBoxes);
@@ -246,7 +252,10 @@ export class HQSplatRenderer{
                 attributeMaterial.backfaceCulling = material.backfaceCulling
                 attributeMaterial.fresnelOutline = material.fresnelOutline;
                 attributeMaterial.fresnelPower = material.fresnelPower;
-
+                
+                attributeMaterial.deformed = material.deformed;
+                attributeMaterial.deformationFactor = material.deformationFactor;
+       
 				attributeMaterial.intensityRange = material.intensityRange;
 				attributeMaterial.intensityGamma = material.intensityGamma;
                 attributeMaterial.intensityCurveOrder = material.intensityCurveOrder;

@@ -197,7 +197,11 @@
         "ADAPTIVE": "適応型",
         "to": " と ",
         "apply": "適用",
-        "attribute_weights":"属性の重み"
+        "attribute_weights":"属性の重み",
+        "fresnel_effect":"フレネル効果",
+        "fresnel_power":"フレネルパワー",
+        "deformed_shape":"変形",
+        "deformation_scale":"変形スケール"
     },
     "attribute": {
         "intensity": "反射強度",

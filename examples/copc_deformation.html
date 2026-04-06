@@ -52,10 +52,10 @@
 		viewer.loadGUI(() => {
 			viewer.setLanguage('en');
 			$("#menu_scene").next().show();
+              viewer.useHQ = true;
 		});
 
-        var path = "../pointclouds/M3C2-Y.copc.laz";
-		var name = "M3C2-Y.copc.laz";
+       
 
         const setMaterial = function(material, backfaceCulling, fresnelOutline){
             material.size = 1;
@@ -66,39 +66,37 @@
             material.backfaceCulling = backfaceCulling;
             material.fresnelOutline = fresnelOutline;
             material.setRange("Distance_Neg_Y_mm", [-50, 50]);
-            material.fresnelPower = 5;
+
+            if(fresnelOutline){
+                material.fresnelOutline = true;
+                material.fresnelPower = 5;
+                material.deformed = true;
+                material.deformationFactor = 1;
+                
+            }
+        }
+
+         const setColorMaterial = function(material,color){
+            material.size = 1;
+			material.pointSizeType = Potree.PointSizeType.ADAPTIVE;
+			material.activeAttributeName = "Color";
+            material.activeAttributeName = "color"
+            material.color.set(color)
+            // material.color = color
+            let gradient = Potree.Gradients["TURBO"];
+            material.gradient = gradient;
+         
+
         }
      
-		Potree.loadPointCloud(path, "Backface culling and fresnel outline", function(e1){
+		Potree.loadPointCloud("../pointclouds/M3C2-Y.copc.laz", "Result", function(e1){
 			viewer.scene.addPointCloud(e1.pointcloud);
 			let material = e1.pointcloud.material;
 			setMaterial(material, true, true);
-
-            Potree.loadPointCloud(path, "Backface culling", function(e2){
-                viewer.scene.addPointCloud(e2.pointcloud);
-                let material = e2.pointcloud.material;
-                setMaterial(material, true, false);
-                e2.pointcloud.position.z = 20;
-                
-                Potree.loadPointCloud(path, "Gresnel outline", function(e3){
-                    viewer.scene.addPointCloud(e3.pointcloud);
-                    let material = e3.pointcloud.material;
-                    setMaterial(material, false, true);
-                    e3.pointcloud.position.z = 40;
-
-                    Potree.loadPointCloud(path, "Common", function(e4){
-                        viewer.scene.addPointCloud(e4.pointcloud);
-                        let material = e4.pointcloud.material;
-                        setMaterial(material, false, false);
-                        e4.pointcloud.position.z = 60;
-                        viewer.fitToScreen(0.5);
-                        viewer.useHQ = true;
-                    });
-                });
-                
-            });
-            
+            viewer.fitToScreen(0.5);
 		});
+
+        
 
        
 	</script>

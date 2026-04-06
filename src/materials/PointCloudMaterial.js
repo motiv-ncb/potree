@@ -88,7 +88,8 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 			returnNumber: { type: 'f', value: [] },
 			numberOfReturns: { type: 'f', value: [] },
 			pointSourceID: { type: 'f', value: [] },
-			indices: { type: 'fv', value: [] }
+			indices: { type: 'fv', value: [] },
+            deformation: { type: 'fv', value: [] },
 		};
 
 		this.uniforms = {
@@ -198,6 +199,8 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 			backfaceCulling: { type: "b", value: false },
             fresnelOutline: { type: "b", value: false },
             uFresnelPower: { type: "f", value: 1},
+            deformed: { type: "b", value: false },
+            uDeformationFactor: { type: "f", value: 1},
 		};
 
 		this.classification = ClassificationScheme.DEFAULT;
@@ -473,7 +476,7 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 	set fresnelOutline(value) {
 		if(this.uniforms.fresnelOutline.value !== value){
 			this.uniforms.fresnelOutline.value = value;
-			this.dispatchEvent({type: 'fresnelOutline_changed', target: this});
+			this.dispatchEvent({type: 'fresnel_outline_changed', target: this});
 		}
 	}
 
@@ -485,7 +488,32 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 		if (!this.uniforms.uFresnelPower.value !== (value)) {
 			this.uniforms.uFresnelPower.value = (value);
 			this.dispatchEvent({
-				type: 'material_property_changed',
+				type: 'fresnel_outline_changed',
+				target: this
+			});
+		}
+	}
+
+    get deformed() {
+		return this.uniforms.deformed.value;
+	}
+
+	set deformed(value) {
+		if(this.uniforms.deformed.value !== value){
+			this.uniforms.deformed.value = value;
+			this.dispatchEvent({type: 'deformation_factor_changed', target: this});
+		}
+	}
+
+    get deformationFactor () {
+		return this.uniforms.uDeformationFactor.value;
+	}
+
+	set deformationFactor (value) {
+		if (!this.uniforms.uDeformationFactor.value !== (value)) {
+			this.uniforms.uDeformationFactor.value = (value);
+			this.dispatchEvent({
+				type: 'deformation_factor_changed',
 				target: this
 			});
 		}

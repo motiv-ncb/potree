@@ -99,6 +99,9 @@ async function readUsingDataView(event) {
     let hasNormalx = false;
     let hasNormaly = false;
     let hasNormalz = false;
+    let deformed = false;
+    let distanceFactor = 1;
+    
     let extraDimensions = [];
     for(let dimension in view.dimensions){
         if(!existingDimenions.includes(dimension) && !get.hasOwnProperty(dimension)){     
@@ -118,6 +121,14 @@ async function readUsingDataView(event) {
             if(d == "normal_z" || d == "normalz"){
                 hasNormalz = true;
             }
+            if(d == "distance_x_mm" || d == "distance_y_mm" || d == "distance_z_mm" ){
+                deformed = true;
+                distanceFactor = 0.001
+            }
+            if(d == "distance_neg_x_mm" || d == "distance_neg_y_mm" || d == "distance_neg_z_mm" ){
+                deformed = true;
+                distanceFactor = -0.001
+            }
         }
     }
 
@@ -125,6 +136,11 @@ async function readUsingDataView(event) {
     if(hasNormal){
         buffers.normal = new ArrayBuffer(pointCount * 3 * 4);
         views.normal = new Float32Array(buffers.normal);
+    }
+
+    if(deformed){
+        buffers.deformation = new ArrayBuffer(pointCount * 3 * 4);
+        views.deformation = new Float32Array(buffers.deformation);
     }
 
 	const ranges = dimensionNames.reduce((map, name) => ({ ...map, [name]: [Infinity, -Infinity] }), {})
@@ -193,12 +209,13 @@ async function readUsingDataView(event) {
         for(let extraDimension of extraDimensions){
             const extraData = get[extraDimension](i);
             if(isNaN(extraData)){
+                views[extraDimension][i] = extraData;
                 continue;
             }
             update(ranges[extraDimension], extraData);
             views[extraDimension][i] = extraData;
+            const extraDimensionLower = extraDimension.toLowerCase(); 
             if(hasNormal){
-                const extraDimensionLower = extraDimension.toLowerCase(); 
                 if(extraDimensionLower == "normalx" || extraDimensionLower == "normal_x"){
                     views.normal[3 * i + 0] = extraData;
                 }
@@ -209,6 +226,17 @@ async function readUsingDataView(event) {
                     views.normal[3 * i + 2] = extraData;
                 }
             } 
+            if(deformed){
+                if(extraDimensionLower == "distance_x_mm" || extraDimensionLower == "distance_neg_x_mm"){
+                    views.deformation[3 * i + 0] = extraData * distanceFactor;
+                }
+                if(extraDimensionLower == "distance_y_mm" || extraDimensionLower == "distance_neg_y_mm"){
+                    views.deformation[3 * i + 1] = extraData * distanceFactor;
+                }
+                if(extraDimensionLower == "distance_z_mm" || extraDimensionLower == "distance_neg_z_mm"){
+                    views.deformation[3 * i + 2] = extraData * distanceFactor;
+                }
+            }
         }
 	}
 

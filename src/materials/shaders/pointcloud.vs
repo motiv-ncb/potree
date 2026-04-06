@@ -20,6 +20,7 @@ attribute float aExtra;
 attribute float xExtra;
 attribute float yExtra;
 attribute float zExtra;
+attribute vec3 deformation;
 
 uniform mat4 modelMatrix;
 uniform mat4 modelViewMatrix;
@@ -155,6 +156,9 @@ uniform bool backfaceCulling;
 
 uniform bool fresnelOutline;
 uniform float uFresnelPower;
+
+uniform bool deformed;
+uniform float uDeformationFactor;
 
 #if defined(num_shadowmaps) && num_shadowmaps > 0
 uniform sampler2D uShadowMap[num_shadowmaps];
@@ -1145,7 +1149,15 @@ void main() {
         vec3 tranformedPosition = doTransform( modelPosition.xyz);
         mvPosition = viewMatrix * vec4(tranformedPosition, 1.0 );
     #else
-	    mvPosition = modelViewMatrix * vec4(position, 1.0 );
+     vec4 modelPosition = modelMatrix * vec4( position, 1.0 );
+            
+        if (deformed ){
+           vec3 tranformedPosition = uDeformationFactor * deformation + modelPosition.xyz;
+            mvPosition = viewMatrix * vec4(tranformedPosition, 1.0 );
+        }
+        else{
+            mvPosition = modelViewMatrix * vec4(position, 1.0 );
+        }
     #endif
 
 	vViewPosition = mvPosition.xyz;

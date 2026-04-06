@@ -197,7 +197,11 @@
         "ADAPTIVE": "ADAPTIVE",
         "to": " to ",
         "apply": "Apply",
-        "attribute_weights":"Attribute weights"
+        "attribute_weights":"Attribute weights",
+        "fresnel_effect":"Fresnel effect",
+        "fresnel_power":"Fresnel power",
+        "deformed_shape":"Deformed shape",
+        "deformation_scale":"Deformation scale"
     },
     "attribute": {
         "intensity": "intensity",

@@ -143,6 +143,12 @@ export class EptLazBatcher {
                     g.setAttribute('normal',
                 new THREE.BufferAttribute(normals, 3));
             }
+
+            if(e.data.deformation){
+                let deformations = new Float32Array(e.data.deformation);
+                    g.setAttribute('deformation',
+                new THREE.BufferAttribute(deformations, 3));
+            }
                
             ////////////////////////////
 			this.node.gpsTime = e.data.gpsMeta;

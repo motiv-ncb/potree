@@ -155,8 +155,19 @@ export class PropertiesPanel{
 					</select>
 				</li>
 
-				<li id="materials_backface_container" style="display:none;">
-				<label><input id="set_backface_culling" type="checkbox" /><span data-i18n="appearance.backface_culling"></span></label>
+				<li id="materials_backface_container">
+				    <label><input id="set_backface_culling" type="checkbox" /><span data-i18n="appearance.backface_culling"></span></label>
+				</li>
+
+
+                <li id="materials_normal_container">
+				    <label><input id="set_fresnel_outline" type="checkbox" /><span data-i18n="appearance.fresnel_effect">Fresnel outline</span></label>
+                    <li id="lblsldFresnelPower"><span data-i18n="appearance.fresnel_power">Fresnel power</span>:<span id="lblFresnelPower"></span><div id="sldFresnelPower"></div></li>
+				</li>
+
+                <li id="materials_deformation_container">
+				    <label><input id="set_deformed" type="checkbox" /><span data-i18n="appearance.deformed_shape">Deformed shape</span></label>
+                    <li id="lblsldDeformationFactor"><span data-i18n="appearance.deformation_scale">Deformation scale</span>:<span id="lblDeformationFactor"></span><div id="sldDeformationFactor"></div></li>
 				</li>
 				
 				<!-- OPACITY -->
@@ -492,6 +503,10 @@ export class PropertiesPanel{
             let opt = panel.find(`#set_backface_culling`);
             opt.click(() => {
                 material.backfaceCulling = opt.prop("checked");
+                let pointClouds = self.getSelectedPointclouds();
+                for (let point of pointClouds) {
+                    point.material.backfaceCulling = opt.prop("checked");
+                }   
             });
             let update = () => {
                 let value = material.backfaceCulling;
@@ -500,8 +515,8 @@ export class PropertiesPanel{
             this.addVolatileListener(material, "backface_changed", update);
             update();
 
-            let blockBackface = $('#materials_backface_container');
-            blockBackface.css('display', 'none');
+            // let blockBackface = $('#materials_backface_container');
+            // blockBackface.css('display', 'none');
 
             const pointAttributes = pointcloud.pcoGeometry.pointAttributes;
             const hasNormals = pointAttributes.hasNormals ? pointAttributes.hasNormals() : false;
@@ -519,6 +534,98 @@ export class PropertiesPanel{
             });
             */
         }
+
+        { // normal
+            let opt = panel.find(`#set_fresnel_outline`);
+            opt.click(() => {
+                material.fresnelOutline = opt.prop("checked");
+                let pointClouds = self.getSelectedPointclouds();
+                for (let point of pointClouds) {
+                    point.material.fresnelOutline = opt.prop("checked");
+                }   
+            });
+          
+            let sldFresnelPower = panel.find(`#sldFresnelPower`);
+            let lblFresnelPower = panel.find(`#lblFresnelPower`);
+            let lblsldFresnelPower = panel.find(`#lblsldFresnelPower`)
+            sldFresnelPower.slider({
+                value: material.opacity,
+                min: 0,
+                max: 10,
+                step: 0.01,
+                slide: function (event, ui) {
+                    material.fresnelPower = ui.value;
+                    let pointClouds = self.getSelectedPointclouds();
+                    for (let point of pointClouds) {
+                        point.material.fresnelPower = ui.value;
+                    }   
+                }
+            });
+
+            let update = (e) => {
+                let value = material.fresnelOutline;
+                opt.prop("checked", value);
+                lblFresnelPower.html(material.fresnelPower.toFixed(2));
+                sldFresnelPower.slider({ value: material.fresnelPower });
+                if(value){
+                    lblsldFresnelPower.show();
+                }
+                else{
+                    lblsldFresnelPower.hide();
+                }
+            };
+            this.addVolatileListener(material, "fresnel_outline_changed", update);
+
+            update();
+        }
+
+        { // Deformation
+
+            let opt = panel.find(`#set_deformed`);
+            opt.click(() => {
+                material.deformed = opt.prop("checked");
+                let pointClouds = self.getSelectedPointclouds();
+                for (let point of pointClouds) {
+                    point.material.deformed = opt.prop("checked");
+                }   
+            });
+          
+            let sldDeformation = panel.find(`#sldDeformationFactor`);
+            let lblDeformation = panel.find(`#lblDeformationFactor`);
+            let lblsldDeformation = panel.find(`#lblsldDeformationFactor`)
+
+            sldDeformation.slider({
+                value: material.opacity,
+                min: 0,
+                max: 1,
+                step: 0.01,
+                slide: function (event, ui) {
+                    material.deformationFactor = ui.value;
+                    let pointClouds = self.getSelectedPointclouds();
+                    for (let point of pointClouds) {
+                        point.material.deformationFactor = ui.value;
+                    }   
+                }
+                
+            });
+
+            let update = (e) => {
+                let value = material.deformed;
+                opt.prop("checked", value);
+                lblDeformation.html(material.deformationFactor.toFixed(2));
+                sldDeformation.slider({ value: material.deformationFactor });
+                if(value){
+                    lblsldDeformation.show();
+                }
+                else{
+                    lblsldDeformation.hide();
+                }
+            };
+            this.addVolatileListener(material, "deformation_factor_changed", update);
+
+            update();
+        }
+        
 
         { // OPACITY
             let sldOpacity = panel.find(`#sldOpacity`);

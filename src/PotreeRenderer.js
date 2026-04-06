@@ -154,6 +154,7 @@ let attributeLocations = {
     "xExtra":  {name: "xExtra", location: 12},
     "yExtra":  {name: "yExtra", location: 13},
     "zExtra":  {name: "zExtra", location: 14},
+    "deformation": {name: "deformation", location: 15},
 };
 
 class Shader {
@@ -1505,6 +1506,8 @@ export class Renderer {
 			shader.setUniform("backfaceCulling", material.uniforms.backfaceCulling.value);
 			shader.setUniform("fresnelOutline", material.uniforms.fresnelOutline.value);
 			shader.setUniform1f("uFresnelPower", material.fresnelPower);
+            shader.setUniform("deformed", material.uniforms.deformed.value);
+			shader.setUniform1f("uDeformationFactor", material.deformationFactor);
 
 			let vnWebGLTexture = this.textures.get(material.visibleNodesTexture);
 			if(vnWebGLTexture){
