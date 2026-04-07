@@ -169,6 +169,8 @@ export class PropertiesPanel{
 				    <label><input id="set_deformed" type="checkbox" /><span data-i18n="appearance.deformed_shape">Deformed shape</span></label>
                     <li id="lblsldDeformationFactor"><span data-i18n="appearance.deformation_scale">Deformation scale</span>:<span id="lblDeformationFactor"></span><div id="sldDeformationFactor"></div></li>
 				</li>
+
+                
 				
 				<!-- OPACITY -->
 				<li  style="display:none;"><span data-i18n="appearance.point_opacity"></span>:<span id="lblOpacity"></span><div id="sldOpacity"></div></li>
@@ -224,6 +226,9 @@ export class PropertiesPanel{
 					<li><span data-i18n="appearance.gamma"></span> <span id="lblRGBGamma"></span> <div id="sldRGBGamma"></div>	</li>
 					<li><span data-i18n="appearance.brightness"></span> <div id="sldRGBBrightness"></div>	</li>
 					<li><span data-i18n="appearance.contrast"></span> <div id="sldRGBContrast"></div>	</li>
+                    <li><span data-i18n="appearance.enhanceScale">Enhancement:</span> <div id="sldRGBEnhance"></div>	</li>
+
+                    
 
                     <div id="color_enhance_area" class="scene_content selectable"></div>
 				</div>
@@ -1105,6 +1110,18 @@ export class PropertiesPanel{
                     let pointClouds = self.getSelectedPointclouds();
                     for (let point of pointClouds) {
                         point.material.rgbContrast = ui.value;
+                    }
+                }
+            });
+
+            panel.find('#sldRGBEnhance').slider({
+                value: material.rgbContrast,
+                min: 1, max: 3, step: 0.01, value: 1,
+                slide: (event, ui) => {
+                    material.rgbEnhance = ui.value;
+                    let pointClouds = self.getSelectedPointclouds();
+                    for (let point of pointClouds) {
+                        point.material.rgbEnhance = ui.value;
                     }
                 }
             });

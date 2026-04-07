@@ -1494,6 +1494,8 @@ export class Renderer {
 				material.rgbBrightness, 
 				material.rgbContrast
 			]);
+            shader.setUniform1f("uRGBEnhance", material.rgbEnhance);
+
 
 			shader.setUniform1f("uTransition", material.transition);
 			shader.setUniform1f("wRGB", material.weightRGB);

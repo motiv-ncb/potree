@@ -153,6 +153,7 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 
 			intensity_gbc: 		{ type: "fv", value: [1, 0, 0]},
 			uRGB_gbc:	 		{ type: "fv", value: [1, 0, 0]},
+            urgbEnhance: { type: "f", value: 1},
 			// intensityGamma:		{ type: "f", value: 1 },
 			// intensityContrast:	{ type: "f", value: 0 },
 			// intensityBrightness:{ type: "f", value: 0 },
@@ -1151,6 +1152,20 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 	set rgbBrightness (value) {
 		if (this.uniforms.uRGB_gbc.value[1] !== value) {
 			this.uniforms.uRGB_gbc.value[1] = value;
+			this.dispatchEvent({
+				type: 'material_property_changed',
+				target: this
+			});
+		}
+	}
+
+    get rgbEnhance () {
+		return this.uniforms.urgbEnhance.value;
+	}
+
+	set rgbEnhance (value) {
+		if(this.uniforms.urgbEnhance.value !== value){
+			this.uniforms.urgbEnhance.value = value;
 			this.dispatchEvent({
 				type: 'material_property_changed',
 				target: this

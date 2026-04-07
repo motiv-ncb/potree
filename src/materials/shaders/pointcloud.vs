@@ -113,6 +113,7 @@ uniform vec2 uNormalizedGpsBufferRange;
 uniform vec3 uIntensity_gbc;
 uniform vec3 uRGB_gbc;
 uniform vec3 uExtra_gbc;
+uniform float uRGBEnhance;
 
 uniform float uTransition;
 uniform float wRGB;
@@ -446,6 +447,76 @@ vec3 getRGB(){
 	rgb = clamp(rgb, 0.0, 1.0);
 
 	return rgb;
+}
+
+vec3 rgb2xyz(vec3 rgb){
+    // https://kaizoudou.com/from-rgb-to-lab-color-space/
+    // sRGB D65
+    return vec3(
+        0.4124564 * rgb.x + 0.3575761 * rgb.y + 0.1804375 * rgb.z,
+        0.2126729 * rgb.x + 0.7151522 * rgb.y + 0.0721750 * rgb.z,
+        0.0193339 * rgb.x + 0.1191920 * rgb.y + 0.9503041 * rgb.z
+    );
+}
+
+float f(float t){
+    if(t > 0.008856){
+        return pow(t, 1./3.);
+    }
+    else{
+        return (903.3 * t + 16.) / 116.;
+    }
+}
+
+float invF(float f){
+    float f3 = pow(f,3.);
+    if(f3 > 0.008856){
+        return f3;
+    }
+    else{
+        return (116. * f - 16.) / 903.3;
+    }
+}
+
+vec3 xyz2rgb(vec3 xyz){
+    // https://kaizoudou.com/from-rgb-to-lab-color-space/
+    // sRGB D65
+    return vec3(
+        3.2404548 * xyz.x - 1.5371389 * xyz.y - 0.4985315 * xyz.z,
+      - 0.9692664 * xyz.x + 1.8760109 * xyz.y + 0.0415561 * xyz.z,
+        0.0556434 * xyz.x - 0.2040259 * xyz.y + 1.0572251 * xyz.z
+    );
+}
+
+vec3 xyz2lab(vec3 xyz){
+    float fx = f(xyz.x / 0.95047);
+    float fy = f(xyz.y);
+    float fz = f(xyz.z / 1.08883);
+    return vec3(
+        116. * fy - 16.,
+        500. * (fx - fy),
+        200. * (fy - fz)
+    );
+}
+
+vec3 lab2xyz(vec3 lab){
+    float fy = (lab.x + 16.) / 116.;
+    float fx = lab.y / 500. + fy; //   a / 500 + fy
+    float fz = fy - lab.z / 200.; //   fy - b / 200
+    return vec3(
+        0.95047 * invF(fx),
+        invF(fy),
+        1.08883 * invF(fz)
+    );
+}
+
+vec3 getEnhanceColor(vec3 rgb, float factor){
+    vec3 lab = xyz2lab(rgb2xyz(rgb));
+    lab.y = factor * lab.y;
+    lab.z = factor * lab.z;
+    vec3 res = xyz2rgb(lab2xyz(lab));
+    res = clamp(res, 0.0, 1.0);
+    return res;
 }
 
 float getIntensity(){
@@ -879,7 +950,10 @@ vec3 getColor(){
             color =  fresnelOutlineFactor * color;
         }
     }
-
+    if (uRGBEnhance > 1.0){
+         color = getEnhanceColor(color, uRGBEnhance);
+    }
+   
 	return color;
 }
 

@@ -265,7 +265,8 @@ export class HQSplatRenderer{
 				attributeMaterial.rgbGamma = material.rgbGamma;
 				attributeMaterial.rgbContrast = material.rgbContrast;
 				attributeMaterial.rgbBrightness = material.rgbBrightness;
-
+                attributeMaterial.rgbEnhance = material.rgbEnhance;
+                
 				attributeMaterial.weightRGB = material.weightRGB;
 				attributeMaterial.weightIntensity = material.weightIntensity;
 				attributeMaterial.weightElevation = material.weightElevation;
