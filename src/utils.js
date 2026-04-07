@@ -545,6 +545,11 @@ export class Utils {
 			y: -(mouse.y / height) * 2 + 1
 		};
 
+        if(!this.raycasterForMouseToRay){
+            this.raycasterForMouseToRay = new THREE.Raycaster();
+        }
+		this.raycasterForMouseToRay.setFromCamera(normalizedMouse, camera);
+        return this.raycasterForMouseToRay.ray;
 		let vector = new THREE.Vector3(normalizedMouse.x, normalizedMouse.y, 0.5);
 		let origin = camera.position.clone();
 		vector.unproject(camera);
