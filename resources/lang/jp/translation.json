@@ -201,7 +201,8 @@
         "fresnel_effect":"フレネル効果",
         "fresnel_power":"フレネルパワー",
         "deformed_shape":"変形",
-        "deformation_scale":"変形スケール"
+        "deformation_scale":"変形スケール",
+        "enhancement":"エンハンスメント: "
     },
     "attribute": {
         "intensity": "反射強度",

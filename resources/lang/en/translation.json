@@ -201,7 +201,8 @@
         "fresnel_effect":"Fresnel effect",
         "fresnel_power":"Fresnel power",
         "deformed_shape":"Deformed shape",
-        "deformation_scale":"Deformation scale"
+        "deformation_scale":"Deformation scale",
+        "enhancement":"Enhancement: "
     },
     "attribute": {
         "intensity": "intensity",

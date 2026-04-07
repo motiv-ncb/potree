@@ -510,10 +510,10 @@ vec3 lab2xyz(vec3 lab){
     );
 }
 
-vec3 getEnhanceColor(vec3 rgb, float factor){
+vec3 getEnhanceColor(vec3 rgb){
     vec3 lab = xyz2lab(rgb2xyz(rgb));
-    lab.y = factor * lab.y;
-    lab.z = factor * lab.z;
+    lab.y = uRGBEnhance * lab.y;
+    lab.z = uRGBEnhance * lab.z;
     vec3 res = xyz2rgb(lab2xyz(lab));
     res = clamp(res, 0.0, 1.0);
     return res;
@@ -874,6 +874,9 @@ vec3 getColor(){
 	
 	#ifdef color_type_rgba
 		color = getRGB();
+        if (uRGBEnhance > 1.0){
+            color = getEnhanceColor(color);
+        }
 	#elif defined color_type_height || defined color_type_elevation
 		color = getElevation();
 
@@ -950,9 +953,7 @@ vec3 getColor(){
             color =  fresnelOutlineFactor * color;
         }
     }
-    if (uRGBEnhance > 1.0){
-         color = getEnhanceColor(color, uRGBEnhance);
-    }
+    
    
 	return color;
 }

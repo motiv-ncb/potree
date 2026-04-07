@@ -224,9 +224,9 @@ export class PropertiesPanel{
 					</div>
 
 					<li><span data-i18n="appearance.gamma"></span> <span id="lblRGBGamma"></span> <div id="sldRGBGamma"></div>	</li>
-					<li><span data-i18n="appearance.brightness"></span> <div id="sldRGBBrightness"></div>	</li>
-					<li><span data-i18n="appearance.contrast"></span> <div id="sldRGBContrast"></div>	</li>
-                    <li><span data-i18n="appearance.enhanceScale">Enhancement:</span> <div id="sldRGBEnhance"></div>	</li>
+					<li><span data-i18n="appearance.brightness"></span> <span id="lblRGBBrightness"></span><div id="sldRGBBrightness"></div>	</li>
+					<li><span data-i18n="appearance.contrast"></span> <span id="lblRGBContrast"></span><div id="sldRGBContrast"></div>	</li>
+                    <li><span data-i18n="appearance.enhancement"></span> <span id="lblRGBEnhance"></span><div id="sldRGBEnhance"></div>	</li>
 
                     
 
@@ -1471,14 +1471,17 @@ export class PropertiesPanel{
                 let gamma = material.rgbGamma;
                 let contrast = material.rgbContrast;
                 let brightness = material.rgbBrightness;
+                let enhance = material.rgbEnhance;
 
                 panel.find('#lblRGBGamma').html(gamma.toFixed(2));
                 panel.find('#lblRGBContrast').html(contrast.toFixed(2));
                 panel.find('#lblRGBBrightness').html(brightness.toFixed(2));
+                panel.find('#lblRGBEnhance').html(enhance.toFixed(2));
 
 				panel.find('#sldRGBGamma').slider({value: gamma});
 				panel.find('#sldRGBContrast').slider({value: contrast});
 				panel.find('#sldRGBBrightness').slider({value: brightness});
+                panel.find('#sldRGBEnhance').slider({value: enhance});
             };
 
            
