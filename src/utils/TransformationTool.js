@@ -829,7 +829,9 @@ export class TransformationTool {
 				for(let handleName of Object.keys(this.handles)){
 					let handle = this.handles[handleName];
 					let node = handle.node;
-
+                    if(!node.parent){
+                        continue;
+                    }
 					let handlePos = node.getWorldPosition(new THREE.Vector3());
 					let distance = handlePos.distanceTo(camera.position);
 					let pr = Utils.projectedRadius(1, camera, distance, domElement.clientWidth, domElement.clientHeight);
@@ -855,7 +857,12 @@ export class TransformationTool {
 					let tWorld = this.scene.matrixWorld;
 					let tObject = tWorld.clone().invert();
 					let camObjectPos = camera.getWorldPosition(new THREE.Vector3()).applyMatrix4(tObject);
-
+                    if(camera.type = "OrthographicCamera"){
+                        let camObjectDir = camera.getWorldDirection(new THREE.Vector3())
+                        camObjectDir.transformDirection(tObject); 
+                        camObjectDir.multiplyScalar(-1);
+                        camObjectPos =  camObjectDir;
+                    }
 					let x = this.rotationHandles["rotation.x"].node.rotation;
 					let y = this.rotationHandles["rotation.y"].node.rotation;
 					let z = this.rotationHandles["rotation.z"].node.rotation;
@@ -866,7 +873,31 @@ export class TransformationTool {
 					let above = camObjectPos.z > 0;
 					let below = !above;
 					let PI_HALF = Math.PI / 2;
-
+                    const tol = 0.2;
+                    if(Math.abs(camObjectPos.x) > tol){
+                        if(!this.scene.children.includes( this.rotationHandles["rotation.x"].node)){
+                            this.scene.add( this.rotationHandles["rotation.x"].node);
+                        }
+                    }
+                    else{
+                        this.scene.remove( this.rotationHandles["rotation.x"].node);
+                    }
+                    if(Math.abs(camObjectPos.y) > tol){
+                        if(!this.scene.children.includes( this.rotationHandles["rotation.y"].node)){
+                            this.scene.add( this.rotationHandles["rotation.y"].node);
+                        }
+                    }
+                    else{
+                        this.scene.remove( this.rotationHandles["rotation.y"].node);
+                    }if(Math.abs(camObjectPos.z) > tol){
+                        if(!this.scene.children.includes( this.rotationHandles["rotation.z"].node)){
+                            this.scene.add( this.rotationHandles["rotation.z"].node);
+                        }
+                    }
+                    else{
+                        this.scene.remove( this.rotationHandles["rotation.z"].node);
+                    }
+                    
 					if(above){
 						if(camObjectPos.x > 0 && camObjectPos.y > 0){
 							x.x = 1 * PI_HALF;
