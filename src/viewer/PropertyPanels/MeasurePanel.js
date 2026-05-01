@@ -142,8 +142,18 @@ export class MeasurePanel{
 				`));
 			}else{
 				let value = point[attributeName];
+                if(attributeName =="normal" || attributeName == "deformation"){
+                    continue;
+                }
 				let text = value.join(', ');
-
+                if (!isNaN(text)) {
+                    if( Number.isInteger(Number(text))){
+                        text = Number(text);
+                    } 
+                    else{
+                        text = Number(text).toFixed(3);
+                    }
+                }
 				elTable.append($(`
 					<tr>
 						<td>${attributeName}</td>

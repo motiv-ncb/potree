@@ -165,7 +165,7 @@ export class PropertiesPanel{
                     <li id="lblsldFresnelPower"><span data-i18n="appearance.fresnel_power">Fresnel power</span>:<span id="lblFresnelPower"></span><div id="sldFresnelPower"></div></li>
 				</li>
 
-                <li id="materials_deformation_container">
+                <li id="materials_deformation_container" style="display:none;">
 				    <label><input id="set_deformed" type="checkbox" /><span data-i18n="appearance.deformed_shape">Deformed shape</span></label>
                     <li id="lblsldDeformationFactor"><span data-i18n="appearance.deformation_scale">Deformation scale</span>:<span id="lblDeformationFactor"></span><div id="sldDeformationFactor"></div></li>
 				</li>

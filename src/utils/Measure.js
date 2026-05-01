@@ -672,13 +672,26 @@ export class Measure extends THREE.Object3D {
                     const lines = [msg];
      
                     const p = this.points[0];
-                    // console.log(p)
                     for(let attributeName in p){
                         if(!nonExtraAttributeNames.includes(attributeName)){
-                            lines.push(attributeName + " : " + p[attributeName][0].toFixed(3));
+                            if(attributeName == "NormalX" || attributeName == "NormalY" || attributeName == "NormalZ" || attributeName =="deformation"){
+                                continue;
+                            }
+                            if(p[attributeName].length == 1){
+                                if(Number.isInteger(p[attributeName][0])){
+                                    lines.push(attributeName + " : " + p[attributeName][0]);
+
+                                }
+                                else{
+                                    lines.push(attributeName + " : " + p[attributeName][0].toFixed(3));
+
+                                }   
+                            }
+                            else if (attributeName == "normal"){
+                                lines.push(attributeName + " : " + p[attributeName][0].toFixed(2) +" / "+ p[attributeName][1].toFixed(2) +" / "+ p[attributeName][2].toFixed(2));
+                            }
 
                         }
-                        // console.log(p[att]);
                     }
                     coordinateLabel.setText(lines.join("\n"));
                 }
