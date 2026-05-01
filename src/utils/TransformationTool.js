@@ -874,29 +874,29 @@ export class TransformationTool {
 					let below = !above;
 					let PI_HALF = Math.PI / 2;
                     const tol = 0.2;
-                    if(Math.abs(camObjectPos.x) > tol){
-                        if(!this.scene.children.includes( this.rotationHandles["rotation.x"].node)){
-                            this.scene.add( this.rotationHandles["rotation.x"].node);
-                        }
-                    }
-                    else{
-                        this.scene.remove( this.rotationHandles["rotation.x"].node);
-                    }
-                    if(Math.abs(camObjectPos.y) > tol){
-                        if(!this.scene.children.includes( this.rotationHandles["rotation.y"].node)){
-                            this.scene.add( this.rotationHandles["rotation.y"].node);
-                        }
-                    }
-                    else{
-                        this.scene.remove( this.rotationHandles["rotation.y"].node);
-                    }if(Math.abs(camObjectPos.z) > tol){
-                        if(!this.scene.children.includes( this.rotationHandles["rotation.z"].node)){
-                            this.scene.add( this.rotationHandles["rotation.z"].node);
-                        }
-                    }
-                    else{
-                        this.scene.remove( this.rotationHandles["rotation.z"].node);
-                    }
+                    // if(Math.abs(camObjectPos.x) > tol){
+                    //     if(!this.scene.children.includes( this.rotationHandles["rotation.x"].node)){
+                    //         this.scene.add( this.rotationHandles["rotation.x"].node);
+                    //     }
+                    // }
+                    // else{
+                    //     this.scene.remove( this.rotationHandles["rotation.x"].node);
+                    // }
+                    // if(Math.abs(camObjectPos.y) > tol){
+                    //     if(!this.scene.children.includes( this.rotationHandles["rotation.y"].node)){
+                    //         this.scene.add( this.rotationHandles["rotation.y"].node);
+                    //     }
+                    // }
+                    // else{
+                    //     this.scene.remove( this.rotationHandles["rotation.y"].node);
+                    // }if(Math.abs(camObjectPos.z) > tol){
+                    //     if(!this.scene.children.includes( this.rotationHandles["rotation.z"].node)){
+                    //         this.scene.add( this.rotationHandles["rotation.z"].node);
+                    //     }
+                    // }
+                    // else{
+                    //     this.scene.remove( this.rotationHandles["rotation.z"].node);
+                    // }
                     
 					if(above){
 						if(camObjectPos.x > 0 && camObjectPos.y > 0){
