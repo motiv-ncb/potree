@@ -42,6 +42,24 @@ export class OrbitControls extends EventDispatcher{
 
 		this.tweens = [];
 
+        this.rotateNode = new THREE.Mesh(new THREE.SphereGeometry(1), new THREE.MeshNormalMaterial());
+        // this.pivotNode  = new THREE.Mesh(new THREE.SphereGeometry(1), new THREE.MeshNormalMaterial());
+        this.rotateAboutRotateNode = false;
+        this.rotateNode.visible = false;
+        this.viewer.scene.scene.add(this.rotateNode);
+        // this.viewer.scene.scene.add(this.pivotNode);
+        // this.pivotNode.scale.set(0.3,0.3, 0.3);
+        this.currentMouse = {x:0, y:0};
+
+        let mouseup = (e)=>{
+            this.rotateNode.visible = false;
+        }
+
+        let mousemove = (e)=>{
+            this.currentMouse.x = e.offsetX;
+            this.currentMouse.y = e.offsetY;
+        }
+
 		let drag = (e) => {
 			if (e.drag.object !== null) {
 				return;
@@ -51,6 +69,51 @@ export class OrbitControls extends EventDispatcher{
 				e.drag.startHandled = true;
 
 				this.dispatchEvent({type: 'start'});
+              
+                if(e.drag.mouse === MOUSE.LEFT){
+                    let I = Utils.getMousePointCloudIntersection(
+                    e.drag.start,
+                    this.scene.getActiveCamera(),
+                    this.viewer,
+                    this.scene.pointclouds,
+                    {pickClipped: true});
+                    if (I === null) {
+                        this.rotateNode.visible = false;
+                        this.rotateAboutRotateNode = false;
+                    } 
+                    else{
+                        this.rotateNode.visible = true;
+                        this.rotateAboutRotateNode = true;
+                        this.rotateNode.position.set(I.location.x,I.location.y,I.location.z);
+                        // set node side depending on camera;
+                        const camera = viewer.scene.getActiveCamera();
+                        if(camera.type == "PerspectiveCamera"){
+                            this.rotateNode.scale.set(I.distance / 100 ,I.distance / 100,I.distance / 100);
+                        }
+                        else{
+                            // console.log(camera);
+                            this.rotateNode.scale.set(I.distance / 100 ,I.distance / 100,I.distance / 100);
+                        }
+                    }
+                }
+                else if (e.drag.mouse === MOUSE.RIGHT){
+                    let view = this.scene.view;
+                    let I = Utils.getMousePointCloudIntersection(
+                    e.drag.start,
+                    this.scene.getActiveCamera(),
+                    this.viewer,
+                    this.scene.pointclouds,
+                    {pickClipped: true});
+                    if (I === null) {
+                    } 
+                    else{
+			            let domElement = this.renderer.domElement;
+                        let ray = Utils.mouseToRay(this.currentMouse, this.scene.getActiveCamera(), domElement.clientWidth, domElement.clientHeight);
+                        let cameraToI =new THREE.Vector3().subVectors(I.location, view.position)
+                        let dragPosition = new THREE.Vector3().addVectors(view.position, cameraToI.projectOnVector(view.direction)) ;
+                        view.radius = dragPosition.distanceTo(view.position);
+                    }
+                 }
 			}
 
 			let ndrag = {
@@ -66,7 +129,6 @@ export class OrbitControls extends EventDispatcher{
 			} else if (e.drag.mouse === MOUSE.RIGHT) {
 				this.panDelta.x += ndrag.x;
 				this.panDelta.y += ndrag.y;
-
 				this.stopTweens();
 			}
 		};
@@ -148,6 +210,8 @@ export class OrbitControls extends EventDispatcher{
 		this.addEventListener('drop', drop);
 		this.addEventListener('mousewheel', scroll);
 		this.addEventListener('dblclick', dblclick);
+        window.addEventListener('mousemove', mousemove);
+        window.addEventListener('mouseup', mouseup); // use windows for mouseup ouside of scene
 	}
 
 	setScene (scene) {
@@ -239,6 +303,7 @@ export class OrbitControls extends EventDispatcher{
 			let yaw = view.yaw;
 			let pitch = view.pitch;
 			let pivot = view.getPivot();
+            const invPreviousMatrix =this.getMatrixFromPositionPitchYaw(view, view.position, pitch, yaw).invert();     
 
 			yaw -= progression * this.yawDelta;
 			pitch -= progression * this.pitchDelta;
@@ -250,9 +315,17 @@ export class OrbitControls extends EventDispatcher{
 			let position = new THREE.Vector3().addVectors(pivot, V);
 
 			view.position.copy(position);
+            if(this.rotateAboutRotateNode){
+                const currentMatrix = this.getMatrixFromPositionPitchYaw(view, view.position, pitch, yaw);
+                const nodePosition = this.rotateNode.position.clone();
+                nodePosition.applyMatrix4(invPreviousMatrix); // relative position to previous camara matrix
+                nodePosition.applyMatrix4(currentMatrix); // global position if the node was attacned  
+                const RotateNodeDelta = new THREE.Vector3().subVectors(nodePosition, this.rotateNode.position);
+                view.position.copy( new THREE.Vector3().subVectors(view.position, RotateNodeDelta));
+            }
 		}
 
-		{ // apply pan
+		if(Math.abs(this.panDelta.x) > 0.0001 || Math.abs(this.panDelta.y) > 0.0001) { // apply pan
 			let progression = Math.min(1, this.fadeFactor * delta);
 			let panDistance = progression * view.radius * 3;
 
@@ -262,18 +335,45 @@ export class OrbitControls extends EventDispatcher{
 			view.pan(px, py);
 		}
 
-		{ // apply zoom
-			let progression = Math.min(1, this.fadeFactor * delta);
+		 if(Math.abs(this.radiusDelta) > 0.0001) { // apply zoom
+           
+            let progression = Math.min(1, this.fadeFactor * delta);
 
-			// let radius = view.radius + progression * this.radiusDelta * view.radius * 0.1;
-			let radius = view.radius + progression * this.radiusDelta;
+            // let radius = view.radius + progression * this.radiusDelta * view.radius * 0.1;
+            let radius = view.radius + progression * this.radiusDelta;
+            let ratio = radius / view.radius;
 
-			let V = view.direction.multiplyScalar(-radius);
-			let position = new THREE.Vector3().addVectors(view.getPivot(), V);
+            let V = view.direction.multiplyScalar(-radius);
+
+         let targetPosition;
+            let I = Utils.getMousePointCloudIntersection(
+            this.currentMouse,
+            this.scene.getActiveCamera(),
+            this.viewer,
+            this.scene.pointclouds,
+            {pickClipped: true});
+            if (I === null) {
+                let domElement = this.renderer.domElement;
+                let ray = Utils.mouseToRay(this.currentMouse, this.scene.getActiveCamera(), domElement.clientWidth, domElement.clientHeight);
+                targetPosition = new THREE.Vector3().addVectors(view.position, ray.direction.multiplyScalar( view.radius / Math.cos(ray.direction.dot(view.direction))));
+            } 
+            else{
+                targetPosition = new THREE.Vector3(I.location.x,I.location.y,I.location.z);
+            }
+
+            let zoomNodeToPivot = new THREE.Vector3().subVectors(view.getPivot(),targetPosition);
+            let pivotPosition = new THREE.Vector3().addVectors(zoomNodeToPivot.multiplyScalar(ratio),targetPosition);
+            let position = new THREE.Vector3().addVectors(pivotPosition, V);
+            radius = pivotPosition.distanceTo(position);
 			view.radius = radius;
 
 			view.position.copy(position);
 		}
+
+        // {
+        //     const pivot = view.getPivot();
+        //     this.pivotNode.position.set(pivot.x,pivot.y,pivot.z);
+        // }
 
 		{
 			let speed = view.radius;
@@ -291,4 +391,15 @@ export class OrbitControls extends EventDispatcher{
 			this.radiusDelta -= progression * this.radiusDelta;
 		}
 	}
+
+    getMatrixFromPositionPitchYaw(view, position, pitch, yaw){
+        const p = this._pitch = Math.max(Math.min(pitch, view.maxPitch), view.minPitch);
+        const scale = new THREE.Vector3(1, 1, 1);
+        const matrix = new THREE.Matrix4();
+        const quaternion = new THREE.Quaternion().setFromEuler(
+            new THREE.Euler(Math.PI / 2 + p, 0 ,yaw,"ZXY")
+        );
+        matrix.compose(position, quaternion, scale);
+        return matrix;
+    }
 };
