@@ -90,6 +90,21 @@ export class PropertiesPanel{
         return results;
     }
 
+    hasNormals(pointcloud){
+        try{
+            const xAttribute = pointcloud.pcoGeometry.copc.eb.find(x => x.name == "NormalX");
+            const yAttribute = pointcloud.pcoGeometry.copc.eb.find(x => x.name == "NormalY");
+            const zAttribute = pointcloud.pcoGeometry.copc.eb.find(x => x.name == "NormalZ");
+            if(xAttribute && yAttribute && zAttribute){
+                return true;
+            }
+            return false;
+        }
+        catch(e){
+            return false;
+        }
+    }
+
 	setPointCloud(pointcloud){
 
         let self = this;
@@ -509,8 +524,13 @@ export class PropertiesPanel{
             opt.click(() => {
                 material.backfaceCulling = opt.prop("checked");
                 let pointClouds = self.getSelectedPointclouds();
-                for (let point of pointClouds) {
-                    point.material.backfaceCulling = opt.prop("checked");
+                for (let point of pointClouds) {    
+                    if(this.hasNormals(point)){
+                        point.material.backfaceCulling = opt.prop("checked");
+                    }
+                    else{
+                        point.material.backfaceCulling = false;
+                    }
                 }   
             });
             let update = () => {
@@ -523,11 +543,11 @@ export class PropertiesPanel{
             // let blockBackface = $('#materials_backface_container');
             // blockBackface.css('display', 'none');
 
-            const pointAttributes = pointcloud.pcoGeometry.pointAttributes;
-            const hasNormals = pointAttributes.hasNormals ? pointAttributes.hasNormals() : false;
-            if (hasNormals) {
-                blockBackface.css('display', 'block');
-            }
+            // const pointAttributes = pointcloud.pcoGeometry.pointAttributes;
+            // const hasNormals = pointAttributes.hasNormals ? pointAttributes.hasNormals() : false;
+            // if (hasNormals) {
+            //     blockBackface.css('display', 'block');
+            // }
             /*
             opt.checkboxradio({
                 clicked: (event, ui) => {
@@ -546,7 +566,12 @@ export class PropertiesPanel{
                 material.fresnelOutline = opt.prop("checked");
                 let pointClouds = self.getSelectedPointclouds();
                 for (let point of pointClouds) {
-                    point.material.fresnelOutline = opt.prop("checked");
+                    if(this.hasNormals(point)){
+                        point.material.fresnelOutline = opt.prop("checked");
+                    }
+                    else{
+                        point.material.fresnelOutline = false;
+                    }
                 }   
             });
           
@@ -582,6 +607,22 @@ export class PropertiesPanel{
             this.addVolatileListener(material, "fresnel_outline_changed", update);
 
             update();
+        }
+
+        {// ui display for normal
+            if(this.hasNormals(pointcloud)){
+                let blockBackface = $('#materials_backface_container');
+                blockBackface.css('display', 'block');
+                let blockNormal = $('#materials_normal_container');
+                blockNormal.css('display', 'block');
+            }
+            else{
+                 let blockBackface = $('#materials_backface_container');
+                blockBackface.css('display', 'none');
+                let blockNormal = $('#materials_normal_container');
+                blockNormal.css('display', 'none');
+            }
+
         }
 
         { // Deformation
