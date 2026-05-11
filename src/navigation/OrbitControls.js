@@ -345,7 +345,7 @@ export class OrbitControls extends EventDispatcher{
 
             let V = view.direction.multiplyScalar(-radius);
 
-         let targetPosition;
+            let targetPosition;
             let I = Utils.getMousePointCloudIntersection(
             this.currentMouse,
             this.scene.getActiveCamera(),

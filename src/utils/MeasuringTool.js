@@ -362,8 +362,12 @@ export class MeasuringTool extends EventDispatcher{
         measure.closed = pick(args.closed, false);
 
 		measure.maxMarkers = pick(args.maxMarkers, Infinity);
-
-		measure.name = this.createUniqueName(args.name || 'Measurement');
+        if (args.allowSameName){
+            measure.name = args.name || 'Measurement';
+        }
+        else{
+            measure.name = this.createUniqueName(args.name || 'Measurement');
+        }
 
         measure.measuringType = args.measuringType || 'Measurement'
 
