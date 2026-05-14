@@ -439,6 +439,8 @@ export class Viewer extends EventDispatcher{
 			this.controls = controls;
 			this.controls.enabled = true;
 			this.inputHandler.addInputListener(this.controls);
+            this.dispatchEvent({'type': 'controls_changed', 'viewer': this});
+
 		}
 	}
 
