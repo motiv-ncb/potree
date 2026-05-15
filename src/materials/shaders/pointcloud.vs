@@ -1184,6 +1184,11 @@ void doClipping(){
 
 	bool insideAny = insideCount > 0;
 	bool insideAll = (clipVolumesCount > 0) && (clipVolumesCount == insideCount);
+    
+    // do not apply if there is no volume
+    if(clipVolumesCount == 0){
+        return;
+    }
 
 	if(clipMethod == CLIPMETHOD_INSIDE_ANY){
 		if(insideAny && clipTask == CLIPTASK_HIGHLIGHT){
