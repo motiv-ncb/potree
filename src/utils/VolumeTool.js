@@ -74,6 +74,7 @@ export class VolumeTool extends EventDispatcher{
 		volume.clip = args.clip || false;
 		volume.name = this.createUniqueName(args.name || 'Volume');
         volume.volumeType = args.volumeType || 'Volume';
+        volume.usageType = args.usageType || "";
          // cmair args.scale
         if(args.scale){
             volume.scale.set(args.scale.x, args.scale.y, args.scale.z);

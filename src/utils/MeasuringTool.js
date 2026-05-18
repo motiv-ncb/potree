@@ -5,6 +5,205 @@ import {Utils} from "../utils.js";
 import {CameraMode} from "../defines.js";
 import { EventDispatcher } from "../EventDispatcher.js";
 
+
+function updatePlaneNormalXY(viewer, measure){
+
+	const planeNormal = measure.planeNormalXY;
+
+	const isOkay = measure.points.length === 2;
+
+	planeNormal.node.visible = isOkay && measure.showPlaneNormalXY;
+
+	if(!planeNormal.node.visible){
+		return;
+	}
+
+	const camera = viewer.scene.getActiveCamera();
+	const renderAreaSize = viewer.renderer.getSize(new THREE.Vector2());
+	const width = renderAreaSize.width;
+	const height = renderAreaSize.height;
+	
+	const [p0, p1] = measure.points;
+    const planeVector = p1.position.clone().sub(p0.position);
+
+    const p2 = {
+        position:new THREE.Vector3(0.5 * (p0.position.x + p1.position.x), 0.5 * (p0.position.y + p1.position.y), 0.5 *(p0.position.z + p1.position.z))
+    };
+    let p0pr = Utils.projectedRadius(1, camera, p0.position.distanceTo(camera.position), width, height);
+    const r = 100 / p0pr
+    const normalVector = new THREE.Vector3(planeVector.y, -planeVector.x).normalize().multiplyScalar(r);
+   
+	planeNormal.center.position.copy(p2.position);
+	planeNormal.center.scale.set(2, 2, 2);
+	
+	planeNormal.center.visible = false;
+	// planeAngle.target.visible = false;
+    const p3 = {
+        position:p2.position.clone().add(normalVector)
+    };
+
+	{ // target
+		planeNormal.target.position.copy(p3.position.clone());
+        planeNormal.target.rotation.z = Math.atan2(normalVector.y, normalVector.x) - Math.PI / 2;
+		let distance = planeNormal.target.position.distanceTo(camera.position);
+		let pr = Utils.projectedRadius(1, camera, distance, width, height);
+		let scale = (5 / pr);
+		planeNormal.target.scale.set(scale, scale, scale);
+	}
+
+
+	// to target
+	planeNormal.centerToTarget.geometry.setPositions([
+		0, 0, 0,
+		...p3.position.clone().sub(p2.position).toArray(),
+	]);
+	planeNormal.centerToTarget.position.copy(p2.position);
+	planeNormal.centerToTarget.geometry.verticesNeedUpdate = true;
+	planeNormal.centerToTarget.geometry.computeBoundingSphere();
+	planeNormal.centerToTarget.computeLineDistances();
+	planeNormal.centerToTarget.material.resolution.set(width, height);
+
+
+	// label
+    const radians = Math.atan2(normalVector.y, normalVector.x);
+	let degrees = THREE.Math.radToDeg(radians);
+	if(degrees < 0){
+		degrees = 360 + degrees;
+	}
+	const txtDegrees = `${degrees.toFixed(2)}°`;
+	if(normalVector.length() > 0){
+		const labelVec = normalVector.clone().multiplyScalar(0.5);
+		const labelPos = p2.position.clone().add(labelVec);
+		planeNormal.label.position.copy(labelPos);
+	}
+	planeNormal.label.setText(txtDegrees);
+	let distance = planeNormal.label.position.distanceTo(camera.position);
+	let pr = Utils.projectedRadius(1, camera, distance, width, height);
+	let scale = (70 / pr);
+	planeNormal.label.scale.set(scale, scale, scale);
+}
+
+function updatePlaneAngleXY(viewer, measure){
+
+	const planeAngle = measure.planeAngleXY;
+
+	const isOkay = measure.points.length === 2;
+
+	planeAngle.node.visible = isOkay && measure.showPlaneAngleXY;
+
+	if(!planeAngle.node.visible){
+		return;
+	}
+
+	const camera = viewer.scene.getActiveCamera();
+	const renderAreaSize = viewer.renderer.getSize(new THREE.Vector2());
+	const width = renderAreaSize.width;
+	const height = renderAreaSize.height;
+	
+	const [p0, p1] = measure.points;
+    // measure.spheres[1].visible = false;
+	const r = p0.position.distanceTo(p1.position);
+	const eastVec = new THREE.Vector3(1, 0, 0).multiplyScalar(r);
+    
+	const eastPos = p0.position.clone().add(eastVec);
+
+	planeAngle.center.position.copy(p0.position);
+	planeAngle.center.scale.set(2, 2, 2);
+	
+	planeAngle.center.visible = false;
+	// planeAngle.target.visible = false;
+
+
+	{ // east
+		planeAngle.east.position.copy(eastPos);
+		planeAngle.east.scale.set(2, 2, 2);
+
+		let distance = planeAngle.east.position.distanceTo(camera.position);
+		let pr = Utils.projectedRadius(1, camera, distance, width, height);
+
+		let scale = (5 / pr);
+		planeAngle.east.scale.set(scale, scale, scale);
+	}
+
+	{ // target
+		planeAngle.target.position.copy(p1.position);
+		planeAngle.target.position.z = planeAngle.east.position.z;
+
+        const dir = [p1.position.x - p0.position.x, p1.position.y - p0.position.y];
+        planeAngle.target.rotation.z = Math.atan2(dir[1], dir[0]) - Math.PI / 2;
+
+		let distance = planeAngle.target.position.distanceTo(camera.position);
+		let pr = Utils.projectedRadius(1, camera, distance, width, height);
+		let scale = (5 / pr);
+		planeAngle.target.scale.set(scale, scale, scale);
+	}
+
+
+	planeAngle.circle.position.copy(p0.position);
+	planeAngle.circle.scale.set(r, r, r);
+	planeAngle.circle.material.resolution.set(width, height);
+
+	// to target
+	planeAngle.centerToTarget.geometry.setPositions([
+		0, 0, 0,
+		...p1.position.clone().sub(p0.position).toArray(),
+	]);
+	planeAngle.centerToTarget.position.copy(p0.position);
+	planeAngle.centerToTarget.geometry.verticesNeedUpdate = true;
+	planeAngle.centerToTarget.geometry.computeBoundingSphere();
+	planeAngle.centerToTarget.computeLineDistances();
+	planeAngle.centerToTarget.material.resolution.set(width, height);
+
+	// to target ground
+	planeAngle.centerToTargetground.geometry.setPositions([
+		0, 0, 0,
+		p1.position.x - p0.position.x,
+		p1.position.y - p0.position.y,
+		0,
+	]);
+	planeAngle.centerToTargetground.position.copy(p0.position);
+	planeAngle.centerToTargetground.geometry.verticesNeedUpdate = true;
+	planeAngle.centerToTargetground.geometry.computeBoundingSphere();
+	planeAngle.centerToTargetground.computeLineDistances();
+	planeAngle.centerToTargetground.material.resolution.set(width, height);
+
+	// to north
+	planeAngle.centerToEast.geometry.setPositions([
+		0, 0, 0,
+		eastPos.x - p0.position.x,
+		eastPos.y - p0.position.y,
+		0,
+	]);
+	planeAngle.centerToEast.position.copy(p0.position);
+	planeAngle.centerToEast.geometry.verticesNeedUpdate = true;
+	planeAngle.centerToEast.geometry.computeBoundingSphere();
+	planeAngle.centerToEast.computeLineDistances();
+	planeAngle.centerToEast.material.resolution.set(width, height);
+
+	// label
+    const dir = [p1.position.x - p0.position.x, p1.position.y - p0.position.y];
+    const radians = Math.atan2(dir[1], dir[0]);
+
+	let degrees = THREE.Math.radToDeg(radians);
+	if(degrees < 0){
+		degrees = 360 + degrees;
+	}
+	const txtDegrees = `${degrees.toFixed(2)}°`;
+	const labelDir = p1.position.clone().sub(p0.position);
+	if(labelDir.length() > 0){
+		labelDir.z = 0;
+		labelDir.normalize();
+		const labelVec = labelDir.clone().multiplyScalar(r / 2);
+		const labelPos = p0.position.clone().add(labelVec);
+		planeAngle.label.position.copy(labelPos);
+	}
+	planeAngle.label.setText(txtDegrees);
+	let distance = planeAngle.label.position.distanceTo(camera.position);
+	let pr = Utils.projectedRadius(1, camera, distance, width, height);
+	let scale = (70 / pr);
+	planeAngle.label.scale.set(scale, scale, scale);
+}
+
 function updateAzimuth(viewer, measure){
 
 	const azimuth = measure.azimuth;
@@ -360,6 +559,9 @@ export class MeasuringTool extends EventDispatcher{
 		measure.horizontal = pick(args.horizontal, false);
 		measure.horizontalAngle = pick(args.horizontalAngle, null);
         measure.closed = pick(args.closed, false);
+        measure.xyPlaneConstrain = pick(args.xyPlaneConstrain, false);
+        measure.showPlaneAngleXY = pick(args.showPlaneAngleXY, false);
+        measure.showPlaneNormalXY = pick(args.showPlaneNormalXY, false);
 
 		measure.maxMarkers = pick(args.maxMarkers, Infinity);
         if (args.allowSameName){
@@ -463,6 +665,8 @@ export class MeasuringTool extends EventDispatcher{
 			measure.update();
 
 			updateAzimuth(this.viewer, measure);
+            updatePlaneAngleXY(this.viewer, measure);
+            updatePlaneNormalXY(this.viewer, measure);
 
 			// spheres
 			for(let sphere of measure.spheres){

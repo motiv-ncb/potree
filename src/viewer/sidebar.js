@@ -242,6 +242,54 @@ export class Sidebar{
 			}
 		));
 
+        // XY Direction Angle
+		// elToolbar.append(this.createToolIcon(
+		// 	Potree.resourcePath + '/icons/circle-angle.svg',
+		// 	'Azimuth',
+		// 	() => {
+		// 		$('#menu_measurements').next().slideDown();
+		// 		let measurement = this.measuringTool.startInsertion({
+		// 			showDistances: false,
+		// 			showHeight: false,
+		// 			showArea: false,
+		// 			showCircle: false,
+		// 			showEdges: false,
+		// 			showPlaneAngleXY: true,
+		// 			closed: false,
+        //             xyPlaneConstrain:true,
+		// 			maxMarkers: 2,
+		// 			name: 'Plane Angle'});
+
+		// 		let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
+		// 		let jsonNode = measurementsRoot.children.find(child => child.data.uuid === measurement.uuid);
+		// 		$.jstree.reference(jsonNode.id).deselect_all();
+		// 		$.jstree.reference(jsonNode.id).select_node(jsonNode.id);
+		// 	}
+		// ));
+
+        //  // XY Normal Angle
+		// elToolbar.append(this.createToolIcon(
+		// 	Potree.resourcePath + '/icons/circle-angle.svg',
+		// 	'Azimuth',
+		// 	() => {
+		// 		$('#menu_measurements').next().slideDown();
+		// 		let measurement = this.measuringTool.startInsertion({
+		// 			showDistances: false,
+		// 			showHeight: false,
+		// 			showArea: false,
+		// 			showCircle: false,
+		// 			showPlaneNormalXY: true,
+		// 			closed: false,
+		// 			maxMarkers: 2,
+		// 			name: 'Plane Normal'});
+
+		// 		let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
+		// 		let jsonNode = measurementsRoot.children.find(child => child.data.uuid === measurement.uuid);
+		// 		$.jstree.reference(jsonNode.id).deselect_all();
+		// 		$.jstree.reference(jsonNode.id).select_node(jsonNode.id);
+		// 	}
+		// ));
+
 		// AREA
 		elToolbar.append(this.createToolIcon(
 			Potree.resourcePath + '/icons/area.svg',

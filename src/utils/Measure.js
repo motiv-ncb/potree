@@ -235,6 +235,120 @@ function createCircle(){
 
 }
 
+function createPlaneNormalXY(material){
+    const planeNormalXY = {
+		label: null,
+		center: null,
+		target: null,
+		centerToTarget: null,
+		node: null,
+	};
+    const arrowHeadLength = 4;
+	const sg = new THREE.SphereGeometry(1, 32, 32);
+    const cg = new THREE.ConeGeometry(arrowHeadLength / 3, arrowHeadLength, 32);
+	const sm = new THREE.MeshNormalMaterial();
+
+	{
+		const label = new TextSprite("");
+
+		label.setTextColor({r: 140, g: 250, b: 140, a: 1.0});
+		label.setBorderColor({r: 0, g: 0, b: 0, a: 1.0});
+		label.setBackgroundColor({r: 0, g: 0, b: 0, a: 1.0});
+		label.fontsize = 16;
+		label.material.depthTest = false;
+		label.material.opacity = 1;
+
+		planeNormalXY.label = label;
+	}
+
+	planeNormalXY.center = new THREE.Mesh(sg, sm);
+	planeNormalXY.target = new THREE.Object3D();
+    const cone = new THREE.Mesh(cg, material);
+    cone.position.y = arrowHeadLength / 2;
+    planeNormalXY.target.add(cone);
+	planeNormalXY.east = new THREE.Mesh(sg, sm);
+	planeNormalXY.centerToEast = createLine();
+	planeNormalXY.centerToTarget = createLine();
+	planeNormalXY.centerToTargetground = createLine();
+	planeNormalXY.targetgroundToTarget = createLine();
+	planeNormalXY.circle = createCircle();
+    planeNormalXY.circle.visible = false;
+    planeNormalXY.centerToEast.visible = false;
+    planeNormalXY.east.visible = false;
+
+	planeNormalXY.node = new THREE.Object3D();
+	planeNormalXY.node.add(
+		planeNormalXY.centerToTarget,
+		planeNormalXY.label,
+		planeNormalXY.center,
+		planeNormalXY.target,
+	);
+
+	return planeNormalXY;
+}
+
+function createPlaneAngleXY(material){
+    const planeAngleXY = {
+		label: null,
+		center: null,
+		target: null,
+		east: null,
+		centerToEast: null,
+		centerToTarget: null,
+		centerToTargetground: null,
+		targetgroundToTarget: null,
+		circle: null,
+		node: null,
+	};
+    const arrowHeadLength = 5;
+	const sg = new THREE.SphereGeometry(1, 32, 32);
+    const cg = new THREE.ConeGeometry(arrowHeadLength / 3, arrowHeadLength, 32);
+	const sm = new THREE.MeshNormalMaterial();
+
+	{
+		const label = new TextSprite("");
+
+		label.setTextColor({r: 140, g: 250, b: 140, a: 1.0});
+		label.setBorderColor({r: 0, g: 0, b: 0, a: 1.0});
+		label.setBackgroundColor({r: 0, g: 0, b: 0, a: 1.0});
+		label.fontsize = 16;
+		label.material.depthTest = false;
+		label.material.opacity = 1;
+
+		planeAngleXY.label = label;
+	}
+
+	planeAngleXY.center = new THREE.Mesh(sg, sm);
+	planeAngleXY.target = new THREE.Object3D();
+    const cone = new THREE.Mesh(cg, material);
+    cone.position.y = arrowHeadLength / 2;
+    planeAngleXY.target.add(cone);
+	planeAngleXY.east = new THREE.Mesh(sg, sm);
+	planeAngleXY.centerToEast = createLine();
+	planeAngleXY.centerToTarget = createLine();
+	planeAngleXY.centerToTargetground = createLine();
+	planeAngleXY.targetgroundToTarget = createLine();
+	planeAngleXY.circle = createCircle();
+    planeAngleXY.circle.visible = false;
+    planeAngleXY.centerToEast.visible = false;
+    planeAngleXY.east.visible = false;
+
+	planeAngleXY.node = new THREE.Object3D();
+	planeAngleXY.node.add(
+		planeAngleXY.centerToEast,
+		planeAngleXY.centerToTarget,
+		planeAngleXY.centerToTargetground,
+		planeAngleXY.targetgroundToTarget,
+		planeAngleXY.circle,
+		planeAngleXY.label,
+		planeAngleXY.center,
+		planeAngleXY.target,
+		planeAngleXY.east,
+	);
+
+	return planeAngleXY;
+}
+
 function createAzimuth(){
 
 	const azimuth = {
@@ -309,10 +423,12 @@ export class Measure extends THREE.Object3D {
 		this._showHeight = false;
 		this._showEdges = true;
 		this._showAzimuth = false;
+        this._showPlaneAngleXY = false;
+        this._showPlaneNormalXY = false;
 		this.maxMarkers = Number.MAX_SAFE_INTEGER;
 		this.horizontal = false;
 		this.horizontalDirection = null;
-
+        this.xyPlaneConstrain = false;
 		this.sphereGeometry = new THREE.SphereGeometry(0.4, 10, 10);
 		this.color = new THREE.Color(0xff0000);
 
@@ -332,7 +448,8 @@ export class Measure extends THREE.Object3D {
 		this.circleCenter = createCircleCenter();
 
 		this.azimuth = createAzimuth();
-
+        this.planeAngleXY = createPlaneAngleXY(this.createSphereMaterial());
+        this.planeNormalXY = createPlaneNormalXY(this.createSphereMaterial());
 		this.add(this.heightEdge);
 		this.add(this.heightLabel);
 		this.add(this.areaLabel);
@@ -342,6 +459,9 @@ export class Measure extends THREE.Object3D {
 		this.add(this.circleCenter);
 
 		this.add(this.azimuth.node);
+		this.add(this.planeAngleXY.node);
+        this.add(this.planeNormalXY.node);
+
 
 	}
 
@@ -443,6 +563,20 @@ export class Measure extends THREE.Object3D {
 
 		{ // Event Listeners
 			let drag = (e) => {
+                if(this.xyPlaneConstrain && this.points.length > 1){
+                    let IXY = Utils.getMouseXYPlaneIntersection(e.drag.end,e.viewer.scene.getActiveCamera(), 
+					e.viewer, this.points[0].position);
+                    if(IXY){
+                        let i = this.spheres.indexOf(e.drag.object);
+                        if (i !== -1) {
+                            let point = this.points[i];
+                            let constrainedLocation = this.getConstrainedPosition(i, IXY.location, e.drag.end);
+                            this.setPosition(i, constrainedLocation);        
+                        }
+                    }
+                    return;
+                }
+             
 				let I = Utils.getMousePointCloudIntersection(
 					e.drag.end, 
 					e.viewer.scene.getActiveCamera(), 
@@ -971,6 +1105,24 @@ export class Measure extends THREE.Object3D {
 
 	set showAzimuth(value){
 		this._showAzimuth = value;
+		this.update();
+	}
+
+    get showPlaneAngleXY(){
+		return this._showPlaneAngleXY;
+	}
+
+	set showPlaneAngleXY(value){
+		this._showPlaneAngleXY = value;
+		this.update();
+	}
+
+     get showPlaneNormalXY(){
+		return this._showPlaneNormalXY;
+	}
+
+	set showPlaneNormalXY(value){
+		this._showPlaneNormalXY = value;
 		this.update();
 	}
 

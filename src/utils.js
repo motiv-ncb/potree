@@ -451,6 +451,38 @@ export class Utils {
 		}
 	}
 
+
+    static getMouseXYPlaneIntersection (mouse, camera, viewer, planePoint) {
+		let renderer = viewer.renderer;
+		let nmouse = {
+			x: (mouse.x / renderer.domElement.clientWidth) * 2 - 1,
+			y: -(mouse.y / renderer.domElement.clientHeight) * 2 + 1
+		};
+		let raycaster = new THREE.Raycaster();
+		raycaster.setFromCamera(nmouse, camera);
+		let ray = raycaster.ray;
+        let origin= ray.origin;
+        let direction = ray.direction;
+        if(direction.z != 0){
+            const t = (planePoint.z - origin.z) / direction.z;
+            if(t < 0){
+                return null;
+            }
+            const x = origin.x + direction.x * t;
+            const y = origin.y + direction.y * t;
+            const z = planePoint.z;
+            const closestPoint = new THREE.Vector3(x,y,z)
+            return {
+                location: closestPoint,
+                distance: closestPoint.distanceTo(planePoint)
+            };
+        }
+        else{
+            // ray is parallel to the xy plane
+            return null;
+        }
+	}
+
 	static pixelsArrayToImage (pixels, width, height) {
 		let canvas = document.createElement('canvas');
 		canvas.width = width;
