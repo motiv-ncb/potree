@@ -982,6 +982,18 @@ export class TransformationTool {
                                     }
                                 }
                             }
+
+                            measurementsRoot = $("#jstree_scene").jstree().get_json("fillingBoxVolume");
+                            if(measurementsRoot && measurementsRoot.children){
+                                jsonNode = measurementsRoot.children.find(child => child.data.uuid === selction.uuid);
+                                if(jsonNode){
+                                    $.jstree.reference(jsonNode.id).deselect_all();
+                                    $.jstree.reference(jsonNode.id).select_node(jsonNode.id);
+                                    if(selction.updateLabel){
+                                        selction.updateLabel();
+                                    }
+                                }
+                            }
                             measurementsRoot = $("#jstree_scene").jstree().get_json("measurementBoxVolume");
                             if(measurementsRoot && measurementsRoot.children){
                                 jsonNode = measurementsRoot.children.find(child => child.data.uuid === selction.uuid);

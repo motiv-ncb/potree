@@ -561,7 +561,9 @@ export class Sidebar{
         let measurementID = tree.jstree('create_node', "#", { "text": "<b data-i18n='tb.measurments_opt'>Measurements</b>", "id": "measurements" }, "last", false, false);
 		let ROIID = tree.jstree('create_node', "#", { "text": "<b>ROIs</b>", "id": "ROIVolume" }, "last", false, false);
         let SRPID = tree.jstree('create_node', "#", { "text": "<b>SRPs</b>", "id": "SRPVolume" }, "last", false, false);
-		let measurementBoxID = tree.jstree('create_node', "#", { "text": "<b data-i18n='displacement.measurement_boxes'>Measurement box</b>", "id": "measurementBoxVolume" }, "last", false, false);
+        let fillingID = tree.jstree('create_node', "#", { "text": "<b data-i18n='displacement.filling_boxes'>Filling boxes</b>", "id": "fillingBoxVolume" }, "last", false, false);
+
+		let measurementBoxID = tree.jstree('create_node', "#", { "text": "<b data-i18n='displacement.measurement_boxes'>Measurement boxes</b>", "id": "measurementBoxVolume" }, "last", false, false);
         let annotationsID = tree.jstree('create_node', "#", { "text": "<b data-i18n='tb.annotations_opt'>Annotations</b>", "id": "annotations" }, "last", false, false);
         let otherID = tree.jstree('create_node', "#", { "text": "<b>Other</b>", "id": "other" }, "last", false, false);
 		let vectorsID = tree.jstree('create_node', "#", { "text": "<b>Vectors</b>", "id": "vectors" }, "last", false, false);
@@ -577,6 +579,7 @@ export class Sidebar{
 		tree.jstree("check_node", imagesID);
         tree.jstree("check_node", ROIID);
         tree.jstree("check_node", SRPID);
+        tree.jstree("check_node", fillingID);
         tree.jstree("check_node", measurementBoxID);
         tree.jstree("check_node", hiddenID);
         
@@ -814,8 +817,11 @@ export class Sidebar{
 	            else if(volume.volumeType == "ROI"){
                     node = createNode(ROIID, volume.name, icon, volume);
                 }
-                 else if(volume.volumeType == "SRP"){
+                else if(volume.volumeType == "SRP"){
                     node = createNode(SRPID, volume.name, icon, volume);
+                }
+                else if(volume.volumeType == "Filling_Box" || volume.volumeType == "Displacement_Filling_Box"){
+                    node = createNode(fillingID, volume.name, icon, volume);
                 }
                 else if(volume.volumeType == "Measurement_Box"){
                     node = createNode(measurementBoxID, volume.name, icon, volume);
@@ -979,6 +985,13 @@ export class Sidebar{
             }
 
             measurementsRoot = $("#jstree_scene").jstree().get_json("SRPVolume");
+			jsonNode = measurementsRoot.children.find(child => child.data.uuid === e.volume.uuid);
+            if(jsonNode){
+                tree.jstree("delete_node", jsonNode.id);
+                tree.i18n();
+            }
+
+            measurementsRoot = $("#jstree_scene").jstree().get_json("fillingBoxVolume");
 			jsonNode = measurementsRoot.children.find(child => child.data.uuid === e.volume.uuid);
             if(jsonNode){
                 tree.jstree("delete_node", jsonNode.id);
