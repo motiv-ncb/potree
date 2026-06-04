@@ -980,10 +980,15 @@ export class PropertiesPanel{
                 }
             };
 
-			attributeSelection.selectmenu({change: updateMaterialPanel});
-            signedNormSelectionX.selectmenu({change: updateMaterialPanel});
-            signedNormSelectionY.selectmenu({change: updateMaterialPanel});
-            signedNormSelectionZ.selectmenu({change: updateMaterialPanel});
+			// attributeSelection.selectmenu({change: updateMaterialPanel});
+            // signedNormSelectionX.selectmenu({change: updateMaterialPanel});
+            // signedNormSelectionY.selectmenu({change: updateMaterialPanel});
+            // signedNormSelectionZ.selectmenu({change: updateMaterialPanel});
+
+            attributeSelection.selectmenu({appendTo: panel, change: updateMaterialPanel});
+            signedNormSelectionX.selectmenu({appendTo: panel, change: updateMaterialPanel});
+            signedNormSelectionY.selectmenu({appendTo: panel, change: updateMaterialPanel});
+            signedNormSelectionZ.selectmenu({appendTo: panel, change: updateMaterialPanel});
             let update = () => {
                 attributeSelection.val(material.activeAttributeName).selectmenu('refresh');
                 signedNormSelectionX.val(material.xActiveAttributeName).selectmenu('refresh');
