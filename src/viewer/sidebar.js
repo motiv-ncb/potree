@@ -817,7 +817,7 @@ export class Sidebar{
 	            else if(volume.volumeType == "ROI"){
                     node = createNode(ROIID, volume.name, icon, volume);
                 }
-                else if(volume.volumeType == "SRP"){
+                else if(volume.volumeType == "SRP" || volume.volumeType == "Local_SRP"){
                     node = createNode(SRPID, volume.name, icon, volume);
                 }
                 else if(volume.volumeType == "Filling_Box" || volume.volumeType == "Displacement_Filling_Box"){
