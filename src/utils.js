@@ -395,6 +395,16 @@ export class Utils {
 		return texture;
 	}
 
+    static getCameraPointCloudIntersection(camera, viewer, pointclouds, params = {}) {
+        let renderer = viewer.renderer;
+		
+        let mouse = {
+            x: renderer.domElement.clientWidth / 2,
+            y:renderer.domElement.clientHeight / 2
+        }
+		return this.getMousePointCloudIntersection(mouse, camera, viewer, pointclouds, params = {});
+    }
+
 	static getMousePointCloudIntersection (mouse, camera, viewer, pointclouds, params = {}) {
 		
 		let renderer = viewer.renderer;

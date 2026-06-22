@@ -965,50 +965,117 @@ export class Viewer extends EventDispatcher{
 	}
 	
 	setTopView(){
+        const intersection = Utils.getCameraPointCloudIntersection(this.scene.getActiveCamera(),this,this.scene.pointclouds,{pickClipped: true})
 		this.scene.view.yaw = 0;
 		this.scene.view.pitch = -Math.PI / 2;
-        if(this.controls!= this.fixedControls){
-		    this.fitToScreen();
+        if(this.controls == this.orbitControls){
+            if(intersection){
+                let view = this.scene.view;
+                let V = view.direction.clone().multiplyScalar(- intersection.distance);
+                view.position.copy(new THREE.Vector3().addVectors(intersection.location, V));
+            }
+            else{
+                this.fitToScreen();
+            }
+        }
+        else if (this.controls!= this.fixedControls && this.controls!=this.fpControls){
+            this.fitToScreen();
         }
 	};
 	
 	setBottomView(){
+        const intersection = Utils.getCameraPointCloudIntersection(this.scene.getActiveCamera(),this,this.scene.pointclouds,{pickClipped: true})
 		this.scene.view.yaw = -Math.PI;
 		this.scene.view.pitch = Math.PI / 2;
-		if(this.controls!= this.fixedControls){
-		    this.fitToScreen();
+		if(this.controls == this.orbitControls){
+            if(intersection){
+                let view = this.scene.view;
+                let V = view.direction.clone().multiplyScalar(- intersection.distance);
+                view.position.copy(new THREE.Vector3().addVectors(intersection.location, V));
+            }
+            else{
+                this.fitToScreen();
+            }
+        }
+        else if (this.controls!= this.fixedControls && this.controls!=this.fpControls){
+            this.fitToScreen();
         }
 	};
 
 	setFrontView(){
+        const intersection = Utils.getCameraPointCloudIntersection(this.scene.getActiveCamera(),this,this.scene.pointclouds,{pickClipped: true})
 		this.scene.view.yaw = 0;
 		this.scene.view.pitch = 0;
-        if(this.controls!= this.fixedControls){
+        if(this.controls == this.orbitControls){
+            if(intersection){
+                let view = this.scene.view;
+                let V = view.direction.clone().multiplyScalar(- intersection.distance);
+                view.position.copy(new THREE.Vector3().addVectors(intersection.location, V));
+            }
+            else{
+                this.fitToScreen();
+            }
+        }
+        else if (this.controls!= this.fixedControls && this.controls!=this.fpControls){
             this.fitToScreen();
         }
 	};
 	
 	setBackView(){
+        const intersection = Utils.getCameraPointCloudIntersection(this.scene.getActiveCamera(),this,this.scene.pointclouds,{pickClipped: true})
 		this.scene.view.yaw = Math.PI;
 		this.scene.view.pitch = 0;
-		if(this.controls!= this.fixedControls){
-		    this.fitToScreen();
+		if(this.controls == this.orbitControls){
+            if(intersection){
+                let view = this.scene.view;
+                let V = view.direction.clone().multiplyScalar(- intersection.distance);
+                view.position.copy(new THREE.Vector3().addVectors(intersection.location, V));
+            }
+            else{
+                this.fitToScreen();
+            }
+        }
+        else if (this.controls!= this.fixedControls && this.controls!=this.fpControls){
+            this.fitToScreen();
         }
 	};
 
 	setLeftView(){
+        const intersection = Utils.getCameraPointCloudIntersection(this.scene.getActiveCamera(),this,this.scene.pointclouds,{pickClipped: true})
 		this.scene.view.yaw = -Math.PI / 2;
 		this.scene.view.pitch = 0;
-        if(this.controls!= this.fixedControls){
-		    this.fitToScreen();
+        if(this.controls == this.orbitControls){
+            if(intersection){
+                let view = this.scene.view;
+                let V = view.direction.clone().multiplyScalar(- intersection.distance);
+                view.position.copy(new THREE.Vector3().addVectors(intersection.location, V));
+            }
+            else{
+                this.fitToScreen();
+            }
+        }
+        else if (this.controls!= this.fixedControls && this.controls!=this.fpControls){
+            this.fitToScreen();
         }
 	};
 
 	setRightView () {
+        const intersection = Utils.getCameraPointCloudIntersection(this.scene.getActiveCamera(),this,this.scene.pointclouds,{pickClipped: true})
+
 		this.scene.view.yaw = Math.PI / 2;
 		this.scene.view.pitch = 0;
-        if(this.controls!= this.fixedControls){
-		    this.fitToScreen();
+        if(this.controls == this.orbitControls){
+            if(intersection){
+                let view = this.scene.view;
+                let V = view.direction.clone().multiplyScalar(- intersection.distance);
+                view.position.copy(new THREE.Vector3().addVectors(intersection.location, V));
+            }
+            else{
+                this.fitToScreen();
+            }
+        }
+        else if (this.controls!= this.fixedControls && this.controls!=this.fpControls){
+            this.fitToScreen();
         }
 	};
 

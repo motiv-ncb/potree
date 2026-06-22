@@ -82,18 +82,20 @@ export class OrbitControls extends EventDispatcher{
                         this.rotateAboutRotateNode = false;
                     } 
                     else{
+
+                        const renderAreaSize = this.viewer.renderer.getSize(new THREE.Vector2());
+                        const clientWidth = renderAreaSize.width;
+		                const clientHeight = renderAreaSize.height;
                         this.rotateNode.visible = true;
                         this.rotateAboutRotateNode = true;
                         this.rotateNode.position.set(I.location.x,I.location.y,I.location.z);
-                        // set node side depending on camera;
                         const camera = viewer.scene.getActiveCamera();
-                        if(camera.type == "PerspectiveCamera"){
-                            this.rotateNode.scale.set(I.distance / 100 ,I.distance / 100,I.distance / 100);
-                        }
-                        else{
-                            // console.log(camera);
-                            this.rotateNode.scale.set(I.distance / 100 ,I.distance / 100,I.distance / 100);
-                        }
+                        let distance = camera.position.distanceTo(this.rotateNode.position);
+                        let pr = Utils.projectedRadius(1, camera, distance, clientWidth, clientHeight);
+		                let scale = (10 / pr);
+
+                        this.rotateNode.scale.set(scale, scale, scale);
+
                     }
                 }
                 else if (e.drag.mouse === MOUSE.RIGHT){
@@ -110,8 +112,14 @@ export class OrbitControls extends EventDispatcher{
 			            let domElement = this.renderer.domElement;
                         let ray = Utils.mouseToRay(this.currentMouse, this.scene.getActiveCamera(), domElement.clientWidth, domElement.clientHeight);
                         let cameraToI =new THREE.Vector3().subVectors(I.location, view.position)
-                        let dragPosition = new THREE.Vector3().addVectors(view.position, cameraToI.projectOnVector(view.direction)) ;
-                        view.radius = dragPosition.distanceTo(view.position);
+
+                        if(viewer.scene.getActiveCamera().type == "PerspectiveCamera"){
+                           let dragPosition = new THREE.Vector3().addVectors(view.position, cameraToI.projectOnVector(view.direction)) ;
+                            view.radius = dragPosition.distanceTo(view.position);
+                        }
+                       
+                        // let dragPosition = new THREE.Vector3().addVectors(view.position, cameraToI.projectOnVector(view.direction)) ;
+                        // view.radius = dragPosition.distanceTo(view.position);
                     }
                  }
 			}
