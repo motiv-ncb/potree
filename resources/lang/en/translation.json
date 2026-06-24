@@ -175,6 +175,7 @@
         "freeze": "Lock view",
         "language": "Language",
         "backface_culling": "Backface Culling",
+        "backface_hiding": "Backface Hiding",
         "enable_camera_near_far": "Camera near/far",
         "camera_near": "Camera near",
         "camera_far": "Camera far",

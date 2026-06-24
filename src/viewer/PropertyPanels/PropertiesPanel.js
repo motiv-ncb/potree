@@ -174,6 +174,10 @@ export class PropertiesPanel{
 				    <label><input id="set_backface_culling" type="checkbox" /><span data-i18n="appearance.backface_culling"></span></label>
 				</li>
 
+                <li id="materials_backface_hiding_container">
+				    <label><input id="set_backface_hiding" type="checkbox" /><span data-i18n="appearance.backface_hiding"></span></label>
+				</li>
+
 
                 <li id="materials_normal_container">
 				    <label><input id="set_fresnel_outline" type="checkbox" /><span data-i18n="appearance.fresnel_effect">Fresnel outline</span></label>
@@ -560,6 +564,31 @@ export class PropertiesPanel{
             */
         }
 
+        { // BACKFACE HIDING
+
+            let opt = panel.find(`#set_backface_hiding`);
+            opt.click(() => {
+                material.backfaceHiding = opt.prop("checked");
+                let pointClouds = self.getSelectedPointclouds();
+                for (let point of pointClouds) {    
+                    if(this.hasNormals(point)){
+                        point.material.backfaceHiding = opt.prop("checked");
+                    }
+                    else{
+                        point.material.backfaceHiding = false;
+                    }
+                }   
+            });
+            let update = () => {
+                let value = material.backfaceHiding;
+                opt.prop("checked", value);
+            };
+            this.addVolatileListener(material, "backface_changed", update);
+            update();
+
+        
+        }
+
         { // normal
             let opt = panel.find(`#set_fresnel_outline`);
             opt.click(() => {
@@ -613,12 +642,16 @@ export class PropertiesPanel{
             if(this.hasNormals(pointcloud)){
                 let blockBackface = $('#materials_backface_container');
                 blockBackface.css('display', 'block');
+                let blockBackfaceHiding = $('#materials_backface_hiding_container');
+                blockBackfaceHiding.css('display', 'block');
                 let blockNormal = $('#materials_normal_container');
                 blockNormal.css('display', 'block');
             }
             else{
                  let blockBackface = $('#materials_backface_container');
                 blockBackface.css('display', 'none');
+                let blockBackfaceHiding = $('#materials_backface_hiding_container');
+                blockBackfaceHiding.css('display', 'none');
                 let blockNormal = $('#materials_normal_container');
                 blockNormal.css('display', 'none');
             }

@@ -174,8 +174,12 @@ export class HQSplatRenderer{
                 depthMaterial.deformed = material.deformed;
                 depthMaterial.deformationFactor = material.deformationFactor;
 
+
+                depthMaterial.backfaceCulling = material.backfaceCulling;
+                depthMaterial.backfaceHiding = material.backfaceHiding;
 				depthMaterial.clipTask = material.clipTask;
 				depthMaterial.clipMethod = material.clipMethod;
+                
 				depthMaterial.setClipBoxes(material.clipBoxes);
 				depthMaterial.setClipPolygons(material.clipPolygons);
                 // cmair move box
@@ -250,7 +254,7 @@ export class HQSplatRenderer{
                 attributeMaterial.gradient = material.gradient;
 				attributeMaterial.matcap = material.matcap;
                 attributeMaterial.backfaceCulling = material.backfaceCulling;
-                attributeMaterial.backfaceHiding = material.backfaceHiding
+                attributeMaterial.backfaceHiding = material.backfaceHiding;
                 attributeMaterial.fresnelOutline = material.fresnelOutline;
                 attributeMaterial.fresnelPower = material.fresnelPower;
                 

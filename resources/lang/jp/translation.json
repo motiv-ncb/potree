@@ -175,6 +175,7 @@
         "freeze": "ビューの固定",
         "language": "言語",
         "backface_culling": "裏面カリング",
+        "backface_hiding": "裏面非表示",
         "enable_camera_near_far": "カメラの近/遠",
         "camera_near": "カメラの近",
         "camera_far": "カメラの遠",

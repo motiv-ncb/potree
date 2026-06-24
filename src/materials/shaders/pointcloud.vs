@@ -1212,7 +1212,7 @@ void doClipping(){
 }
 
 void checkBackfaceHiding(){
-    if (backfaceCulling && backfaceHiding && applyBackfaceCulling()){
+    if (backfaceHiding && applyBackfaceCulling()){
         gl_Position = vec4(100.0, 100.0, 100.0, 1.0);
     }
 }
