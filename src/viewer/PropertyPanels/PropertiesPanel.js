@@ -161,12 +161,12 @@ export class PropertiesPanel{
 				</li>
 
 				<!-- SHAPE -->
-				<li style="display:none;">
+				<li>
 					<label for="optShape" class="pv-select-label" data-i18n="appearance.point_shape"></label><br>
 					<select id="optShape" name="optShape">
 						<option value="SQUARE" data-i18n="appearance.SQUARE">SQUARE</option>
 						<option value="CIRCLE" data-i18n="appearance.CIRCLE">CIRCLE</option>
-						<option value="PARABOLOID" data-i18n="appearance.PARABOLOID">PARABOLOID</option>
+					<!-- 	<option value="PARABOLOID" data-i18n="appearance.PARABOLOID">PARABOLOID</option>-->
 					</select>
 				</li>
 

@@ -42,14 +42,20 @@ void main() {
 	vec3 color = vColor;
 	float depth = gl_FragCoord.z;
 
-	#if defined(circle_point_shape) || defined(paraboloid_point_shape) 
+	#if defined(circle_point_shape) || defined(square_point_shape) || defined(paraboloid_point_shape) 
 		float u = 2.0 * gl_PointCoord.x - 1.0;
 		float v = 2.0 * gl_PointCoord.y - 1.0;
 	#endif
 	
-	#if defined(circle_point_shape) 
+	#if defined(circle_point_shape ) || defined(paraboloid_point_shape)
 		float cc = u*u + v*v;
 		if(cc > 1.0){
+			discard;
+		}
+	#endif
+
+    #if defined(square_point_shape) 
+		if(u > 1.0 || u < -1.0 || v > 1.0 || v < -1.0){
 			discard;
 		}
 	#endif
@@ -87,12 +93,23 @@ void main() {
 	#endif
 
 	#if defined(weighted_splats)
-		float distance = 2.0 * length(gl_PointCoord.xy - 0.5);
-		float weight = max(0.0, 1.0 - distance);
-		weight = pow(weight, 1.5);
+        #if defined(circle_point_shape)
+            float distance = 2.0 * length(gl_PointCoord.xy - 0.5);
+            float weight = max(0.0, 1.0 - distance);
+            weight = pow(weight, 1.5);
 
-		gl_FragColor.a = weight;
-		gl_FragColor.xyz = gl_FragColor.xyz * weight;
+            gl_FragColor.a = weight;
+            gl_FragColor.xyz = gl_FragColor.xyz * weight;
+        #endif
+
+        #if defined(square_point_shape)
+            float distance = 2.0 * max(gl_PointCoord.x - 0.5, gl_PointCoord.y - 0.5);
+            float weight = max(0.0, 1.0 - distance);
+            weight = pow(weight, 1.5);
+
+            gl_FragColor.a = weight;
+            gl_FragColor.xyz = gl_FragColor.xyz * weight;
+        #endif
 	#endif
 
 	//gl_FragColor = vec4(0.0, 0.7, 0.0, 1.0);
