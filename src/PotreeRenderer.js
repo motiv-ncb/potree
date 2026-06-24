@@ -1506,6 +1506,8 @@ export class Renderer {
 			shader.setUniform1f("wSourceID", material.weightSourceID);
 
 			shader.setUniform("backfaceCulling", material.uniforms.backfaceCulling.value);
+            shader.setUniform("backfaceHiding", material.uniforms.backfaceHiding.value);
+
 			shader.setUniform("fresnelOutline", material.uniforms.fresnelOutline.value);
 			shader.setUniform1f("uFresnelPower", material.fresnelPower);
             shader.setUniform("deformed", material.uniforms.deformed.value);

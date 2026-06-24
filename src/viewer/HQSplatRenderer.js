@@ -249,7 +249,8 @@ export class HQSplatRenderer{
 
                 attributeMaterial.gradient = material.gradient;
 				attributeMaterial.matcap = material.matcap;
-                attributeMaterial.backfaceCulling = material.backfaceCulling
+                attributeMaterial.backfaceCulling = material.backfaceCulling;
+                attributeMaterial.backfaceHiding = material.backfaceHiding
                 attributeMaterial.fresnelOutline = material.fresnelOutline;
                 attributeMaterial.fresnelPower = material.fresnelPower;
                 

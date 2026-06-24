@@ -198,6 +198,7 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 			uFilterPointSourceIDClipRange:		{ type: "fv", value: [0, 65535]},
 			matcapTextureUniform: 	{ type: "t", value: this.matcapTexture },
 			backfaceCulling: { type: "b", value: false },
+            backfaceHiding: { type: "b", value: false },
             fresnelOutline: { type: "b", value: false },
             uFresnelPower: { type: "f", value: 1},
             deformed: { type: "b", value: false },
@@ -469,6 +470,18 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 			this.dispatchEvent({type: 'backface_changed', target: this});
 		}
 	}
+
+    get backfaceHiding() {
+		return this.uniforms.backfaceHiding.value;
+	}
+
+	set backfaceHiding(value) {
+		if(this.uniforms.backfaceHiding.value !== value){
+			this.uniforms.backfaceHiding.value = value;
+			this.dispatchEvent({type: 'backface_changed', target: this});
+		}
+	}
+
 
     get fresnelOutline() {
 		return this.uniforms.fresnelOutline.value;

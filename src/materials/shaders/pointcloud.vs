@@ -154,7 +154,7 @@ uniform sampler2D classificationLUT;
 uniform sampler2D matcapTextureUniform;
 #endif
 uniform bool backfaceCulling;
-
+uniform bool backfaceHiding;
 uniform bool fresnelOutline;
 uniform float uFresnelPower;
 
@@ -692,7 +692,7 @@ bool applyBackfaceCulling() {
 float getFresnelOutlineFactor() {
 	// vec3 e = normalize(vec3(modelViewMatrix * vec4( position, 1. )));
 	vec3 n = getNormal(); 
-    return pow(abs(n.z), uFresnelPower);
+    return 0.7 * pow(abs(n.z), uFresnelPower) + 0.3;
     // if(uUseOrthographicCamera){
     //     return pow(abs(n.z), uFresnelPower);
     // }
@@ -709,7 +709,7 @@ float getFresnelOutlineFactorWithBackfaceCulling() {
     if(n.z <= 0.) { 
 		return 0.;
     } 
-    return pow(n.z, uFresnelPower);
+    return 0.7 * pow(abs(n.z), uFresnelPower) + 0.3;
     // if(uUseOrthographicCamera){
     //     return pow(n.z, uFresnelPower);
     // }
@@ -1211,6 +1211,12 @@ void doClipping(){
 	}
 }
 
+void checkBackfaceHiding(){
+    if (backfaceCulling && backfaceHiding && applyBackfaceCulling()){
+        gl_Position = vec4(100.0, 100.0, 100.0, 1.0);
+    }
+}
+
 
 
 // 
@@ -1283,6 +1289,11 @@ void main() {
 
 	// CLIPPING
 	doClipping();
+
+    // backface hiding
+    checkBackfaceHiding();
+   
+
 
 	#if defined(num_clipspheres) && num_clipspheres > 0
 		for(int i = 0; i < num_clipspheres; i++){
