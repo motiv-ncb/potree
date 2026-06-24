@@ -146,12 +146,12 @@ export class PropertiesPanel{
 				<li>
 				<span data-i18n="appearance.point_size"></span>:&nbsp;<span id="lblPointSize"></span> <div id="sldPointSize"></div>
 				</li>
-				<li>
+				<li style="display:none;">
 				<span data-i18n="appearance.min_point_size"></span>:&nbsp;<span id="lblMinPointSize"></span> <div id="sldMinPointSize"></div>
 				</li>
 
 				<!-- SIZE TYPE -->
-				<li style="display:none;">
+				<li >
 					<label for="optPointSizing" class="pv-select-label" data-i18n="appearance.point_size_type">Point Sizing </label>
 					<select id="optPointSizing" name="optPointSizing">
 						<option value="FIXED" data-i18n="appearance.FIXED">FIXED</option>

@@ -85,7 +85,7 @@
             let gradient = Potree.Gradients["TURBO"];
             material.gradient = gradient;
             material.shape = Potree.PointShape.CIRCLE;
-
+            material.minSize = 0.0;
             material.intensityCurveOrder = 0.2;
 			viewer.fitToScreen(0.5);
 		});

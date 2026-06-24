@@ -973,26 +973,28 @@ float getPointSize(){
 	float r = uOctreeSpacing * 1.7;
 	vRadius = r;
 	#if defined fixed_point_size
-		pointSize = size;
+		pointSize = size + 1.0;
 	#elif defined attenuated_point_size
 		if(uUseOrthographicCamera){
-			pointSize = size;
+			pointSize = size + 1.0;
 		}else{
-			pointSize = size * spacing * projFactor;
+			//pointSize = size * spacing * projFactor;
+            pointSize = size * 0.05 * projFactor;
+
 			//pointSize = pointSize * projFactor;
 		}
 	#elif defined adaptive_point_size
 		if(uUseOrthographicCamera) {
-			float worldSpaceSize = 1.0 * size * r / getPointSizeAttenuation();
+			float worldSpaceSize = 0.5 * size * r / getPointSizeAttenuation();
 			pointSize = (worldSpaceSize / uOrthoWidth) * uScreenWidth;
 		} else {
-			float worldSpaceSize = 1.0 * size * r / getPointSizeAttenuation();
+			float worldSpaceSize = 0.5 * size * r / getPointSizeAttenuation();
 			pointSize = worldSpaceSize * projFactor;
 		}
 	#endif
 
 	pointSize = max(minSize, pointSize);
-	pointSize = min(maxSize, pointSize);
+	// pointSize = min(maxSize, pointSize);
 	
 	vRadius = pointSize / projFactor;
 
