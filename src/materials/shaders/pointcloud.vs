@@ -994,7 +994,7 @@ float getPointSize(){
 	#endif
 
 	pointSize = max(minSize, pointSize);
-	// pointSize = min(maxSize, pointSize);
+	pointSize = min(maxSize, pointSize);
 	
 	vRadius = pointSize / projFactor;
 

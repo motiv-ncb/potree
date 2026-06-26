@@ -930,6 +930,25 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 		}
 	}
 
+    get maxSize(){
+		return this.uniforms.maxSize.value;
+	}
+
+	set maxSize(value){
+		if (this.uniforms.maxSize.value !== value) {
+			this.uniforms.maxSize.value = value;
+
+			this.dispatchEvent({
+				type: 'point_size_changed',
+				target: this
+			});
+			this.dispatchEvent({
+				type: 'material_property_changed',
+				target: this
+			});
+		}
+	}
+
 	get elevationRange () {
 		return this.uniforms.elevationRange.value;
 	}

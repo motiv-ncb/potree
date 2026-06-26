@@ -146,8 +146,11 @@ export class PropertiesPanel{
 				<li>
 				<span data-i18n="appearance.point_size"></span>:&nbsp;<span id="lblPointSize"></span> <div id="sldPointSize"></div>
 				</li>
-				<li style="display:none;">
+				<li>
 				<span data-i18n="appearance.min_point_size"></span>:&nbsp;<span id="lblMinPointSize"></span> <div id="sldMinPointSize"></div>
+				</li>
+                <li>
+				<span data-i18n="appearance.max_point_size"></span>:&nbsp;<span id="lblMaxPointSize"></span> <div id="sldMaxPointSize"></div>
 				</li>
 
 				<!-- SIZE TYPE -->
@@ -457,9 +460,9 @@ export class PropertiesPanel{
             let lblMinPointSize = panel.find(`#lblMinPointSize`);
 
             sldMinPointSize.slider({
-                value: material.size,
+                value: material.minSize,
                 min: 0,
-                max: 3,
+                max: 10,
                 step: 0.01,
                 slide: function (event, ui) {
                     material.minSize = ui.value;
@@ -473,6 +476,33 @@ export class PropertiesPanel{
             let update = (e) => {
                 lblMinPointSize.html(material.minSize.toFixed(2));
 				sldMinPointSize.slider({value: material.minSize});
+            };
+            this.addVolatileListener(material, "point_size_changed", update);
+
+            update();
+        }
+
+        { // MAXIMUM POINT SIZE
+            let sldMaxPointSize = panel.find(`#sldMaxPointSize`);
+            let lblMaxPointSize = panel.find(`#lblMaxPointSize`);
+
+            sldMaxPointSize.slider({
+                value: material.maxSize,
+                min: 0,
+                max: 70,
+                step: 0.01,
+                slide: function (event, ui) {
+                    material.maxSize = ui.value;
+                    let pointClouds = self.getSelectedPointclouds();
+                    for (let point of pointClouds) {
+                        point.material.maxSize = ui.value;
+                    }
+                }
+            });
+
+            let update = (e) => {
+                lblMaxPointSize.html(material.maxSize.toFixed(2));
+				sldMaxPointSize.slider({value: material.maxSize});
             };
             this.addVolatileListener(material, "point_size_changed", update);
 

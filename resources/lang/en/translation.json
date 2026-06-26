@@ -139,6 +139,7 @@
         "number_of_points": "Number of points",
         "point_size": "Point size",
         "min_point_size": "Minimum size",
+        "max_point_size": "Maximum size",
         "point_opacity": "Opacity",
         "field_view": "Field of view",
         "point_size_type": "Point sizing",
