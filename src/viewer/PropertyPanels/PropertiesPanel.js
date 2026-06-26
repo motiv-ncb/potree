@@ -146,10 +146,10 @@ export class PropertiesPanel{
 				<li>
 				<span data-i18n="appearance.point_size"></span>:&nbsp;<span id="lblPointSize"></span> <div id="sldPointSize"></div>
 				</li>
-				<li>
+				<li id="sidebar_pc_MinPointSizeContainer">
 				<span data-i18n="appearance.min_point_size"></span>:&nbsp;<span id="lblMinPointSize"></span> <div id="sldMinPointSize"></div>
 				</li>
-                <li>
+                <li id="sidebar_pc_MaxPointSizeContainer">
 				<span data-i18n="appearance.max_point_size"></span>:&nbsp;<span id="lblMaxPointSize"></span> <div id="sldMaxPointSize"></div>
 				</li>
 
@@ -434,7 +434,7 @@ export class PropertiesPanel{
             sldPointSize.slider({
                 value: material.size,
                 min: 0,
-                max: 3,
+                max: 10,
                 step: 0.01,
                 slide: function (event, ui) {
                     material.size = ui.value;
@@ -515,16 +515,33 @@ export class PropertiesPanel{
             let opt = panel.find(`#optPointSizing`);
             opt.selectmenu();
             opt.val(strSizeType).selectmenu('refresh');
-
+            let ctnMinPointSize = panel.find(`#sidebar_pc_MinPointSizeContainer`);
+            let ctnMaxPointSize = panel.find(`#sidebar_pc_MaxPointSizeContainer`);
             opt.selectmenu({
                 change: (event, ui) => {
                     material.pointSizeType = PointSizeType[ui.item.value];
                     let pointClouds = self.getSelectedPointclouds();
                     for (let point of pointClouds) {
                         point.material.pointSizeType = PointSizeType[ui.item.value];
+                    }         
+                    if(ui.item.value == "FIXED"){
+                        ctnMinPointSize.hide();
+                        ctnMaxPointSize.hide();
+                    }
+                    else{
+                        ctnMinPointSize.show();
+                        ctnMaxPointSize.show();
                     }
                 }
             });
+            if(strSizeType == "FIXED"){
+                ctnMinPointSize.hide();
+                ctnMaxPointSize.hide();
+            }
+            else{
+                ctnMinPointSize.show();
+                ctnMaxPointSize.show();
+            }
         }
 
         { // SHAPE
