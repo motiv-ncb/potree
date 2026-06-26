@@ -983,6 +983,8 @@ float getPointSize(){
 
 			//pointSize = pointSize * projFactor;
 		}
+        pointSize = max(minSize, pointSize);
+	    pointSize = min(maxSize, pointSize);
 	#elif defined adaptive_point_size
 		if(uUseOrthographicCamera) {
 			float worldSpaceSize = 0.5 * size * r / getPointSizeAttenuation();
@@ -991,10 +993,11 @@ float getPointSize(){
 			float worldSpaceSize = 0.5 * size * r / getPointSizeAttenuation();
 			pointSize = worldSpaceSize * projFactor;
 		}
+        pointSize = max(minSize, pointSize);
+	    pointSize = min(maxSize, pointSize);
 	#endif
 
-	pointSize = max(minSize, pointSize);
-	pointSize = min(maxSize, pointSize);
+
 	
 	vRadius = pointSize / projFactor;
 

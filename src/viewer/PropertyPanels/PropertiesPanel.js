@@ -434,7 +434,7 @@ export class PropertiesPanel{
             sldPointSize.slider({
                 value: material.size,
                 min: 0,
-                max: 10,
+                max: 5,
                 step: 0.01,
                 slide: function (event, ui) {
                     material.size = ui.value;
@@ -462,7 +462,7 @@ export class PropertiesPanel{
             sldMinPointSize.slider({
                 value: material.minSize,
                 min: 0,
-                max: 10,
+                max: 5,
                 step: 0.01,
                 slide: function (event, ui) {
                     material.minSize = ui.value;
