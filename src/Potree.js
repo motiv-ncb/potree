@@ -92,6 +92,7 @@ export {AreaVolume} from "./utils/AreaVolume.js"
 export {TransformOriginBoxVolume} from "./utils/TransformVolume.js"
 export {TransformedBoxVolume} from "./utils/TransformVolume.js"
 export {TransformPointcloudBoxVolume} from "./utils/TransformVolume.js"
+export {NavigationRecord} from "./viewer/NavigationRecord.js"
 //////////////////
 
 import "./extensions/OrthographicCamera.js";

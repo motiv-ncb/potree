@@ -28,6 +28,7 @@
         "home": "Home",
         "pc_manager_opt": "Point cloud Manger",
         "background": "Background",
+        "cameras":"Cameras",
         "other": "Other"
     },
     "tt": {

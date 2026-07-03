@@ -34,6 +34,7 @@ export class Scene extends EventDispatcher{
 		this.orientedImages = [];
 		this.images360 = [];
 		this.geopackages = [];
+        this.navigationRecords = [];
 		
 		this.fpControls = null;
         this.fixedControls = null;
@@ -167,6 +168,15 @@ export class Scene extends EventDispatcher{
 			'volume': volume
 		});
 	}
+
+    addNavigationRecord(navigationRecord){
+        this.navigationRecords.push(navigationRecord);
+        this.dispatchEvent({
+            'type': "navigation_record_added",
+            'scene': this,
+            "object": navigationRecord
+        });
+    }
 
 	addOrientedImages(images){
 		this.orientedImages.push(images);

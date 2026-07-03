@@ -19,6 +19,7 @@ import {Images360} from "../modules/Images360/Images360.js";
 
 import JSON5 from "../../libs/json5-2.1.3/json5.mjs";
 import { TransformOriginBoxVolume } from "../utils/TransformVolume.js";
+import {NavigationRecord } from "./NavigationRecord.js";
 
 export class Sidebar{
 
@@ -568,6 +569,8 @@ export class Sidebar{
         let otherID = tree.jstree('create_node', "#", { "text": "<b>Other</b>", "id": "other" }, "last", false, false);
 		let vectorsID = tree.jstree('create_node', "#", { "text": "<b>Vectors</b>", "id": "vectors" }, "last", false, false);
 		let imagesID = tree.jstree('create_node', "#", { "text": "<b>Images</b>", "id": "images" }, "last", false, false);
+        let navigationID = tree.jstree('create_node', "#", { "text": "<b data-i18n='tb.cameras'>Cameras</b>", "id": "navigation" }, "last", false, false);
+
         let hiddenID = tree.jstree('create_node', "#", { "text": "<b>Hidden</b>", "id": "hidden" }, "last", false, false);
 
 		tree.jstree("check_node", pcID);
@@ -582,7 +585,8 @@ export class Sidebar{
         tree.jstree("check_node", fillingID);
         tree.jstree("check_node", measurementBoxID);
         tree.jstree("check_node", hiddenID);
-        
+        tree.jstree("check_node", navigationID);
+
 
 		tree.on('create_node.jstree', (e, data) => {
 			tree.jstree("open_all");
@@ -600,9 +604,83 @@ export class Sidebar{
 			if(object instanceof Volume){
 				this.viewer.inputHandler.toggleSelection(object);
 			}
+            else if(object instanceof NavigationRecord){
+                object.setNavigation();
+			}
 
 			$(this.viewer.renderer.domElement).focus();
 		});
+
+        tree.on("hover_node.jstree", (e, data) => {
+			let object = data.node.data;
+		
+			if(object instanceof NavigationRecord){
+                let $nodeElement = $('#' + data.node.id);
+                let nodeOffset = $nodeElement.offset();      
+                if(!this.navigationPopup){
+                    this.navigationPopup =  $(`
+                        <div id="potree_tree_hover_preview" style="
+                            display:     none;
+                            position:    fixed;
+                            z-index:     9999;
+                            pointer-events: none;
+                            background:  #1a1a1a;
+                            border:      1px solid #555;
+                            border-radius: 6px;
+                            padding:     4px;
+                            box-shadow:  0 4px 16px rgba(0,0,0,0.6);
+                        ">
+                            <img id="potree_tree_hover_img"
+                                style="display:block; width:280px; height:auto; border-radius:4px;" />
+                            <div id="potree_tree_hover_label" style="
+                                color:      #ddd;
+                                font-size:  11px;
+                                text-align: center;
+                                margin-top: 3px;
+                                font-family: monospace;
+                            "></div>
+                        </div>
+                    `);
+                    $('body').append(this.navigationPopup ); 
+                }
+                // object.setNavigation();
+                if(object.screenShortURL){
+                    const mouseX = nodeOffset.left;
+                    const mouseY = nodeOffset.top;
+                    const popupEl    = this.navigationPopup[0];
+                    const imgEl      = this.navigationPopup.find('#potree_tree_hover_img')[0];
+
+                    const W   = window.innerWidth;
+                    const H   = window.innerHeight;
+                    const pw  = popupEl.offsetWidth  || 292;
+                    const ph  = popupEl.offsetHeight || 200;
+                    const GAP = 14;
+
+                    let left = mouseX + GAP;
+                    let top  = mouseY + GAP;
+
+                    if (left + pw > W - 8)  left = mouseX - pw - GAP;
+                    if (top  + ph > H - 8)  top  = mouseY - ph - GAP;
+
+                    popupEl.style.left = left + 'px';
+                    popupEl.style.top  = top  + 'px';
+                    imgEl.src = object.screenShortURL;
+                    popupEl.style.display = 'block';
+                }
+                else{
+                    popupEl.style.display = 'block';
+                }
+			}
+
+		});
+
+        tree.on("dehover_node.jstree", (e, data) =>  {
+            if(this.navigationPopup){
+                const popupEl    = this.navigationPopup[0];
+                popupEl.style.display = 'none';
+            }
+        });
+
 
 		tree.on("deselect_node.jstree", (e, data) => {
 			propertiesPanel.set(null);
@@ -845,6 +923,14 @@ export class Sidebar{
             tree.i18n();
 		};
 
+        let onNavigationRecordAdded = (e) => {
+            let navigationRecord = e.object;
+            let cloudIcon = `${Potree.resourcePath}/icons/focus.svg`;
+            const node = createNode(navigationID, navigationRecord.name, cloudIcon, navigationRecord);
+            tree.jstree('check_node', node);
+            tree.i18n();
+        }
+
 		let onProfileAdded = (e) => {
 			let profile = e.profile;
 			let icon = Utils.getMeasurementIcon(profile);
@@ -942,6 +1028,7 @@ export class Sidebar{
 		this.viewer.scene.addEventListener("360_images_added", onImages360Added);
 		this.viewer.scene.addEventListener("geopackage_added", onGeopackageAdded);
 		this.viewer.scene.addEventListener("polygon_clip_volume_added", onVolumeAdded);
+        this.viewer.scene.addEventListener("navigation_record_added", onNavigationRecordAdded);
 		this.viewer.scene.annotations.addEventListener("annotation_added", onAnnotationAdded);
 
 		let onMeasurementRemoved = (e) => {
@@ -1057,11 +1144,17 @@ export class Sidebar{
             tree.i18n();
         }
 
+        let onNavigationRecordRemoved =(e) =>{
+            console.log("TODO : onNavigationRecordRemoved")
+        }
+
 		this.viewer.scene.addEventListener("measurement_removed", onMeasurementRemoved);
 		this.viewer.scene.addEventListener("volume_removed", onVolumeRemoved);
         this.viewer.scene.addEventListener("pointcloud_removed", onPointcloudRemoved);
 		this.viewer.scene.addEventListener("polygon_clip_volume_removed", onPolygonClipVolumeRemoved);
 		this.viewer.scene.addEventListener("profile_removed", onProfileRemoved);
+        this.viewer.scene.addEventListener("navigation_record_removed", onNavigationRecordRemoved);
+
         this.viewer.scene.annotations.addEventListener("annotation_removed", onAnnotationRemoved);
 
 		{
@@ -1122,6 +1215,7 @@ export class Sidebar{
 			e.oldScene.removeEventListener("volume_added", onVolumeAdded);
 			e.oldScene.removeEventListener("polygon_clip_volume_added", onVolumeAdded);
 			e.oldScene.removeEventListener("measurement_removed", onMeasurementRemoved);
+            e.oldScene.removeEventListener("navigation_record_added", onNavigationRecordAdded);
 
 			e.scene.addEventListener("pointcloud_added", onPointCloudAdded);
             e.scene.addEventListener("bim_pointcloud_added", onBIMPointCloudAdded);
@@ -1130,6 +1224,7 @@ export class Sidebar{
 			e.scene.addEventListener("volume_added", onVolumeAdded);
 			e.scene.addEventListener("polygon_clip_volume_added", onVolumeAdded);
 			e.scene.addEventListener("measurement_removed", onMeasurementRemoved);
+            e.scene.addEventListener("navigation_record_added", onNavigationRecordAdded);
 		});
 
 	}
