@@ -643,7 +643,7 @@ export class Sidebar{
                     `);
                     $('body').append(this.navigationPopup ); 
                 }
-                // object.setNavigation();
+                object.captureScreen();
                 if(object.screenShortURL){
                     const mouseX = nodeOffset.left;
                     const mouseY = nodeOffset.top;

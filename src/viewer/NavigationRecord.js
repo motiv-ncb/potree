@@ -23,16 +23,52 @@ export class NavigationRecord{
     updateRecord(){
         this.cameraRecord.updateRecord();
         this.controlsRecord.updateRecord();
+    }
 
-         try{
-            this.viewer.render();
-            this.screenShortURL = this.viewer.renderer.domElement.toDataURL('image/jpeg', 0.85);
-        }
-        catch (e){
-            this.screenShortURL = null;
-            console.warn(e);
-        }
-       
+    captureScreen(){
+        const yaw = this.cameraRecord.yaw;
+        const pitch =this.cameraRecord.pitch;
+        const position = this.cameraRecord.position;
+        let dir = new THREE.Vector3(0, 1, 0);   
+        dir.applyAxisAngle(new THREE.Vector3(1, 0, 0), pitch);
+        dir.applyAxisAngle(new THREE.Vector3(0, 0, 1), yaw); 
+        const target = this.cameraRecord.position.clone().add(
+            dir.multiplyScalar(this.controlsRecord.radius)
+        );
+
+      
+        const viewer   = this.viewer;
+        const renderer = viewer.renderer;
+        const scene    = viewer.scene.scene;
+        
+        const originalCamera = viewer.scene.cameraP;
+
+        // clone camera
+        const captureCamera = originalCamera.clone();
+
+        captureCamera.position.copy(position);
+        captureCamera.lookAt(target);
+        captureCamera.fov = this.cameraRecord.fov;
+        captureCamera.updateProjectionMatrix();
+        captureCamera.updateMatrixWorld(true);
+
+        // update octree visibility
+        Potree.updatePointClouds(
+            viewer.scene.pointclouds,
+            captureCamera,
+            viewer.renderer
+        );
+
+        // temporarily swap camera
+        viewer.scene.cameraP = captureCamera;
+
+        // render using Potree pipeline
+        viewer.render();
+
+        // restore immediately
+        viewer.scene.cameraP = originalCamera;
+
+       this.screenShortURL =  this.viewer.renderer.domElement.toDataURL('image/jpeg', 0.85);
     }
 
     setNavigation(){
@@ -117,7 +153,6 @@ class CameraRecordItem{
             }
         }
 
-
         camera = this.viewer.scene.getActiveCamera();
         camera.near = this.near;
         camera.far = this.far;
@@ -126,8 +161,6 @@ class CameraRecordItem{
         this.viewer.scene.view.yaw = this.yaw;
         this.viewer.scene.view.pitch = this.pitch;
 
-        // camera.position.set(this.position.x,this.position.y,this.position.z);
-        // camera.rotation.set(this.rotation.x, this.rotation.y, this.rotation.z);
         switch(this.type){
             case "PerspectiveCamera":
                 this.viewer.setFOV(this.fov);
