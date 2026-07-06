@@ -241,7 +241,7 @@ class CameraRecordItem{
         this.type = ioModel.type;
         this.near = ioModel.near;
         this.far = ioModel.far;
-        this.position = ioModel.position;
+        this.position.set(ioModel.position.x,ioModel.position.y,ioModel.position.z);
         this.yaw = ioModel.yaw;
         this.pitch = ioModel.pitch;
         this.fov = ioModel.fov;
