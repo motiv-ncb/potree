@@ -159,6 +159,19 @@ export class Scene extends EventDispatcher{
         }
 	}
 
+    removeNavigationRecord(navigationRecord){
+        let index = this.navigationRecords.indexOf(navigationRecord);
+		if (index > -1) {
+			this.navigationRecords.splice(index, 1);
+
+			this.dispatchEvent({
+				'type': 'navigation_record_removed',
+				'scene': this,
+				'navigationRecord': navigationRecord
+			});
+		}
+    }
+
 
 	addVolume (volume) {
 		this.volumes.push(volume);
@@ -174,8 +187,14 @@ export class Scene extends EventDispatcher{
         this.dispatchEvent({
             'type': "navigation_record_added",
             'scene': this,
-            "object": navigationRecord
+            "navigationRecord": navigationRecord
         });
+    }
+
+    removeAllNavigationRecords(){
+        while(this.navigationRecords.length > 0){
+            this.removeNavigationRecord(this.navigationRecords[0]);
+        }
     }
 
 	addOrientedImages(images){

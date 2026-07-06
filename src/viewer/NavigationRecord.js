@@ -9,20 +9,14 @@ export class NavigationRecord{
      * @param {Viewer} viewer 
      */
     constructor(viewer, name) {
-
+        
         this.viewer = viewer;
         this.name = name;
         this.screenShortURL = null;
         this.cameraRecord = new CameraRecordItem(viewer)
         this.controlsRecord = new ControlsRecordItem(viewer);
-       
+        this.uuid = THREE.MathUtils.generateUUID();
         this.updateRecord();
-
-        // this.viewer.scene.dispatchEvent({
-        //     type: "navigation_record_added",
-        //     object: this
-        // });
-
 
     }
 
@@ -38,13 +32,26 @@ export class NavigationRecord{
             this.screenShortURL = null;
             console.warn(e);
         }
-        // console.log(this.screenShortURL);
        
     }
 
     setNavigation(){
         this.cameraRecord.setNavigation();
         this.controlsRecord.setNavigation();
+    }
+
+    getExportModel(){
+        return{
+            'name':this.name,
+            'camera': this.cameraRecord.getExportModel(),
+            'controls':this.controlsRecord.getExportModel()
+        };
+    }
+
+    importData(ioModel){
+        this.name = ioModel.name;
+        this.cameraRecord.importData(ioModel.camera);
+        this.controlsRecord.importData(ioModel.controls); 
     }
 }
 
@@ -82,7 +89,6 @@ class CameraRecordItem{
         this.near = camera.near;
         this.far = camera.far;
         this.position = camera.position.clone();
-        this.rotation = camera.rotation.clone();
         this.yaw = this.viewer.scene.view.yaw;
         this.pitch = this.viewer.scene.view.pitch;
         switch(this.type){
@@ -135,6 +141,37 @@ class CameraRecordItem{
                 break;
         }
     }
+
+    getExportModel(){
+        return{
+            'type':this.type,
+            'near':this.near,
+            'far':this.far,
+            'position':this.position,
+            'yaw':this.yaw,
+            'pitch':this.pitch,
+            'fov':this.fov,
+            'left':this.left,
+            'right':this.right,
+            'top':this.top,
+            'bottom':this.bottom
+        };
+    }
+
+    importData(ioModel){
+        this.type = ioModel.type;
+        this.near = ioModel.near;
+        this.far = ioModel.far;
+        this.position = ioModel.position;
+        this.yaw = ioModel.yaw;
+        this.pitch = ioModel.pitch;
+        this.fov = ioModel.fov;
+        this.left = ioModel.left;
+        this.right = ioModel.right;
+        this.top = ioModel.top;
+        this.bottom =ioModel.bottom;
+   
+    }
 }
 
 class ControlsRecordItem{
@@ -151,12 +188,23 @@ class ControlsRecordItem{
     updateRecord(){
         const controls = this.viewer.controls;
         const view = this.viewer.scene.view;
-  
         this.moveSpeed = this.viewer.moveSpeed;
         this.radius = view.radius;
     }
 
     setNavigation(){
         
+    }
+
+    getExportModel(){
+        return {
+            'moveSpeed':this.moveSpeed,
+            'radius':this.radius
+        }
+    }
+
+    importData(ioModel){
+        this.moveSpeed = ioModel.moveSpeed;
+        this.radius =ioModel.radius;
     }
 }

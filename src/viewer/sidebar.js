@@ -569,7 +569,7 @@ export class Sidebar{
         let otherID = tree.jstree('create_node', "#", { "text": "<b>Other</b>", "id": "other" }, "last", false, false);
 		let vectorsID = tree.jstree('create_node', "#", { "text": "<b>Vectors</b>", "id": "vectors" }, "last", false, false);
 		let imagesID = tree.jstree('create_node', "#", { "text": "<b>Images</b>", "id": "images" }, "last", false, false);
-        let navigationID = tree.jstree('create_node', "#", { "text": "<b data-i18n='tb.cameras'>Cameras</b>", "id": "navigation" }, "last", false, false);
+        let navigationID = tree.jstree('create_node', "#", { "text": "<b data-i18n='tb.cameras'>Cameras</b>", "id": "navigation_record" }, "last", false, false);
 
         let hiddenID = tree.jstree('create_node', "#", { "text": "<b>Hidden</b>", "id": "hidden" }, "last", false, false);
 
@@ -809,6 +809,19 @@ export class Sidebar{
         });
 
 
+        tree.on("click", ".navigation-record-remove-btn", function(e) {
+            e.stopPropagation();  // prevent node selection
+            const navid = $(this).data("uuid");
+            const navRecord = viewer.scene.navigationRecords.find(x => x.uuid === navid);
+            if (navRecord) {
+                console.log("Remove Record!!");
+                console.log(navRecord)
+                
+                viewer.scene.removeNavigationRecord(navRecord)
+            }
+        });
+
+
 		let onPointCloudAdded = (e) => {
 			let pointcloud = e.pointcloud;
 			let cloudIcon = `${Potree.resourcePath}/icons/cloud.svg`;
@@ -924,9 +937,21 @@ export class Sidebar{
 		};
 
         let onNavigationRecordAdded = (e) => {
-            let navigationRecord = e.object;
+            let navigationRecord = e.navigationRecord;
             let cloudIcon = `${Potree.resourcePath}/icons/focus.svg`;
-            const node = createNode(navigationID, navigationRecord.name, cloudIcon, navigationRecord);
+
+            let text = ` 
+            <div style = "display: inline-flex;justify-content: space-between;align-items: center;width: calc(100% - 80px);">
+                <div style ="
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;"
+                    >${navigationRecord.name}
+                </div>
+                <span class="navigation-record-remove-btn" style="position: absolute; right: 4px; z-index:10000; color:red;" data-uuid= "${navigationRecord.uuid}">✖</span>
+            </div> `
+
+            const node = createNode(navigationID, text, cloudIcon, navigationRecord);
             tree.jstree('check_node', node);
             tree.i18n();
         }
@@ -1145,7 +1170,11 @@ export class Sidebar{
         }
 
         let onNavigationRecordRemoved =(e) =>{
-            console.log("TODO : onNavigationRecordRemoved")
+            let navigationRecordRoot = $("#jstree_scene").jstree().get_json(navigationID);
+			let jsonNode = navigationRecordRoot.children.find(child => child.data.uuid === e.navigationRecord.uuid);
+            tree.jstree("delete_node", jsonNode.id);
+            tree.i18n();
+
         }
 
 		this.viewer.scene.addEventListener("measurement_removed", onMeasurementRemoved);
@@ -2115,6 +2144,24 @@ export class Sidebar{
 		});
 
 		lblMoveSpeed.html(this.viewer.getMoveSpeed().toFixed(1));
+
+        // let elNavigationRecord = $('#potree-navigation-record');
+        // elNavigationRecord.append(this.createToolIcon(
+		// 	Potree.resourcePath + '/icons/focus.svg',
+		// 	'[title]tt.add_camera_view',
+		// 	() => { 
+        //         const navigationRecord = new NavigationRecord(this.viewer, "Camera")
+        //         this.viewer.scene.addNavigationRecord(navigationRecord);
+        //     }
+		// ));
+
+        // elNavigationRecord.append(this.createToolIcon(
+		// 	Potree.resourcePath + '/icons/remove.svg',
+		// 	'[title]tt.remove_all_camera_views',
+		// 	() => { 
+        //         this.viewer.scene.removeAllNavigationRecords();
+        //     }
+		// ));
 	}
 
 

@@ -131,6 +131,8 @@
         "position": "Position",
         "distances": "Distances",
         "total": "Total",
+        "add_camera_view":"Add camera view",
+        "remove_all_camera_views": "Remove all camera view",
         "direction_input": "Direction Input",
         "enter_direction_angle": "Enter angle (°) or axis (X / Y)"
     },

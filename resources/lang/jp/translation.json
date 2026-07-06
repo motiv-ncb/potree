@@ -131,6 +131,8 @@
         "position": "位置",
         "distances": "距離",
         "total": "合計",
+        "add_camera_view":"カメラビューを追加",
+        "remove_all_camera_views": "すべてのカメラビューを削除",
         "direction_input": "方向入力",
         "enter_direction_angle": "角度(°)または軸(X / Y)を入力"
     },
