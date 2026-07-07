@@ -870,12 +870,16 @@ export class PropertiesPanel{
                 material.zActiveAttributeName = signedNormSelectionZ.val();
 
                 let pointclouds = this.getSelectedPointclouds();
-                for (let point of pointclouds) {
-                    point.material.activeAttributeName = selectedValue;
-                    point.material.xActiveAttributeName = signedNormSelectionX.val();
-                    point.material.yActiveAttributeName = signedNormSelectionY.val();
-                    point.material.zActiveAttributeName = signedNormSelectionZ.val();
+                // set check event so that it should not update other when  when click node
+                if(event){
+                    for (let point of pointclouds) {
+                        point.material.activeAttributeName = selectedValue;
+                        point.material.xActiveAttributeName = signedNormSelectionX.val();
+                        point.material.yActiveAttributeName = signedNormSelectionY.val();
+                        point.material.zActiveAttributeName = signedNormSelectionZ.val();
+                    }
                 }
+                
 
                 let attribute = pointcloud.getAttribute(selectedValue);
 
@@ -889,9 +893,7 @@ export class PropertiesPanel{
 					if(pointcloud.material.intensityRange[0] === Infinity){
                         pointcloud.material.intensityRange = attribute.range;
                     }
-                    // for (let point of pointclouds) {
-                    //     point.material.intensityRange = attribute.range;
-                    // }
+
 
                     let range = material.intensityRange;
 
@@ -1060,10 +1062,7 @@ export class PropertiesPanel{
                 }
             };
 
-			// attributeSelection.selectmenu({change: updateMaterialPanel});
-            // signedNormSelectionX.selectmenu({change: updateMaterialPanel});
-            // signedNormSelectionY.selectmenu({change: updateMaterialPanel});
-            // signedNormSelectionZ.selectmenu({change: updateMaterialPanel});
+
 
             attributeSelection.selectmenu({appendTo: panel, change: updateMaterialPanel});
             signedNormSelectionX.selectmenu({appendTo: panel, change: updateMaterialPanel});
@@ -1436,17 +1435,18 @@ export class PropertiesPanel{
                     material.color = tc;
                     let pointClouds = self.getSelectedPointclouds();
                     for (let point of pointClouds) {
-                        point.material.color = tc;
+                        point.material.color =  new THREE.Color().setRGB(cRGB.r / 255, cRGB.g / 255, cRGB.b / 255);
                     }
                 },
                 change: color => {
                     let cRGB = color.toRgb();
-                    let tc = new THREE.Color().setRGB(cRGB.r / 255, cRGB.g / 255, cRGB.b / 255);
-                    	material.color = tc;
-                    let pointClouds = self.getSelectedPointclouds();
-                    for(let point of pointClouds){
-                    	point.material.color = tc;
-                    }
+                    // let tc = new THREE.Color().setRGB(cRGB.r / 255, cRGB.g / 255, cRGB.b / 255);
+                    // 	material.color = tc;
+                    // hide it because it cause un expected color change when we select more node
+                    // let pointClouds = self.getSelectedPointclouds();
+                    // for(let point of pointClouds){
+                    // 	point.material.color = new THREE.Color().setRGB(cRGB.r / 255, cRGB.g / 255, cRGB.b / 255);
+                    // }
                 }
             });
 
