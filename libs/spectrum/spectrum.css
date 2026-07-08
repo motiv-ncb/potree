@@ -18,6 +18,7 @@ License: MIT
 }
 .sp-container.sp-flat {
     position: relative;
+    z-index: auto;
 }
 
 /* Fix for * { box-sizing: border-box; } */
