@@ -12,26 +12,57 @@ export class NavigationRecord{
         this.viewer = viewer;
         this.name = name;
         this.screenShortURL = null;
-        this.cameraRecord = new CameraRecordItem(viewer)
-        this.controlsRecord = new ControlsRecordItem(viewer);
         this.uuid = THREE.MathUtils.generateUUID();
+
+
+        this.type = "";
+        this.near = 0;
+        this.far = 0;
+        this.position = new THREE.Vector3();
+        this.yaw = 0;
+        this.pitch = 0;
+        this.fov = 0;
+        this.moveSpeed = 0;
+        this.radius = 0;
+
         this.updateRecord();
+
     }
 
     updateRecord(){
-        this.cameraRecord.updateRecord();
-        this.controlsRecord.updateRecord();
+
+
+        const camera = this.viewer.scene.getActiveCamera();
+        this.type = camera.type;
+        this.near = camera.near;
+        this.far = camera.far;
+        this.position = camera.position.clone();
+        this.yaw = this.viewer.scene.view.yaw;
+        this.pitch = this.viewer.scene.view.pitch;
+        switch(this.type){
+            case "PerspectiveCamera":
+                this.fov = camera.fov;
+                break;
+
+        }
+
+        const view = this.viewer.scene.view;
+        this.moveSpeed = this.viewer.moveSpeed;
+        this.radius = view.radius;
+
+
+       
     }
 
     captureScreen(){
-        const yaw = this.cameraRecord.yaw;
-        const pitch =this.cameraRecord.pitch;
-        const position = this.cameraRecord.position;
-        const radius = this.controlsRecord.radius;
+        const yaw = this.yaw;
+        const pitch =this.pitch;
+        const position = this.position;
+        const radius = this.radius;
         let dir = new THREE.Vector3(0, 1, 0);   
         dir.applyAxisAngle(new THREE.Vector3(1, 0, 0), pitch);
         dir.applyAxisAngle(new THREE.Vector3(0, 0, 1), yaw); 
-        const target = this.cameraRecord.position.clone().add(
+        const target = this.position.clone().add(
             dir.multiplyScalar(radius)
         );
 
@@ -41,15 +72,15 @@ export class NavigationRecord{
         const scene    = viewer.scene.scene;
         const oldMode = viewer.scene.cameraMode;
 
-        let isPerspective = this.cameraRecord.type == "PerspectiveCamera"
+        let isPerspective = this.type == "PerspectiveCamera"
 
         const originalCamera = isPerspective? viewer.scene.cameraP:viewer.scene.cameraO;
     
         if(isPerspective){
-            this.cameraRecord.setCameraMode(CameraMode.PERSPECTIVE);
+            this.setCameraMode(CameraMode.PERSPECTIVE);
         }
         else{
-            this.cameraRecord.setCameraMode(CameraMode.ORTHOGRAPHIC);
+            this.setCameraMode(CameraMode.ORTHOGRAPHIC);
         }
         // clone camera
         const captureCamera = originalCamera.clone();
@@ -57,7 +88,7 @@ export class NavigationRecord{
         captureCamera.position.copy(position);
         captureCamera.lookAt(target);
         if(isPerspective){
-            captureCamera.fov = this.cameraRecord.fov;
+            captureCamera.fov = this.fov
         }
         else{
             const width = this.viewer.scaleFactor * this.viewer.renderArea.clientWidth;
@@ -97,96 +128,13 @@ export class NavigationRecord{
         else{
             viewer.scene.cameraO = originalCamera;
         }
-        this.cameraRecord.setCameraMode(oldMode);
+        this.setCameraMode(oldMode);
         this.screenShortURL =  this.viewer.renderer.domElement.toDataURL('image/jpeg', 0.85);
+
+        // console.log(this)
     }
 
     setNavigation(){
-        this.cameraRecord.setNavigation();
-        this.controlsRecord.setNavigation();
-    }
-
-    getExportModel(){
-        return{
-            'name':this.name,
-            'camera': this.cameraRecord.getExportModel(),
-            'controls':this.controlsRecord.getExportModel()
-        };
-    }
-
-    importData(ioModel){
-        this.name = ioModel.name;
-        this.cameraRecord.importData(ioModel.camera);
-        this.controlsRecord.importData(ioModel.controls); 
-    }
-
-}
-
-
-class CameraRecordItem{
-     /**
-     * 
-     * @param {Viewer} viewer 
-     */
-    constructor(viewer){
-        this.viewer = viewer;
-
-        this.type = "";
-        this.near = 0;
-        this.far = 0;
-        this.position = new THREE.Vector3();
-        this.rotation = new THREE.Euler(0,0,0,"ZXY");
-    
-        this.yaw = 0;
-        this.pitch = 0;
-
-        // perspective
-        this.fov = 0;
-        // orthograpics
-        this.left = 0;
-        this.right = 0;
-        this.top = 0;
-        this.bottom = 0;
-
-    }
-
-    updateRecord(){
-        const camera = this.viewer.scene.getActiveCamera();
-        this.type = camera.type;
-        this.near = camera.near;
-        this.far = camera.far;
-        this.position = camera.position.clone();
-        this.yaw = this.viewer.scene.view.yaw;
-        this.pitch = this.viewer.scene.view.pitch;
-        switch(this.type){
-            case "PerspectiveCamera":
-                this.fov = camera.fov;
-                break;
-            case "OrthographicCamera":
-                this.left = camera.left;
-                this.right = camera.right;
-                this.top = camera.top;
-                this.bottom = camera.bottom;
-                break;
-        }
-    }
-
-    
-    setCameraMode(mode){
-        switch(mode){
-            case(CameraMode.PERSPECTIVE):
-                    // this.viewer.setCameraMode(CameraMode.PERSPECTIVE);
-                    $('#camera_projection_options').find(`input[value="PERSPECTIVE"]`).trigger("click");
-                break;
-            case(CameraMode.ORTHOGRAPHIC):
-                    //this.viewer.setCameraMode(CameraMode.ORTHOGRAPHIC);
-                    $('#camera_projection_options').find(`input[value="ORTHOGRAPHIC"]`).trigger("click");
-                break;
-        }
-    }
-
-    setNavigation(){
-
         let camera = this.viewer.scene.getActiveCamera();
         if(this.type != camera.type){
             switch(this.type){
@@ -206,23 +154,20 @@ class CameraRecordItem{
         this.viewer.scene.view.position.copy(this.position);
         this.viewer.scene.view.yaw = this.yaw;
         this.viewer.scene.view.pitch = this.pitch;
+        this.viewer.scene.view.radius = this.radius;
 
         switch(this.type){
             case "PerspectiveCamera":
                 this.viewer.setFOV(this.fov);
                 break;
-            case "OrthographicCamera":
-         
-                camera.left = this.left;
-                camera.right = this.right;
-                camera.top = this.top;
-                camera.bottom = this.bottom;
-                break;
         }
+
+
     }
 
     getExportModel(){
-        return{
+         return{
+            'name':this.name,
             'type':this.type,
             'near':this.near,
             'far':this.far,
@@ -230,14 +175,13 @@ class CameraRecordItem{
             'yaw':this.yaw,
             'pitch':this.pitch,
             'fov':this.fov,
-            'left':this.left,
-            'right':this.right,
-            'top':this.top,
-            'bottom':this.bottom
+            'moveSpeed':this.moveSpeed,
+            'radius':this.radius
         };
     }
 
     importData(ioModel){
+        this.name = ioModel.name;
         this.type = ioModel.type;
         this.near = ioModel.near;
         this.far = ioModel.far;
@@ -245,45 +189,23 @@ class CameraRecordItem{
         this.yaw = ioModel.yaw;
         this.pitch = ioModel.pitch;
         this.fov = ioModel.fov;
-        this.left = ioModel.left;
-        this.right = ioModel.right;
-        this.top = ioModel.top;
-        this.bottom =ioModel.bottom;
+        this.moveSpeed = ioModel.moveSpeed;
+        this.radius = ioModel.radius;
    
     }
-}
 
-class ControlsRecordItem{
-    /**
-     * 
-     * @param {Viewer} viewer 
-     */
-    constructor(viewer){
-        this.viewer = viewer;
-        this.moveSpeed = 0;
-        this.radius = 0;
-    }
-
-    updateRecord(){
-        const controls = this.viewer.controls;
-        const view = this.viewer.scene.view;
-        this.moveSpeed = this.viewer.moveSpeed;
-        this.radius = view.radius;
-    }
-
-    setNavigation(){
-        
-    }
-
-    getExportModel(){
-        return {
-            'moveSpeed':this.moveSpeed,
-            'radius':this.radius
+    setCameraMode(mode){
+        switch(mode){
+            case(CameraMode.PERSPECTIVE):
+                this.viewer.setCameraMode(CameraMode.PERSPECTIVE);
+                $('#camera_projection_options').find(`input[value="PERSPECTIVE"]`).trigger("click");
+                break;
+            case(CameraMode.ORTHOGRAPHIC):
+                this.viewer.setCameraMode(CameraMode.ORTHOGRAPHIC);
+                $('#camera_projection_options').find(`input[value="ORTHOGRAPHIC"]`).trigger("click");
+            break;
         }
     }
 
-    importData(ioModel){
-        this.moveSpeed = ioModel.moveSpeed;
-        this.radius =ioModel.radius;
-    }
 }
+
