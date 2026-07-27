@@ -67,11 +67,11 @@ export class NavigationRecord{
         );
 
       
-        const viewer   = this.viewer;
+        const viewer = this.viewer;
         const renderer = viewer.renderer;
-        const scene    = viewer.scene.scene;
+        const scene = viewer.scene.scene;
         const oldMode = viewer.scene.cameraMode;
-
+        const oldRadius = this.viewer.scene.view.radius;
         let isPerspective = this.type == "PerspectiveCamera"
 
         const originalCamera = isPerspective? viewer.scene.cameraP:viewer.scene.cameraO;
@@ -99,6 +99,7 @@ export class NavigationRecord{
 			captureCamera.right = frustumScale;
 			captureCamera.top = frustumScale * 1 / aspect;
 			captureCamera.bottom = -frustumScale * 1 / aspect;
+            this.viewer.scene.view.radius = radius;
         }
         captureCamera.updateProjectionMatrix();
         captureCamera.updateMatrixWorld(true);
@@ -127,11 +128,12 @@ export class NavigationRecord{
         }
         else{
             viewer.scene.cameraO = originalCamera;
+            this.viewer.scene.view.radius = oldRadius;
+
         }
         this.setCameraMode(oldMode);
         this.screenShortURL =  this.viewer.renderer.domElement.toDataURL('image/jpeg', 0.85);
 
-        // console.log(this)
     }
 
     setNavigation(){
