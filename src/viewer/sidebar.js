@@ -2145,23 +2145,23 @@ export class Sidebar{
 
 		lblMoveSpeed.html(this.viewer.getMoveSpeed().toFixed(1));
 
-        // let elNavigationRecord = $('#potree-navigation-record');
-        // elNavigationRecord.append(this.createToolIcon(
-		// 	Potree.resourcePath + '/icons/focus.svg',
-		// 	'[title]tt.add_camera_view',
-		// 	() => { 
-        //         const navigationRecord = new NavigationRecord(this.viewer, "Camera")
-        //         this.viewer.scene.addNavigationRecord(navigationRecord);
-        //     }
-		// ));
+        let elNavigationRecord = $('#potree-navigation-record');
+        elNavigationRecord.append(this.createToolIcon(
+			Potree.resourcePath + '/icons/focus.svg',
+			'[title]tt.add_camera_view',
+			() => { 
+                const navigationRecord = new NavigationRecord(this.viewer, "Camera")
+                this.viewer.scene.addNavigationRecord(navigationRecord);
+            }
+		));
 
-        // elNavigationRecord.append(this.createToolIcon(
-		// 	Potree.resourcePath + '/icons/remove.svg',
-		// 	'[title]tt.remove_all_camera_views',
-		// 	() => { 
-        //         this.viewer.scene.removeAllNavigationRecords();
-        //     }
-		// ));
+        elNavigationRecord.append(this.createToolIcon(
+			Potree.resourcePath + '/icons/remove.svg',
+			'[title]tt.remove_all_camera_views',
+			() => { 
+                this.viewer.scene.removeAllNavigationRecords();
+            }
+		));
 	}
 
 
