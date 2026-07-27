@@ -778,9 +778,10 @@ export class Sidebar{
 				// }
 			}else if(object instanceof Images360){
 				// TODO
-			}else if(object instanceof Geopackage){
-				// TODO
 			}
+            // else if(object instanceof Geopackage){
+			// 	// TODO
+			// }
 		});
 
 		tree.on("uncheck_node.jstree", (e, data) => {
