@@ -102,14 +102,14 @@ export class VolumePanel extends MeasurePanel{
                     <li>
                         <label style="whitespace: nowrap">
                             <input id="measurement_enable_crop_move" type="checkbox" checked/>
-                            <span >Move points</span>
+                            <span data-i18n="common.move_points">Move points</span>
                         </label>
                     </li>
                     <div id="measurement_move_panel">
                         <br>
                         <li>
                             <label style="whitespace: nowrap">
-                                <span>Move Translation</span>
+                                <span data-i18n="common.move_translation">Move Translation</span>
                             </label>
                         </li>
                         <table class="measurement_value_table" id="measurement_crop_translation_table">         
@@ -123,7 +123,7 @@ export class VolumePanel extends MeasurePanel{
                         <br>
                         <li>
                             <label style="whitespace: nowrap">
-                                <span>Move Rotation</span>
+                                <span data-i18n="common.move_rotation">Move Rotation</span>
                             </label>
                         </li>
                         <table class="measurement_value_table" id="measurement_crop_rotation_table">
@@ -136,8 +136,8 @@ export class VolumePanel extends MeasurePanel{
                         </table>
 
                         <li style="display: grid; grid-template-columns: auto auto; grid-column-gap: 5px; margin-top: 10px">
-                            <button id="volume_move_reset_rotation" type="button" >Reset move rotation</button>
-                            <button id="volume_move_reset_all" type="button" >Reset all movement</button>
+                            <button id="volume_move_reset_rotation" type="button" data-i18n="common.reset_rotation">Reset move rotation</button>
+                            <button id="volume_move_reset_all" type="button" data-i18n="common.reset_all">Reset all movement</button>
                         </li>
                      </div>
                 </div>
