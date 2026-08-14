@@ -26,12 +26,15 @@ export class Volume extends THREE.Object3D {
 		this.label.material.depthWrite = false;
 		this.label.material.transparent = true;
 		this.label.position.y -= 0.5;
+        this.label.verticalAlign = "center"
+        this.verticalLabelOffset = 0;
 		this.add(this.label);
 
 		this.label.updateMatrixWorld = () => {
 			let volumeWorldPos = new THREE.Vector3();
 			volumeWorldPos.setFromMatrixPosition(this.matrixWorld);
 			this.label.position.copy(volumeWorldPos);
+            this.label.position.z +=  this.verticalLabelOffset * this.scale.z;
 			this.label.updateMatrix();
 			this.label.matrixWorld.copy(this.label.matrix);
 			this.label.matrixWorldNeedsUpdate = false;

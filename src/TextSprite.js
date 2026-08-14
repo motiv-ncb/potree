@@ -33,6 +33,7 @@ export class TextSprite extends THREE.Object3D{
 		this.backgroundColor = { r: 255, g: 255, b: 255, a: 1.0 };
 		this.textColor = {r: 255, g: 255, b: 255, a: 1.0};
 		this.text = '';
+        this.verticalAlign = "center";
 
 		this.setText(text);
 	}
@@ -62,6 +63,11 @@ export class TextSprite extends THREE.Object3D{
 
 		this.update();
 	}
+
+    setVerticalAlign(align){
+        this.verticalAlign = align;
+        this.update();
+    }
 
 	update(){
 		let canvas = document.createElement('canvas');
@@ -123,6 +129,14 @@ export class TextSprite extends THREE.Object3D{
 		this.texture = texture;
 
 		this.sprite.scale.set(spriteWidth * 0.01, spriteHeight * 0.01, 1.0);
+        switch (this.verticalAlign){
+            case "top":
+                this.sprite.position.set(0,0, (this.fontsize / 2 + this.borderThickness) * 0.01);
+                break;
+            case "bottom":
+                this.sprite.position.set(0,0, - (this.fontsize / 2 + this.borderThickness) * 0.01);
+                 break;
+        }
 	}
 
 	roundRect(ctx, x, y, w, h, r){
