@@ -986,9 +986,15 @@ export class Renderer {
                 shader.setUniform1f("uNaNThreshold", material.uniforms.uNaNThreshold.value);
             }
 
-             // refpoints
+             // visible values
             {
                 shader.setUniform("uSetVisibleValue", material.uniforms.uSetVisibleValue.value);
+                if(material.setVisibleValue && material.visibleValues){ 
+                    const visibleValues = shader.uniformLocations["uVisibleValues[0]"];
+                    gl.uniform1fv(visibleValues, material.visibleValues);
+
+                }
+
             }
 
            
@@ -1216,6 +1222,10 @@ export class Renderer {
                     `#define max_num_clipareapoints ${maxClipAreaPoints}`,
                     `#define max_num_clippolygonpoints ${maxClipPolygonPoints}`,
 				];
+
+                if(material.setVisibleValue && material.visibleValues){
+                    defines.push(`#define num_visible_values ${material.visibleValues.length}`);
+                }
 
 
 				if(octree.pcoGeometry.root.isLoaded()){

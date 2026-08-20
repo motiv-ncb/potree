@@ -174,6 +174,10 @@ export class HQSplatRenderer{
                 depthMaterial.deformed = material.deformed;
                 depthMaterial.deformationFactor = material.deformationFactor;
 
+                depthMaterial.xActiveAttributeName = material.xActiveAttributeName;
+                depthMaterial.setVisibleValue = material.setVisibleValue;
+                depthMaterial.visibleValues = material.visibleValues;
+
 
                 depthMaterial.backfaceCulling = material.backfaceCulling;
                 depthMaterial.backfaceHiding = material.backfaceHiding;
@@ -208,6 +212,7 @@ export class HQSplatRenderer{
 				attributeMaterial.pointSizeType = material.pointSizeType;
 				attributeMaterial.activeAttributeName = material.activeAttributeName;
                 attributeMaterial.xActiveAttributeName = material.xActiveAttributeName;
+                
 				attributeMaterial.visibleNodesTexture = material.visibleNodesTexture;
 				attributeMaterial.weighted = true;
 				attributeMaterial.screenWidth = width;
@@ -243,7 +248,8 @@ export class HQSplatRenderer{
                 attributeMaterial.NaNColor = material.NaNColor;
                 attributeMaterial.NaNThreshold = material.NaNThreshold;
 
-                attributeMaterial.setVisibleValue = material.setVisibleValue
+                attributeMaterial.setVisibleValue = material.setVisibleValue;
+                attributeMaterial.visibleValues = material.visibleValues;
 
                 attributeMaterial.gradient = material.gradient;
 				attributeMaterial.matcap = material.matcap;

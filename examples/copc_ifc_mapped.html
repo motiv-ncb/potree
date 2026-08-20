@@ -53,7 +53,8 @@
 
         viewer.loadGUI(() => {
             viewer.setLanguage('en');
-            $("#menu_tools").next().show();
+            // $("#menu_tools").next().show();
+            $("#menu_appearance").next().show();
         });
 
         var path = "../pointclouds/IFC_Mapped.copc.laz";
@@ -69,6 +70,8 @@
             material.activeAttributeName = "intensity gradient";
             material.xActiveAttributeName = "Object_Type";
             material.setVisibleValue = true;
+            material.visibleValues = [7,8,9,10,11,12,13,14,15,16,72,73,74,75,76,77];
+
             e.pointcloud.metadata = {
                 "pointcloud_id": "67BEA478-F3EC-4C93-98E4-50949844BCCD",
                 "ref_pointcloud_id": "31FB20D9-B7AB-0EBF-377C-AFDBB9C03A78",
@@ -238,6 +241,8 @@
                 }
             }
             viewer.fitToScreen(0.5);
+            	viewer.useHQ = true;
+
         });
     </script>
 </body>

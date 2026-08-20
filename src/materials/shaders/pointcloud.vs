@@ -75,7 +75,7 @@ uniform int clipMethod;
 #endif
 
 #if defined(num_visible_values) && num_visible_values > 0
-    uniform int displayed_values[num_visible_values];
+    uniform float uVisibleValues[num_visible_values];
 #endif
 
 
@@ -1194,12 +1194,12 @@ void main() {
     checkBackfaceHiding();
   
   
-    // visible value
+    //visible value
     #if defined(num_visible_values) && num_visible_values > 0
         if(uSetVisibleValue){
             bool matched = false;
             for(int i = 0; i < num_visible_values; i++){
-                if(xExtra == num_visible_values[i]){
+                if(xExtra == uVisibleValues[i]){
                     matched = true;
                 }
             }
@@ -1209,11 +1209,11 @@ void main() {
         }
     #endif
 
-    if(uSetVisibleValue){
-        if(xExtra != 28.){
-              gl_Position = vec4(100.0, 100.0, 100.0, 0.0);
-        }
-    }
+    // if(uSetVisibleValue){
+    //     if(xExtra != 28.){
+    //           gl_Position = vec4(100.0, 100.0, 100.0, 0.0);
+    //     }
+    // }
 
 
 	#if defined(num_clipspheres) && num_clipspheres > 0

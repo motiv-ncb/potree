@@ -60,6 +60,7 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 		this._activeAttributeName = null;
 
         this._xActiveAttributeName = null;
+        this._visibleValues = [];
         
 		this._defaultIntensityRangeChanged = false;
 		this._defaultElevationRangeChanged = false;
@@ -756,6 +757,22 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 				target: this
 			});
 
+			this.dispatchEvent({
+				type: 'material_property_changed',
+				target: this
+			});
+		}
+    }
+
+    get setVisibleValue(){
+        return this._setVisibleValue;
+    }
+    
+    set setVisibleValue(value){
+        if (this._setVisibleValue !== value) {
+			this._setVisibleValue = value;
+			this.updateShaderSource();
+		
 			this.dispatchEvent({
 				type: 'material_property_changed',
 				target: this
