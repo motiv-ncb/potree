@@ -66,7 +66,9 @@
             let material = e.pointcloud.material;
             material.size = 1;
             material.pointSizeType = Potree.PointSizeType.ADAPTIVE;
-            material.activeAttributeName = "Object_Type";
+            material.activeAttributeName = "intensity gradient";
+            material.xActiveAttributeName = "Object_Type";
+            material.setVisibleValue = true;
             e.pointcloud.metadata = {
                 "pointcloud_id": "67BEA478-F3EC-4C93-98E4-50949844BCCD",
                 "ref_pointcloud_id": "31FB20D9-B7AB-0EBF-377C-AFDBB9C03A78",

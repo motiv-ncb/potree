@@ -218,28 +218,6 @@ export class PropertiesPanel{
 					<li><span data-i18n="composite.source_id">Source ID:</span> <span id="lblWeightSourceID"></span> <div id="sldWeightSourceID"></div>	</li>
 				</div>
 
-                <div id="materials.signed_norm_container">
-					<div class="divider">
-						<span data-i18n="appearance.signed_norm">Signed norm</span>
-					</div>
-                    <li>
-                        <label for="optSignedNormX" class="pv-select-label">X</label>
-                        <select id="optSignedNormX" name="X">       
-                        </select>
-				    </li>
-                    <li>
-                        <label for="optSignedNormY" class="pv-select-label">Y</label>
-                        <select id="optSignedNormY" name="Y">       
-                        </select>
-				    </li>
-                    <li>
-                        <label for="optSignedNormZ" class="pv-select-label">Z</label>
-                        <select id="optSignedNormZ" name="Z">       
-                        </select>
-				    </li>
-					
-				</div>
-
 				<div id="materials.rgb_container">
 					<div class="divider">
 						<span>RGB</span>
@@ -818,8 +796,7 @@ export class PropertiesPanel{
                 "matcap":"attribute.matcap",
                 "indices":"attribute.indices",
                 "level of detail":"attribute.level_of_detail",
-                "composite":"attribute.composite",
-                'signed norm':"attribute.signed_norm"
+                "composite":"attribute.composite"
             };
 
             options = options.filter(o => !blacklist.includes(o));
@@ -853,34 +830,20 @@ export class PropertiesPanel{
             extraoptions.push(...attributes.map(a => a.name));
             extraoptions = extraoptions.filter(o => !extarBlacklist.includes(o));
 
-            let signedNormSelectionX = panel.find('#optSignedNormX');
-            let signedNormSelectionY = panel.find('#optSignedNormY');
-            let signedNormSelectionZ = panel.find('#optSignedNormZ');
-            for(let option of extraoptions){
-                signedNormSelectionX.append( $(`<option>${option}</option>`));
-                signedNormSelectionY.append( $(`<option>${option}</option>`));
-                signedNormSelectionZ.append( $(`<option>${option}</option>`));
-            }
-
+           
             let updateMaterialPanel = (event, ui) => {
                 let selectedValue = attributeSelection.selectmenu().val();
                 material.activeAttributeName = selectedValue;
-                material.xActiveAttributeName = signedNormSelectionX.val();
-                material.yActiveAttributeName = signedNormSelectionY.val();
-                material.zActiveAttributeName = signedNormSelectionZ.val();
+               
 
                 let pointclouds = this.getSelectedPointclouds();
                 // set check event so that it should not update other when  when click node
                 if(event){
                     for (let point of pointclouds) {
                         point.material.activeAttributeName = selectedValue;
-                        point.material.xActiveAttributeName = signedNormSelectionX.val();
-                        point.material.yActiveAttributeName = signedNormSelectionY.val();
-                        point.material.zActiveAttributeName = signedNormSelectionZ.val();
                     }
                 }
                 
-
                 let attribute = pointcloud.getAttribute(selectedValue);
 
 				if(selectedValue === "intensity gradient"){
@@ -888,7 +851,6 @@ export class PropertiesPanel{
                 }
 
                 const isIntensity = attribute ? ["intensity", "intensity gradient"].includes(attribute.name) : false;
-                const isSignedNorm = selectedValue == "signed norm";
 				if(isIntensity){
 					if(pointcloud.material.intensityRange[0] === Infinity){
                         pointcloud.material.intensityRange = attribute.range;
@@ -935,42 +897,7 @@ export class PropertiesPanel{
                             }
 						});
                 }
-                else if(isSignedNorm){
-                    let [xmin, xmax] = [0,1];
-                    let [ymin, ymax] = [0,1];
-                    let [zmin, zmax] =[0,1];
-                    let xAttribute = pointcloud.getAttribute(material.xActiveAttributeName);
-                    if(xAttribute){
-                         [xmin, xmax] =  xAttribute.range;
-                    }
-                    let yAttribute = pointcloud.getAttribute(material.yActiveAttributeName);
-                    if(yAttribute){
-                         [ymin, ymax] =  yAttribute.range;
-                    }
-                    let zAttribute = pointcloud.getAttribute(material.zActiveAttributeName);
-                    if(zAttribute){
-                         [zmin, zmax] =  zAttribute.range;
-                    }
-
-                    let min = Math.min(Math.min(xmin, ymin), zmin);
-                    let max = Math.min(Math.min(xmax, ymax), zmax);
-
-                    let selectedRange = material.getRange("signed norm");
-					if(!selectedRange){
-                         selectedRange = [min,max];
-                    }
-                    panel.find('#sldExtraRange').slider({
-                        range: true,
-                        min: min,
-                        max: max,
-                        step: 0.01,
-                        values: selectedRange,
-                        slide: (event, ui) => {
-                            let [a, b] = ui.values;
-                            material.setRange("signed norm", [a, b]);
-                        }
-                    });
-                }else if(attribute){
+                else if(attribute){
                     const [min, max] = attribute.range;
 
                     let selectedRange = material.getRange(attribute.name);
@@ -1008,7 +935,6 @@ export class PropertiesPanel{
                 let blockTransition = $('#materials\\.transition_container');
                 let blockGps = $('#materials\\.gpstime_container');
                 let blockMatcap = $('#materials\\.matcap_container');
-                let blockSignedNorm = $('#materials\\.signed_norm_container');
 
                 blockIndex.css('display', 'none');
                 blockIntensity.css('display', 'none');
@@ -1020,7 +946,6 @@ export class PropertiesPanel{
                 blockTransition.css('display', 'none');
                 blockMatcap.css('display', 'none');
                 blockGps.css('display', 'none');
-                blockSignedNorm.css('display', 'none');
 
                 if (selectedValue === 'composite') {
                     blockWeights.css('display', 'block');
@@ -1054,10 +979,8 @@ export class PropertiesPanel{
 
 				} else if(["source id", "point source id"].includes(selectedValue)){
 
-				} else if(selectedValue === "signed norm"){
-                    blockSignedNorm.css('display', 'block');
-                    blockExtra.css('display', 'block');
-				} else{
+				} 
+                 else{
                     blockExtra.css('display', 'block');
                 }
             };
@@ -1065,14 +988,8 @@ export class PropertiesPanel{
 
 
             attributeSelection.selectmenu({appendTo: panel, change: updateMaterialPanel});
-            signedNormSelectionX.selectmenu({appendTo: panel, change: updateMaterialPanel});
-            signedNormSelectionY.selectmenu({appendTo: panel, change: updateMaterialPanel});
-            signedNormSelectionZ.selectmenu({appendTo: panel, change: updateMaterialPanel});
             let update = () => {
                 attributeSelection.val(material.activeAttributeName).selectmenu('refresh');
-                signedNormSelectionX.val(material.xActiveAttributeName).selectmenu('refresh');
-                signedNormSelectionY.val(material.yActiveAttributeName).selectmenu('refresh');
-                signedNormSelectionZ.val(material.zActiveAttributeName).selectmenu('refresh');
             };
             this.addVolatileListener(material, "point_color_type_changed", update);
             this.addVolatileListener(material, "active_attribute_changed", update);

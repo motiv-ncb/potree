@@ -60,10 +60,7 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 		this._activeAttributeName = null;
 
         this._xActiveAttributeName = null;
-        this._yActiveAttributeName = null;
-        this._zActiveAttributeName = null;
         
-
 		this._defaultIntensityRangeChanged = false;
 		this._defaultElevationRangeChanged = false;
         // cmair distPlane
@@ -187,9 +184,7 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
             uNaNThreshold: { type: "f", value: -1000000000.0},
             uNaNColor:			{ type: "c", value: new THREE.Color( 0xaaaaaa ) },
 
-            uUseRefPoint: { type: "b", value: false },
-            uRefPoint: { type: "3fv", value: [0, 0, 0] },
-            uRefDirection: { type: "i", value: 0 },
+            uSetVisibleValue : { type: "b", value: false },
 
             
 			uFilterReturnNumberRange:		{ type: "fv", value: [0, 7]},
@@ -768,45 +763,6 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 		}
     }
 
-    get yActiveAttributeName(){
-        return this._yActiveAttributeName;
-    }
-    
-    set yActiveAttributeName(value){
-        if (this._yActiveAttributeName !== value) {
-			this._yActiveAttributeName = value;
-			this.updateShaderSource();
-			this.dispatchEvent({
-				type: 'active_attribute_changed',
-				target: this
-			});
-
-			this.dispatchEvent({
-				type: 'material_property_changed',
-				target: this
-			});
-		}
-    }
-
-    get zActiveAttributeName(){
-        return this._zActiveAttributeName;
-    }
-    
-    set zActiveAttributeName(value){
-        if (this._zActiveAttributeName !== value) {
-			this._zActiveAttributeName = value;
-			this.updateShaderSource();
-			this.dispatchEvent({
-				type: 'active_attribute_changed',
-				target: this
-			});
-
-			this.dispatchEvent({
-				type: 'material_property_changed',
-				target: this
-			});
-		}
-	}
 
 	get pointSizeType () {
 		return this._pointSizeType;
@@ -1361,12 +1317,12 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 		}
 	}
 
-    get refPoint(){
-        return this.uniforms.uRefPoint.value;
+    get setVisibleValue(){
+        return this.uniforms.uSetVisibleValue.value;
     }
-    set refPoint(value){
-        if (this.uniforms.uRefPoint.value !== value) {
-            this.uniforms.uRefPoint.value = value;
+    set setVisibleValue(value){
+        if (this.uniforms.uSetVisibleValue.value !== value) {
+            this.uniforms.uSetVisibleValue.value = value;
             this.dispatchEvent({
                 type: 'material_property_changed',
                 target: this
@@ -1374,33 +1330,6 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
         }
     }
 
-    get useRefPoint(){
-        return this.uniforms.uUseRefPoint.value;
-    }
-
-    set useRefPoint(value){
-       if (this.uniforms.uUseRefPoint.value !== value) {
-			this.uniforms.uUseRefPoint.value = value;
-			this.dispatchEvent({
-				type: 'material_property_changed',
-				target: this
-			});
-		}
-    }
-
-    get refDirection(){
-        return this.uniforms.uRefDirection.value;
-    }
-
-    set refDirection(value){
-       if (this.uniforms.uRefDirection.value !== value) {
-			this.uniforms.uRefDirection.value = value;
-			this.dispatchEvent({
-				type: 'material_property_changed',
-				target: this
-			});
-		}
-    }
 
 	getRange(attributeName){
 		return this.ranges.get(attributeName);

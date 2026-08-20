@@ -208,8 +208,6 @@ export class HQSplatRenderer{
 				attributeMaterial.pointSizeType = material.pointSizeType;
 				attributeMaterial.activeAttributeName = material.activeAttributeName;
                 attributeMaterial.xActiveAttributeName = material.xActiveAttributeName;
-                attributeMaterial.yActiveAttributeName = material.yActiveAttributeName;
-                attributeMaterial.zActiveAttributeName = material.zActiveAttributeName;
 				attributeMaterial.visibleNodesTexture = material.visibleNodesTexture;
 				attributeMaterial.weighted = true;
 				attributeMaterial.screenWidth = width;
@@ -245,11 +243,7 @@ export class HQSplatRenderer{
                 attributeMaterial.NaNColor = material.NaNColor;
                 attributeMaterial.NaNThreshold = material.NaNThreshold;
 
-                // cmair refpoint
-                attributeMaterial.useRefPoint = material.useRefPoint;
-                attributeMaterial.refDirection = material.refDirection;
-                attributeMaterial.refPoint = material.refPoint;
-
+                attributeMaterial.setVisibleValue = material.setVisibleValue
 
                 attributeMaterial.gradient = material.gradient;
 				attributeMaterial.matcap = material.matcap;

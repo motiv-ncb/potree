@@ -18,8 +18,6 @@ attribute float gpsTime;
 attribute vec3 normal;
 attribute float aExtra;
 attribute float xExtra;
-attribute float yExtra;
-attribute float zExtra;
 attribute vec3 deformation;
 
 uniform mat4 modelMatrix;
@@ -74,6 +72,10 @@ uniform int clipMethod;
 #if defined(num_moveboxes) && num_moveboxes > 0
     uniform mat4 moveBoxOrigins[num_moveboxes];
     uniform mat4 moveBoxTransforms[num_moveboxes]; // = moveBoxMatrix * inv(moveBoxOrigins)
+#endif
+
+#if defined(num_visible_values) && num_visible_values > 0
+    uniform int displayed_values[num_visible_values];
 #endif
 
 
@@ -135,14 +137,10 @@ uniform vec3 uAboveThresholdColor;
 uniform vec3 uBetweenThresholdColor;
 uniform bool uUseThresholdColor;
 
-// point to compare with point position
-uniform bool uUseRefPoint;
-uniform vec3 uRefPoint;
-uniform int uRefDirection; //0 or x, 1 for y, 2 for z
+uniform bool uSetVisibleValue;
 
 uniform float uNaNThreshold;
 uniform vec3 uNaNColor;
-
 
 uniform vec3 uShadowColor;
 
@@ -746,124 +744,23 @@ vec3 getThresholdExtra(float a){
 }
 
 
-
-float getRelativeVectorExtra(){
-	vec4 world = modelMatrix * vec4( position, 1.0 );
-    vec3 relativePosition = world.xyz - uRefPoint;
-    vec3 vecExtra = vec3(xExtra,yExtra,zExtra);
-    float dotValue = dot(relativePosition, vecExtra);
-    float normExtra = sqrt(xExtra * xExtra + yExtra * yExtra + zExtra * zExtra);
-    
-    if (dotValue * normExtra > 0.0){
-        return normExtra;
-    }
-    else{
-        return -normExtra;
-    }
-    return 0.0;
-}
-
-float getRelativeExtra(){
-	vec4 world = modelMatrix * vec4( position, 1.0 );
-    float relative = 0.0;
-    if (uRefDirection == 3){
-        return getRelativeVectorExtra();
-    }
-    if (uRefDirection == 0){
-        relative = world.x - uRefPoint.x;
-    }
-    else if (uRefDirection == 1){
-        relative = world.y - uRefPoint.y;
-    }
-    else if (uRefDirection == 2){
-        relative = world.z - uRefPoint.z;
-    }
-    if (relative * aExtra > 0.0){
-        return abs(aExtra);
-    }
-    else{
-        return -abs(aExtra);
-    }
-    return 0.0;
-}
-
 vec3 getExtra(){
 
     if(!(aExtra >= uNaNThreshold)){
         return uNaNColor;
     }
 
-    float displayExtra = aExtra;
-
-    if (uUseRefPoint){
-        displayExtra = getRelativeExtra();
-    }
 
     if(uUseThresholdColor){
-        return getThresholdExtra(displayExtra);
+        return getThresholdExtra(aExtra);
     }
 
-	float w = (displayExtra + uExtraOffset) * uExtraScale;
+	float w = (aExtra + uExtraOffset) * uExtraScale;
 	w = clamp(w, 0.0, 1.0);
 
 	vec3 color = texture2D(gradient, vec2(w,1.0-w)).rgb;
 
 
-	return color;
-}
-
-
-
-float getSignedNormExtraValue(float x,float y,float z){
-
-    float a = sqrt(x * x + y * y + z * z);
-    float x_abs = abs(x);
-    float y_abs = abs(y);
-    float z_abs = abs(z);
-    if(x_abs > y_abs && x_abs > y_abs){
-        if(x < 0.0){
-            a = -a;
-        }
-    }
-    else if(y_abs > x_abs && y_abs > z_abs){
-        if(y < 0.0){
-            a = -a;
-        }
-    }
-    else{
-         if(z < 0.0){
-            a = -a;
-        }
-    }
-    return a;
-}
-
-
-
-vec3 getSignedNormExtra(){
-
-    if(!(xExtra >= uNaNThreshold) || !(yExtra >= uNaNThreshold) || !(zExtra >= uNaNThreshold)){
-        return uNaNColor;
-    }
-    
-    float a = getSignedNormExtraValue(xExtra, yExtra, zExtra);
-
-
-    if (uUseRefPoint){
-        a = getRelativeVectorExtra();
-    }
-
-    if(!(a >= uNaNThreshold)){
-        return uNaNColor;
-    }
-
-    if(uUseThresholdColor){
-        return getThresholdExtra(a);
-    }
-
-	float w = (a + uExtraOffset) * uExtraScale;
-	w = clamp(w, 0.0, 1.0);
-	vec3 color = texture2D(gradient, vec2(w,1.0-w)).rgb;
 	return color;
 }
 
@@ -934,8 +831,6 @@ vec3 getColor(){
 		color = getCompositeColor();
 	#elif defined color_type_matcap
 		color = getMatcap();
-    #elif defined color_type_signed_norm
-		color = getSignedNormExtra();
 	#else 
 		color = getExtra();
 	#endif
@@ -1297,7 +1192,28 @@ void main() {
 
     // backface hiding
     checkBackfaceHiding();
-   
+  
+  
+    // visible value
+    #if defined(num_visible_values) && num_visible_values > 0
+        if(uSetVisibleValue){
+            bool matched = false;
+            for(int i = 0; i < num_visible_values; i++){
+                if(xExtra == num_visible_values[i]){
+                    matched = true;
+                }
+            }
+            if(!matched){
+                gl_Position = vec4(100.0, 100.0, 100.0, 0.0);
+            }    
+        }
+    #endif
+
+    if(uSetVisibleValue){
+        if(xExtra != 28.){
+              gl_Position = vec4(100.0, 100.0, 100.0, 0.0);
+        }
+    }
 
 
 	#if defined(num_clipspheres) && num_clipspheres > 0
