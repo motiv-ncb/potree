@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Potree Viewer</title>
+
+    <link rel="stylesheet" type="text/css" href="../build/potree/potree.css">
+    <link rel="stylesheet" type="text/css" href="../libs/jquery-ui/jquery-ui.min.css">
+    <link rel="stylesheet" type="text/css" href="../libs/openlayers3/ol.css">
+    <link rel="stylesheet" type="text/css" href="../libs/spectrum/spectrum.css">
+    <link rel="stylesheet" type="text/css" href="../libs/jstree/themes/mixed/style.css">
+</head>
+
+<body>
+    <script src="../libs/jquery/jquery-3.1.1.min.js"></script>
+    <script src="../libs/spectrum/spectrum.js"></script>
+    <script src="../libs/jquery-ui/jquery-ui.min.js"></script>
+    <script src="../libs/other/BinaryHeap.js"></script>
+    <script src="../libs/tween/tween.min.js"></script>
+    <script src="../libs/d3/d3.js"></script>
+    <script src="../libs/proj4/proj4.js"></script>
+    <script src="../libs/openlayers3/ol.js"></script>
+    <script src="../libs/i18next/i18next.js"></script>
+    <script src="../libs/jstree/jstree.js"></script>
+    <script src="../libs/copc/index.js"></script>
+    <script src="../build/potree/potree.js"></script>
+    <script src="../libs/plasio/js/laslaz.js"></script>
+
+    <!-- INCLUDE ADDITIONAL DEPENDENCIES HERE -->
+    <!-- INCLUDE SETTINGS HERE -->
+
+    <div class="potree_container" style="position: absolute; width: 100%; height: 100%; left: 0px; top: 0px; ">
+        <div id="potree_render_area" style="background-image: url('../build/potree/resources/images/background.jpg');">
+        </div>
+        <div id="potree_sidebar_container"> </div>
+    </div>
+
+    <script type="module">
+
+        import * as THREE from "../libs/three.js/build/three.module.js";
+        window.viewer = new Potree.Viewer(document.getElementById("potree_render_area"));
+
+        viewer.setEDLEnabled(true);
+        viewer.setFOV(60);
+        viewer.setPointBudget(2_000_000);
+        viewer.loadSettingsFromURL();
+
+        viewer.setDescription("Loading COPC format");
+
+        viewer.loadGUI(() => {
+            viewer.setLanguage('en');
+            $("#menu_tools").next().show();
+        });
+
+        var path = "../pointclouds/IFC_Mapped.copc.laz";
+        var name = "extra_attribute";
+
+
+        Potree.loadPointCloud(path, name, function (e) {
+            viewer.scene.addPointCloud(e.pointcloud);
+
+            let material = e.pointcloud.material;
+            material.size = 1;
+            material.pointSizeType = Potree.PointSizeType.ADAPTIVE;
+            material.activeAttributeName = "Object_Type";
+            e.pointcloud.metadata = {
+                "pointcloud_id": "67BEA478-F3EC-4C93-98E4-50949844BCCD",
+                "ref_pointcloud_id": "31FB20D9-B7AB-0EBF-377C-AFDBB9C03A78",
+                "modified_type": "ifc_mapping",
+                "object_labels": {
+                    "Object_Type": {
+                        "0": "MOT_ソイル(配列):CASE-1",
+                        "1": "MOT_ソイル(配列):CASE-2",
+                        "2": "MOT_ソイル(配列):CASE-3",
+                        "3": "MOT_ソイル(配列):CASE-7",
+                        "4": "MOT_ソイル(配列):CASE-4",
+                        "5": "MOT_ソイル(配列):CASE-13c",
+                        "6": "MOT_ソイル(配列):CASE-13b",
+                        "7": "MOT_芯材:CASE-1",
+                        "8": "MOT_芯材:CASE-2",
+                        "9": "MOT_芯材:CASE-8",
+                        "10": "MOT_芯材:CASE-6",
+                        "11": "MOT_芯材:CASE-7",
+                        "12": "MOT_芯材:CASE-5",
+                        "13": "MOT_芯材:CASE-4",
+                        "14": "MOT_芯材:CASE-13c",
+                        "15": "MOT_芯材:CASE-13b",
+                        "16": "MOT_芯材:CASE-13a",
+                        "17": "MOT_横矢板:CASE-10",
+                        "18": "MOT_親杭:CASE-10",
+                        "19": "MOT_横矢板:CASE-11(+550)",
+                        "20": "MOT_親杭:CASE-11(+550)",
+                        "21": "MOT_横矢板:CASE-11(+250)",
+                        "22": "MOT_横矢板:CASE-9b",
+                        "23": "MOT_横矢板:CASE-9a",
+                        "24": "MOT_親杭:CASE-9b",
+                        "25": "MOT_親杭:CASE-9a",
+                        "26": "MOT_ソイル(配列):CASE-5",
+                        "27": "MOT_Har:Har50",
+                        "28": "Kir2:Kir2",
+                        "29": "MOT_50SB30:50SB30°",
+                        "30": "MOT_50SBF:50SBF",
+                        "31": "hi2:hi2",
+                        "32": "MOT_3段目異形腹起_C6:MOT_3段目異形腹起_C6",
+                        "33": "MOT_単杭:棚杭a",
+                        "34": "MOT_3段目異形腹起_C5:MOT_3段目異形腹起_C5",
+                        "35": "MOT_桁材:H-800x300x14x26",
+                        "36": "MOT_桁材:H-700x300x13x24",
+                        "37": "MOT_覆工板:DK-1,000x2,000 (N)",
+                        "38": "MOT_隅デッキ:（ハンチデッキ）",
+                        "39": "MOT_山留材支柱:H-400x400（山留材）",
+                        "40": "MOT_山留材支柱:H-400x400x13x21(山留材)",
+                        "41": "MOT_根太スロープ:H-700x300x13x24",
+                        "42": "MOT_桁材:H-300x300x10x15(山留材)",
+                        "43": "MOT_覆工板:DK-1,000x3,000 (N)",
+                        "44": "MOT_桁材:H-500x500x25x25(山留材)",
+                        "45": "MOT_PHP:H40-PHP-100TP",
+                        "46": "MOT_桁材:H-400x400x13x21(山留材)",
+                        "47": "bh2:bh2",
+                        "48": "bhs1:bhs1",
+                        "49": "MOT_50CN:50CN",
+                        "50": "裏込め:裏込め",
+                        "51": "MOT_1段目異形腹起_C5:MOT_1段目異形腹起_C5",
+                        "52": "MOT_1段目異形腹起_C6:MOT_1段目異形腹起_C6",
+                        "53": "tu:tu",
+                        "54": "MOT_単杭:棚杭c",
+                        "55": "MOT_ソイル(配列):CASE-8",
+                        "56": "MOT_ソイル(配列):CASE-13a",
+                        "57": "MOT_ソイル(配列):CASE-6",
+                        "58": "MOT_hi2_pj:H-500x500x25x25",
+                        "59": "Kir_tu:Kir_tu",
+                        "60": "MOT_GPL:GPL-50",
+                        "61": "SP-4:SP-Ⅳ型",
+                        "62": "SP-2:SP-Ⅱ型",
+                        "63": "MOT_Har:Har35",
+                        "64": "MOT_35CN:35CN",
+                        "65": "MOT_Har:Har40",
+                        "66": "MOT_40CN:40CN",
+                        "67": "MOT_40SB45RH:40SB45° (RH)",
+                        "68": "MOT_40SBF:40SBF",
+                        "69": "MOT_覆工桁:H-200x200x8x12",
+                        "70": "MOT_覆工桁:［-200x90x8x13.5",
+                        "71": "bv:bv",
+                        "72": "MOT_芯材:CASE-3",
+                        "73": "MOT_芯材:CASE-13b-25.5",
+                        "74": "MOT_芯材:CASE-13b-26",
+                        "75": "MOT_芯材:CASE-13b-26.5",
+                        "76": "MOT_芯材:CASE-13b-27.5",
+                        "77": "MOT_芯材:CASE-13b-29",
+                        "78": "MOT_横矢板(端部):CASE-9a",
+                        "79": "MOT_単杭:棚杭b",
+                        "80": "MOT_2段目異形腹起_C5:MOT_2段目異形腹起_C5",
+                        "81": "MOT_2段目異形腹起_C6:MOT_2段目異形腹起_C6",
+                        "82": "MOT_単杭:構台杭D",
+                        "83": "MOT_単杭:構台杭E",
+                        "84": "MOT_単杭:構台杭F",
+                        "85": "MOT_単杭:構台杭G",
+                        "86": "MOT_単杭:構台杭H",
+                        "87": "MOT_単杭:控え杭-26.5",
+                        "88": "MOT_単杭:控え杭-26",
+                        "89": "MOT_単杭:控え杭",
+                        "90": "MOT_単杭:控え杭-25.5",
+                        "91": "MOT_単杭:控え杭-25",
+                        "92": "MOT_単杭:控え杭-24.5",
+                        "93": "MOT_単杭:控え杭-24",
+                        "94": "MOT_35TB-3A:35TB-3A",
+                        "95": "MOT_50CA(H):MOT_50CA(H)",
+                        "96": "MOT_親杭:CASE-10(1200)",
+                        "97": "MOT_親杭:CASE-11(+250)",
+                        "98": "MOT_横矢板:CASE-10（1200）",
+                        "99": "覆工板_s:DK-1,000x2,000 (N)",
+                        "100": "覆工板_s:DK-1,000x3,000 (N)",
+                        "101": "頭つなぎL:頭つなぎL",
+                        "102": "MOT_桁材:H-594x302x14x23",
+                        "103": "MOT_桁材:H-400x400x13x21",
+                        "104": "MOT_40SB30:40SB30°",
+                        "105": "MOT_GPL:GPL-40(H400用)",
+                        "106": "MOT_箱抜き材(H):H-400用(125x3)(中間部)",
+                        "107": "MOT_箱抜き材(H):H-400用(125x3)(端部)",
+                        "108": "MOT_箱抜きPL_低1:MOT_箱抜きPL_低1",
+                        "109": "MOT_hi2_pj:H-400x400x13x21",
+                        "110": "MOT_溝形鋼:［-300x90x12x16",
+                        "111": "MOT_加工腹起_低1:MOT_加工腹起_低1",
+                        "112": "MOT_50SB45RH:50SB45°",
+                        "113": "MOT_加工腹起_低2:MOT_加工腹起_低2",
+                        "114": "MOT_50TB-5:50TB-5",
+                        "115": "MOT_H鋼(桁):H-200x200",
+                        "116": "Sha1:斜梁",
+                        "117": "MOT_DSP:DSP",
+                        "118": "MOT_山留材_エ:H-400x400（山留材）",
+                        "119": "MOT_溝形鋼:［-200x80x7.5x11",
+                        "120": "MOT_丸鋼タイロッドpj:M36",
+                        "121": "MOT_丸鋼タイロッドpj:M48",
+                        "122": "MOT_箱抜き材(pipe)_ver2021_pj:H-500用(中間部)",
+                        "123": "MOT_箱抜き材(pipe)_ver2021_pj:H-500用(端部)",
+                        "124": "MOT_箱抜きPL_低2:MOT_箱抜きPL_低2",
+                        "125": "MOT_ソイル(単品):CASE-2",
+                        "126": "切梁受け:tu",
+                        "127": "切梁BK:BK-95",
+                        "128": "MOT_ソイル(配列):CASE-12",
+                        "129": "MOT_ソイル(単品):CASE-8",
+                        "130": "MOT_ソイル(単品):CASE-13c",
+                        "131": "SP-C4コーナー:SP-CⅣコーナー",
+                        "132": "MOT_単杭:構台杭I",
+                        "133": "MOT_PHP:H35-PHP-100TP",
+                        "134": "MOT_Har:Har30",
+                        "135": "MOT_30SB45RH:30SB45° (RH)",
+                        "136": "MOT_SP横矢板_pj:MOT_SP横矢板_pj",
+                        "137": "MOT_ソイル(単品):CASE-13b-26.0",
+                        "138": "MOT_ソイル(単品):CASE-13b-26.5",
+                        "139": "MOT_ソイル(単品):CASE-13b-25.5",
+                        "140": "MOT_ソイル(単品):CASE-13b-27.5",
+                        "141": "MOT_ソイル(単品):CASE-13b-29.0",
+                        "142": "MOT_横矢板:CASE-14",
+                        "143": "MOT_親杭:CASE-14",
+                        "144": "MOT_親杭:CASE-15",
+                        "145": "MOT_横矢板:CASE-15",
+                        "146": "MOT_敷鉄板:22㎜-5x20 (1,524x6,096)",
+                        "147": "MOT_敷鉄板:22㎜-5x10 (1,524x3,048)",
+                        "148": "MOT_プレートpj:PL-690x300x19",
+                        "149": "MOT_ソイル(単品):CASE-13b",
+                        "150": "MOT_プレートpj:PL-400x300x29",
+                        "151": "MOT_芯材:CASE-12",
+                        "152": "SP-J:NS-SP-J",
+                        "153": "MOT_40SB60:40SB60°",
+                        "154": "MOT_0段目異形腹起_C5:MOT_1段目異形腹起_C5",
+                        "155": "SP-J標準コーナー:NS-SP-J",
+                        "156": "MOT_30TB-3A:30TB-3A",
+                        "157": "頭つなぎC:頭つなぎC",
+                        "158": "MOT_BK125:BK-125"
+                    }
+                }
+            }
+            viewer.fitToScreen(0.5);
+        });
+    </script>
+</body>
+
+</html>

@@ -598,6 +598,9 @@ export class Measure extends THREE.Object3D {
 
 						for (let key of Object.keys(I.point).filter(e => e !== 'position')) {
 							point[key] = I.point[key];
+                            if(I.pointcloud.metadata && I.pointcloud.metadata.object_labels && I.pointcloud.metadata.object_labels[key]){
+                                point[key].label = I.pointcloud.metadata.object_labels[key][point[key][0]]
+                            }
 						}
 
 						let constrainedLocation = this.getConstrainedPosition(i, I.location, e.drag.end);
@@ -812,7 +815,11 @@ export class Measure extends THREE.Object3D {
                                 continue;
                             }
                             if(p[attributeName].length == 1){
-                                if(Number.isInteger(p[attributeName][0])){
+                                if(p[attributeName].label){
+                                    lines.push(attributeName + " : " +p[attributeName].label);
+
+                                }
+                                else if(Number.isInteger(p[attributeName][0])){
                                     lines.push(attributeName + " : " + p[attributeName][0]);
 
                                 }
