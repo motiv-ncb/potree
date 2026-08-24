@@ -337,10 +337,10 @@ export class PropertiesPanel{
 				</div>
 
                 <div class="divider">
-					<span>Segmentation</span>
+					<span data-i18n="appearance.segmentation">Segmentation</span>
 				</div>
                 <li >
-                	<label><input id="enableSegmentVisible" type="checkbox" /><span>Enable segementation display</span></label>
+                	<label><input id="enableSegmentVisible" type="checkbox" /><span data-i18n="appearance.enable_segementation_display">Enable segementation display</span></label>
 
                 </li>
 				<li>
@@ -350,7 +350,7 @@ export class PropertiesPanel{
                     <input id="segmentVisibleFilterInput" style="width:100%"></input>
                 </li>
                 <li>
-                    <button id="segmentVisibleFilterBtn">Filter</button>
+                    <button id="segmentVisibleFilterBtn" data-i18n="common.filter">Filter</button>
                 </li>
                 
                 <li style="max-height:200px; overflow-y:auto">
