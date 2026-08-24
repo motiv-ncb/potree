@@ -558,6 +558,8 @@ export class Renderer {
 		this.glTypeMapping.set(Uint16Array, this.gl.UNSIGNED_SHORT);
 
 		this.toggle = 0;
+
+        this.maximumNumberDisplay = 1000;
 	}
 
 	deleteBuffer(geometry) {
@@ -988,13 +990,27 @@ export class Renderer {
 
              // visible values
             {
-                shader.setUniform("uSetVisibleValue", material.uniforms.uSetVisibleValue.value);
-                if(material.setVisibleValue && material.visibleValues){ 
-                    const visibleValues = shader.uniformLocations["uVisibleValues[0]"];
-                    gl.uniform1fv(visibleValues, material.visibleValues);
+                shader.setUniform("uShowHideSegment", material.uniforms.uShowHideSegment.value);
+                const visibleValues = shader.uniformLocations["uVisibleValues[0]"];
+
+                if(material.showHideSegment && material.visibleValues){ 
+                    const vs = material.visibleValues.get(material.xActiveAttributeName);
+                    if(vs && vs.length > 0){
+                        if(vs.length <= this.maximumNumberDisplay){
+                            gl.uniform1fv(visibleValues, vs);
+                        }
+                        else{
+                            gl.uniform1fv(visibleValues, vs.slice(0,this.maximumNumberDisplay));
+                        }
+                    }
+                    else{
+                        // gl.uniform1fv(visibleValues, []);
+                    }
+                }
+                else{
+                    // gl.uniform1fv(visibleValues, []);
 
                 }
-
             }
 
            
@@ -1021,7 +1037,7 @@ export class Renderer {
 				attributeLocations[material.activeAttributeName] === undefined
 				&& Object.keys(geometry.attributes).includes(material.activeAttributeName);
            
-            if(material.setVisibleValue){
+            if(material.showHideSegment){
                 const xAttributeLocation = attributeLocations["xExtra"].location;          
                 for(const attributeName in geometry.attributes){
                     const vbo = webglBuffer.vbos.get(attributeName);
@@ -1223,8 +1239,12 @@ export class Renderer {
                     `#define max_num_clippolygonpoints ${maxClipPolygonPoints}`,
 				];
 
-                if(material.setVisibleValue && material.visibleValues){
-                    defines.push(`#define num_visible_values ${material.visibleValues.length}`);
+                if(material.showHideSegment && material.visibleValues ){
+                    const vs = material.visibleValues.get(material.xActiveAttributeName);
+                    if(vs){
+                        defines.push(`#define num_visible_values ${Math.min(vs.length, this.maximumNumberDisplay)}`);
+
+                    }
                 }
 
 

@@ -56,11 +56,11 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 		this.defines = new Map();
 
 		this.ranges = new Map();
+        this.visibleValues = new Map();
 
 		this._activeAttributeName = null;
 
         this._xActiveAttributeName = null;
-        this._visibleValues = [];
         
 		this._defaultIntensityRangeChanged = false;
 		this._defaultElevationRangeChanged = false;
@@ -185,7 +185,7 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
             uNaNThreshold: { type: "f", value: -1000000000.0},
             uNaNColor:			{ type: "c", value: new THREE.Color( 0xaaaaaa ) },
 
-            uSetVisibleValue : { type: "b", value: false },
+            uShowHideSegment : { type: "b", value: false },
 
             
 			uFilterReturnNumberRange:		{ type: "fv", value: [0, 7]},
@@ -753,7 +753,7 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 			this._xActiveAttributeName = value;
 			this.updateShaderSource();
 			this.dispatchEvent({
-				type: 'active_attribute_changed',
+				type: 'segment_attribute_changed',
 				target: this
 			});
 
@@ -764,11 +764,11 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 		}
     }
 
-    get setVisibleValue(){
+    get showHideSegment(){
         return this._setVisibleValue;
     }
     
-    set setVisibleValue(value){
+    set showHideSegment(value){
         if (this._setVisibleValue !== value) {
 			this._setVisibleValue = value;
 			this.updateShaderSource();
@@ -1334,17 +1334,64 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 		}
 	}
 
-    get setVisibleValue(){
-        return this.uniforms.uSetVisibleValue.value;
+    get showHideSegment(){
+        return this.uniforms.uShowHideSegment.value;
     }
-    set setVisibleValue(value){
-        if (this.uniforms.uSetVisibleValue.value !== value) {
-            this.uniforms.uSetVisibleValue.value = value;
+    set showHideSegment(value){
+        if (this.uniforms.uShowHideSegment.value !== value) {
+            this.uniforms.uShowHideSegment.value = value;
             this.dispatchEvent({
                 type: 'material_property_changed',
                 target: this
             });
         }
+    }
+
+    getSegmentValues(attributeName){
+        const values = this.visibleValues.get(attributeName);
+        if(values){
+            return values;
+        }
+        else{
+           this.visibleValues.set(attributeName,[]);
+            return []
+        }
+        
+    }
+
+    setSegmentValues(attributeName, newValues ){
+        let values = this.getSegmentValues(attributeName);
+        if(newValues != values){
+            this.visibleValues.set(attributeName,newValues);
+        }
+        this.dispatchEvent({
+            type: 'material_segment_visible_changed',
+            target: this
+        });
+    }
+
+    addSegmentValues(attributeName, value ){
+        const values = this.getSegmentValues(attributeName);
+        if(values){
+            if(!values.includes(value)){
+                values.push(value);
+                this.setSegmentValues(attributeName,values);
+            }
+        }
+        else{
+            this.setSegmentValues(attributeName,[value]);
+        }
+    }
+
+    removeSegmentValues(attributeName, value ){
+        const values = this.getSegmentValues(attributeName);
+        if(values){
+            const index = values.indexOf(value);
+            if(index !== -1){
+                values.splice(index, 1); // Removes 'blue'
+                this.setSegmentValues(attributeName,values);
+            }
+        }   
     }
 
 
@@ -1373,6 +1420,8 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 			});
 		}
 	}
+
+    
 
 	get extraRange () {
 		return this.uniforms.uExtraRange.value;

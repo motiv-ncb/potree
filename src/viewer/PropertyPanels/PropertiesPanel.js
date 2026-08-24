@@ -336,6 +336,30 @@ export class PropertiesPanel{
 					</div>
 				</div>
 
+                <div class="divider">
+					<span>Segmentation</span>
+				</div>
+                <li >
+                	<label><input id="enableSegmentVisible" type="checkbox" /><span>Enable segementation display</span></label>
+
+                </li>
+				<li>
+					<select id="optSegmentVisibleMaterial" name="optSegmentVisibleMaterial"></select>
+				</li>
+                <li>
+                    <input id="segmentVisibleFilterInput" style="width:100%"></input>
+                </li>
+                <li>
+                    <button id="segmentVisibleFilterBtn">Filter</button>
+                </li>
+                
+                <li style="max-height:200px; overflow-y:auto">
+                    <div id="segmentVisibleMaterialContainer"></div>
+                <li>
+               
+
+                
+
                
 			</div>
 		`);
@@ -829,7 +853,7 @@ export class PropertiesPanel{
             let extraoptions = [];
             extraoptions.push(...attributes.map(a => a.name));
             extraoptions = extraoptions.filter(o => !extarBlacklist.includes(o));
-
+           
            
             let updateMaterialPanel = (event, ui) => {
                 let selectedValue = attributeSelection.selectmenu().val();
@@ -996,6 +1020,132 @@ export class PropertiesPanel{
 
             update();
             updateMaterialPanel();
+        }
+
+        
+        // segment visible
+        {
+
+            let opt = panel.find(`#enableSegmentVisible`);
+            opt.click(() => {
+                material.showHideSegment = opt.prop("checked");
+                let pointClouds = self.getSelectedPointclouds();
+                for (let point of pointClouds) {
+                    point.material.showHideSegment = opt.prop("checked");
+                }   
+            });
+           
+            let segmentVisibleAttributeSelection = panel.find('#optSegmentVisibleMaterial');
+            let segmentVisibleMaterialContainer = panel.find('#segmentVisibleMaterialContainer');
+
+			if(pointcloud.metadata && pointcloud.metadata.object_labels){
+                // segmentVisibleAttributeSelection.show();
+                for(let segmentName in pointcloud.metadata.object_labels){
+                    let elOption = $(`<option value="${segmentName}" >${segmentName}</option>`);
+                    segmentVisibleAttributeSelection.append(elOption);
+                }
+                segmentVisibleAttributeSelection.i18n();
+            }
+            else{
+                segmentVisibleAttributeSelection.hide();
+            }
+
+            let updateSegmentVisiblePanel = (event, ui) =>{
+                segmentVisibleMaterialContainer.empty();
+                if(pointcloud.metadata && pointcloud.metadata.object_labels){
+                    let selectedValue = segmentVisibleAttributeSelection.selectmenu().val();
+                    material._xActiveAttributeName = selectedValue;
+                    let pointclouds = this.getSelectedPointclouds();
+                    if(event){
+                        for (let point of pointclouds) {
+                            point.material._xActiveAttributeName = selectedValue;
+                        }
+                    }
+
+                    const labels = pointcloud.metadata.object_labels[selectedValue];
+                    const vs = material.getSegmentValues(material.xActiveAttributeName);
+                    if(vs){         
+                        for(let i in labels){
+                            const checkText = vs.includes(parseInt(i))? "checked":"";
+                            const labelCheckbox = $(`                     
+                                    <li>
+                                        <label><input type="checkbox" data-attributeName="${material.xActiveAttributeName}"  data-index="${i}" ${checkText}/><span> ${labels[i]}</span></label>   
+                                    </li>
+                                `)        
+                            segmentVisibleMaterialContainer.append(labelCheckbox);
+                        }
+                            segmentVisibleMaterialContainer.on('change', 'input[type="checkbox"]', function() {
+                            var isChecked = $(this).is(':checked');
+                            var checkboxIndex = $(this).data('index');
+                            if(isChecked){
+                                material.addSegmentValues(material.xActiveAttributeName, checkboxIndex)
+                            }
+                            else{
+                                material.removeSegmentValues(material.xActiveAttributeName, checkboxIndex)
+                            }
+                        });
+                    }          
+                }        
+            }
+
+            let segmentVisibleFilterBtn = panel.find('#segmentVisibleFilterBtn');
+            let filterInput = panel.find('#segmentVisibleFilterInput');
+            segmentVisibleFilterBtn.click(()=>{
+                if(pointcloud.metadata && pointcloud.metadata.object_labels){
+                    const labels = pointcloud.metadata.object_labels[material.xActiveAttributeName];
+                    if(labels){
+                        let filterText = filterInput.val();
+
+                        let indices = [];
+                        if(filterText != ""){
+                            for(let index in labels){
+                                if(labels[index].includes(filterText)){
+                                    indices.push( parseInt(index));
+                                }
+                            }
+                        }
+                        material.setSegmentValues(material.xActiveAttributeName, indices);
+                    }      
+                }
+            })
+
+            segmentVisibleAttributeSelection.selectmenu({change: updateSegmentVisiblePanel});
+            let update = () => {
+                let value = material.showHideSegment;
+                opt.prop("checked", value);
+                if(value){
+                    // segmentVisibleAttributeSelection.selectmenu().show()
+                    segmentVisibleFilterBtn.show();
+                    filterInput.show();
+                    segmentVisibleMaterialContainer.show();
+                }
+                else{
+                    // segmentVisibleAttributeSelection.selectmenu().hide()
+                    segmentVisibleFilterBtn.hide();
+                    filterInput.hide();
+                    segmentVisibleMaterialContainer.hide();
+                }
+                segmentVisibleAttributeSelection.val(material.xActiveAttributeName).selectmenu('refresh');
+            };
+
+            let updateVisibleValues = () =>{
+                
+                let segmentVisibleMaterialContainer = panel.find('#segmentVisibleMaterialContainer');
+                const values = material.getSegmentValues(material.xActiveAttributeName);
+                const checkboxes = segmentVisibleMaterialContainer.find('input[type="checkbox"]');
+                checkboxes.each(function () {
+                    const index = Number($(this).data('index'));
+                    $(this).prop('checked', values.includes(index));
+                });
+            }
+            
+            this.addVolatileListener(material, "material_property_changed", update);
+            this.addVolatileListener(material, "segment_attribute_changed", update);
+            this.addVolatileListener(material, "material_segment_visible_changed", updateVisibleValues);
+
+            update();
+            updateSegmentVisiblePanel();
+           
         }
 
         {

@@ -137,7 +137,7 @@ uniform vec3 uAboveThresholdColor;
 uniform vec3 uBetweenThresholdColor;
 uniform bool uUseThresholdColor;
 
-uniform bool uSetVisibleValue;
+uniform bool uShowHideSegment;
 
 uniform float uNaNThreshold;
 uniform vec3 uNaNColor;
@@ -1196,7 +1196,7 @@ void main() {
   
     //visible value
     #if defined(num_visible_values) && num_visible_values > 0
-        if(uSetVisibleValue){
+        if(uShowHideSegment){
             bool matched = false;
             for(int i = 0; i < num_visible_values; i++){
                 if(xExtra == uVisibleValues[i]){
@@ -1209,7 +1209,7 @@ void main() {
         }
     #endif
 
-    // if(uSetVisibleValue){
+    // if(uShowHideSegment){
     //     if(xExtra != 28.){
     //           gl_Position = vec4(100.0, 100.0, 100.0, 0.0);
     //     }

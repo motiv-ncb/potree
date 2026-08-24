@@ -175,7 +175,7 @@ export class HQSplatRenderer{
                 depthMaterial.deformationFactor = material.deformationFactor;
 
                 depthMaterial.xActiveAttributeName = material.xActiveAttributeName;
-                depthMaterial.setVisibleValue = material.setVisibleValue;
+                depthMaterial.showHideSegment = material.showHideSegment;
                 depthMaterial.visibleValues = material.visibleValues;
 
 
@@ -248,7 +248,7 @@ export class HQSplatRenderer{
                 attributeMaterial.NaNColor = material.NaNColor;
                 attributeMaterial.NaNThreshold = material.NaNThreshold;
 
-                attributeMaterial.setVisibleValue = material.setVisibleValue;
+                attributeMaterial.showHideSegment = material.showHideSegment;
                 attributeMaterial.visibleValues = material.visibleValues;
 
                 attributeMaterial.gradient = material.gradient;
