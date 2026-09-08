@@ -1126,6 +1126,21 @@ void checkBackfaceHiding(){
 // ##     ## ##     ##  ##  ##   ### 
 // ##     ## ##     ## #### ##    ## 
 //
+#if defined(num_visible_values) && num_visible_values > 0
+    bool binarySearch(float target) {
+        int lo = 0;
+        int hi = num_visible_values - 1;
+        // log2(256) = 8, so 8 iterations covers arrays up to 256 elements
+        for(int iter = 0; iter < 13; iter++){
+            if(lo > hi) break;
+            int mid = (lo + hi) / 2;
+            if(uVisibleValues[mid] == target) return true;
+            if(uVisibleValues[mid] < target) lo = mid + 1;
+            else hi = mid - 1;
+        }
+        return false;
+    }
+#endif
 
 void main() {
 
@@ -1197,23 +1212,11 @@ void main() {
     //visible value
     #if defined(num_visible_values) && num_visible_values > 0
         if(uShowHideSegment){
-            bool matched = false;
-            for(int i = 0; i < num_visible_values; i++){
-                if(xExtra == uVisibleValues[i]){
-                    matched = true;
-                }
-            }
-            if(!matched){
+            if(!binarySearch(xExtra)){
                 gl_Position = vec4(100.0, 100.0, 100.0, 0.0);
-            }    
+            }
         }
     #endif
-
-    // if(uShowHideSegment){
-    //     if(xExtra != 28.){
-    //           gl_Position = vec4(100.0, 100.0, 100.0, 0.0);
-    //     }
-    // }
 
 
 	#if defined(num_clipspheres) && num_clipspheres > 0

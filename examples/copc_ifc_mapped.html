@@ -70,9 +70,7 @@
             material.activeAttributeName = "Object_Type";
             material.xActiveAttributeName = "Object_Type";
             material.showHideSegment = true;
-            // material.visibleValues.set("Object_Type",
-            //     [7,8,9,10,11,12,13,14,15,16,72,73,74,75,76,77]);
-
+            
             e.pointcloud.metadata = {
                 "pointcloud_id": "92AA6CB0-E123-48B1-AC73-96B40A20410D",
                 "ref_pointcloud_id": "31FB20D9-B7AB-0EBF-377C-AFDBB9C03A78",
@@ -6697,7 +6695,9 @@
             //     material.visibleValues.set(lbl,[]);
             // }
 
-            
+            material.visibleValues.set("Object_Type",
+                [7,8,9,10,11,12,13,14,15,16,72,73,74,75,76,77]);
+
 
             viewer.fitToScreen(0.5);
             	viewer.useHQ = true;
