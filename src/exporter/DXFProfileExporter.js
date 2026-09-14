@@ -140,17 +140,17 @@ $EXTMIN
 10
 ${pCloud.minX}
 20
-${pCloud.minY}
-30
 ${pCloud.minZ}
+30
+${pCloud.minY}
 9
 $EXTMAX
 10
 ${pCloud.maxX}
 20
-${pCloud.maxY}
-30
 ${pCloud.maxZ}
+30
+${pCloud.maxY}
 0
 ENDSEC
 `;
@@ -162,7 +162,7 @@ ENTITIES
 `;
 
 		for (let i = 0; i < pCloud.numPoints; i++) {
-			dxfBody += DXFProfileExporter.plotPCloudPoint(pCloud.x[i], pCloud.y[i], pCloud.z[i]);
+			dxfBody += DXFProfileExporter.plotPCloudPoint(pCloud.x[i], pCloud.z[i], pCloud.y[i]);
 		}
 
 		dxfBody += `0
