@@ -28,6 +28,7 @@ export class Sidebar{
 
 		this.measuringTool = viewer.measuringTool;
 		this.profileTool = viewer.profileTool;
+        this.sitePlanTool = viewer.sitePlanTool;
 		this.volumeTool = viewer.volumeTool;
 
 		this.dom = $("#sidebar_root");
@@ -390,6 +391,22 @@ export class Sidebar{
 				$.jstree.reference(jsonNode.id).select_node(jsonNode.id);
 			}
 		));
+
+        // PROFILE
+		elToolbar.append(this.createToolIcon(
+			Potree.resourcePath + '/icons/plan.svg',
+			'[title]tt.site_plan',
+			() => {
+				$('#menu_measurements').next().slideDown(); ;
+				let profile = this.profileTool.startInsertion();
+
+				let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
+				let jsonNode = measurementsRoot.children.find(child => child.data.uuid === profile.uuid);
+				$.jstree.reference(jsonNode.id).deselect_all();
+				$.jstree.reference(jsonNode.id).select_node(jsonNode.id);
+			}
+		));
+
 
 		// PROFILE
 		elToolbar.append(this.createToolIcon(

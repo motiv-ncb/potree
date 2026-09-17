@@ -38,6 +38,7 @@ import { VRButton } from '../../libs/three.js/extra/VRButton.js';
 import JSON5 from "../../libs/json5-2.1.3/json5.mjs";
 import { GlobalAxis } from "../utils/GlobalAxis.js";
 import { AreaVolume } from "../utils/AreaVolume.js";
+import { SitePlanTool } from "../utils/SitePlanTool.js";
 
 
 export class Viewer extends EventDispatcher{
@@ -329,6 +330,7 @@ export class Viewer extends EventDispatcher{
 		this.annotationTool = new AnnotationTool(this);
 		this.measuringTool = new MeasuringTool(this);
 		this.profileTool = new ProfileTool(this);
+        this.sitePlanTool = new SitePlanTool(this);
 		this.volumeTool = new VolumeTool(this);
 
 		}catch(e){
