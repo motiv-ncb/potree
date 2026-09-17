@@ -412,22 +412,17 @@ export class PointCloudOctree extends PointCloudTree {
 		return intersects;
 	}
 
-    nodeIntersectsSitePlan (node, profile) {
+    nodeIntersectsSitePlan (node, sitePlan) {
 		let bbWorld = node.boundingBox.clone().applyMatrix4(this.matrixWorld);
 		let bsWorld = bbWorld.getBoundingSphere(new THREE.Sphere());
 
 		let intersects = false;
+        if(sitePlan.points.length > 0){
+            let distance = Math.abs(sitePlan.points[0].z - bsWorld.center.z) ;
+            intersects = intersects || (distance < (bsWorld.radius + sitePlan.width));
 
-		for (let i = 0; i < profile.points.length - 1; i++) {
-
-			let start = new THREE.Vector3(profile.points[i + 0].x, profile.points[i + 0].y, bsWorld.center.z);
-			let end = new THREE.Vector3(profile.points[i + 1].x, profile.points[i + 1].y, bsWorld.center.z);
-
-			let closest = new THREE.Line3(start, end).closestPointToPoint(bsWorld.center, true, new THREE.Vector3());
-			let distance = closest.distanceTo(bsWorld.center);
-
-			intersects = intersects || (distance < (bsWorld.radius + profile.width));
-		}
+        }
+		
 
 		//console.log(`${node.name}: ${intersects}`);
 

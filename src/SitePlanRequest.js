@@ -202,10 +202,9 @@ export class SitePlanRequest {
 				view[i * 3 + 2]);
 
 			pos.applyMatrix4(matrix);
-			let distance = Math.abs(segment.cutPlane.distanceToPoint(pos));
-			let centerDistance = Math.abs(segment.halfPlane.distanceToPoint(pos));
+            let distance = Math.abs(pos.z - segment.start.z)
 
-			if (distance < this.sitePlan.width / 2 && centerDistance < segment.length / 2) {
+			if (distance < this.sitePlan.width / 2) {
 				svp.subVectors(pos, segment.start);
 				let localMileage = segmentDir.dot(svp);
 
@@ -250,8 +249,8 @@ export class SitePlanRequest {
 		let totalMileage = 0;
 
 		let pointsProcessed = 0;
-
-		for (let segment of target.segments) {
+        if(target.segments.length > 0){
+            let segment = target.segments[0];
 			for (let node of nodes) {
 				let numPoints = node.numPoints;
 				let geometry = node.geometry;
@@ -264,12 +263,7 @@ export class SitePlanRequest {
 					let bbWorld = node.boundingBox.clone().applyMatrix4(this.pointcloud.matrixWorld);
 					let bsWorld = bbWorld.getBoundingSphere(new THREE.Sphere());
 
-					let start = new THREE.Vector3(segment.start.x, segment.start.y, bsWorld.center.z);
-					let end = new THREE.Vector3(segment.end.x, segment.end.y, bsWorld.center.z);
-
-					let closest = new THREE.Line3(start, end).closestPointToPoint(bsWorld.center, true, new THREE.Vector3());
-					let distance = closest.distanceTo(bsWorld.center);
-
+                    let distance = Math.abs(segment.start.z - bsWorld.center.z) ;
 					let intersects = (distance < (bsWorld.radius + target.sitePlan.width));
 
 					if(!intersects){
@@ -277,13 +271,13 @@ export class SitePlanRequest {
 					}
 				}
 
-				//{// DEBUG
-				//	console.log(node.name);
-				//	let boxHelper = new Potree.Box3Helper(node.getBoundingBox());
-				//	boxHelper.matrixAutoUpdate = false;
-				//	boxHelper.matrix.copy(viewer.scene.pointclouds[0].matrixWorld);
-				//	viewer.scene.scene.add(boxHelper);
-				//}
+				// {// DEBUG
+				// 	console.log(node.name);
+				// 	let boxHelper = new Potree.Box3Helper(node.getBoundingBox());
+				// 	boxHelper.matrixAutoUpdate = false;
+				// 	boxHelper.matrix.copy(viewer.scene.pointclouds[0].matrixWorld);
+				// 	viewer.scene.scene.add(boxHelper);
+				// }
 
 				let sv = new THREE.Vector3().subVectors(segment.end, segment.start).setZ(0);
 				let segmentDir = sv.clone().normalize();
@@ -364,7 +358,8 @@ export class SitePlanRequest {
 			totalMileage += segment.length;
 		}
 
-		for (let segment of target.segments) {
+		if(target.segments.length > 0){
+            let segment = target.segments[0];
 			target.boundingBox.union(segment.points.boundingBox);
 		}
 
