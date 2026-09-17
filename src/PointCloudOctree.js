@@ -758,7 +758,7 @@ export class PointCloudOctree extends PointCloudTree {
 	 */
 	getSitePlan (start, end, width, depth, callback) {
         // TODO : Get site plan
-		let request = new Potree.ProfileRequest(start, end, width, depth, callback);
+		let request = new Potree.SitePlanRequest(start, end, width, depth, callback);
 		this.profileRequests.push(request);
 	};
 
