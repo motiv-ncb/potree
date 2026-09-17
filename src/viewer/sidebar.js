@@ -392,13 +392,13 @@ export class Sidebar{
 			}
 		));
 
-        // PROFILE
+        // SITEPLAN
 		elToolbar.append(this.createToolIcon(
 			Potree.resourcePath + '/icons/plan.svg',
 			'[title]tt.site_plan',
 			() => {
 				$('#menu_measurements').next().slideDown(); ;
-				let profile = this.profileTool.startInsertion();
+				let profile = this.sitePlanTool.startInsertion();
 
 				let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
 				let jsonNode = measurementsRoot.children.find(child => child.data.uuid === profile.uuid);
