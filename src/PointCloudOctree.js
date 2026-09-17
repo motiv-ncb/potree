@@ -412,6 +412,28 @@ export class PointCloudOctree extends PointCloudTree {
 		return intersects;
 	}
 
+    nodeIntersectsSitePlan (node, profile) {
+		let bbWorld = node.boundingBox.clone().applyMatrix4(this.matrixWorld);
+		let bsWorld = bbWorld.getBoundingSphere(new THREE.Sphere());
+
+		let intersects = false;
+
+		for (let i = 0; i < profile.points.length - 1; i++) {
+
+			let start = new THREE.Vector3(profile.points[i + 0].x, profile.points[i + 0].y, bsWorld.center.z);
+			let end = new THREE.Vector3(profile.points[i + 1].x, profile.points[i + 1].y, bsWorld.center.z);
+
+			let closest = new THREE.Line3(start, end).closestPointToPoint(bsWorld.center, true, new THREE.Vector3());
+			let distance = closest.distanceTo(bsWorld.center);
+
+			intersects = intersects || (distance < (bsWorld.radius + profile.width));
+		}
+
+		//console.log(`${node.name}: ${intersects}`);
+
+		return intersects;
+	}
+
 	deepestNodeAt(position){
 		
 		const toObjectSpace = this.matrixWorld.clone().invert();
@@ -648,7 +670,7 @@ export class PointCloudOctree extends PointCloudTree {
 	 */
 	getPointsInSitePlan (profile, maxDepth, callback) {
 		if (callback) {
-			let request = new Potree.ProfileRequest(this, profile, maxDepth, callback);
+			let request = new Potree.SitePlanRequest(this, profile, maxDepth, callback);
 			this.profileRequests.push(request);
 
 			return request;

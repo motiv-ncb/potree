@@ -172,9 +172,9 @@ export class SitePlanRequest {
 
 			this.callback.onFinish({request: this});
 
-			let index = this.pointcloud.sitePlanRequests.indexOf(this);
+			let index = this.pointcloud.profileRequests.indexOf(this);
 			if (index >= 0) {
-				this.pointcloud.sitePlanRequests.splice(index, 1);
+				this.pointcloud.profileRequests.splice(index, 1);
 			}
 		}
 
@@ -388,9 +388,9 @@ export class SitePlanRequest {
 
 		this.priorityQueue = new BinaryHeap(function (x) { return 1 / x.weight; });
 
-		let index = this.pointcloud.sitePlanRequests.indexOf(this);
+		let index = this.pointcloud.profileRequests.indexOf(this);
 		if (index >= 0) {
-			this.pointcloud.sitePlanRequests.splice(index, 1);
+			this.pointcloud.profileRequests.splice(index, 1);
 		}
 	};
 }
