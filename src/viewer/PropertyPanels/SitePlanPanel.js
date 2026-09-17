@@ -7,28 +7,28 @@ export class SitePlanPanel extends MeasurePanel{
         super(viewer, measurement, propertiesPanel);
 
         let removeIconPath = Potree.resourcePath + '/icons/remove.svg';
-        // adjust "show_2d_profile" for Cmair
+        // adjust "show_2d_sitePlan" for Cmair
         this.elContent = $(`
             <div class="measurement_content selectable">
                 <span class="coordinates_table_container"></span>
                 <br>
                 <span style="display:flex">
-                    <span data-i18n="tt.height_profile_width" style="display:flex; align-items: center; padding-right: 10px">Width: </span>
-                    <input id="sldProfileWidth" name="sldProfileWidth" value="5.06" style="flex-grow: 1; width:100%">
-                    <button type="button" data-i18n="tt.height_profile" id="show_2d_profile" value="Height profile" style="width: 100%"/>
+                    <span data-i18n="tt.height_sitePlan_width" style="display:flex; align-items: center; padding-right: 10px">Width: </span>
+                    <input id="sldSitePlanWidth" name="sldSitePlanWidth" value="5.06" style="flex-grow: 1; width:100%">
+                    <button type="button" data-i18n="tt.height_sitePlan" id="show_2d_sitePlan" value="Height sitePlan" style="width: 100%"/>
                 </span>
                 <!-- 
                 <br>
 
                 <li style="margin-top: 10px">
-                    <input name="download_profile" type="button" value="prepare download" style="width: 100%" />
+                    <input name="download_sitePlan" type="button" value="prepare download" style="width: 100%" />
                     <div name="download_message"></div>
                 </li>
                 -->
 
                 <br>
                 <!-- 
-                <input type="button" id="show_2d_profile" value="show 2d profile" style="width: 100%"/>
+                <input type="button" id="show_2d_sitePlan" value="show 2d sitePlan" style="width: 100%"/>
                 -->
                 <!-- ACTIONS -->
                 <div style="display: flex; margin-top: 12px">
@@ -41,11 +41,11 @@ export class SitePlanPanel extends MeasurePanel{
         this.elContent.i18n();
         this.elRemove = this.elContent.find("img[name=remove]");
         this.elRemove.click( () => {
-            this.viewer.scene.removeProfile(measurement);
+            this.viewer.scene.removeSitePlan(measurement);
         });
 
         { // download
-            this.elDownloadButton = this.elContent.find(`input[name=download_profile]`);
+            this.elDownloadButton = this.elContent.find(`input[name=download_sitePlan]`);
 
             if(this.propertiesPanel.viewer.server){
                 this.elDownloadButton.click(() => this.download());
@@ -55,7 +55,7 @@ export class SitePlanPanel extends MeasurePanel{
         }
 
         { // width spinner
-            let elWidthSlider = this.elContent.find(`#sldProfileWidth`);
+            let elWidthSlider = this.elContent.find(`#sldSitePlanWidth`);
 
             elWidthSlider.spinner({
                 min: 0, max: 10 * 1000 * 1000, step: 0.01,
@@ -95,10 +95,10 @@ export class SitePlanPanel extends MeasurePanel{
             this.propertiesPanel.addVolatileListener(measurement, "width_changed", widthListener);
         }
 
-        let elShow2DProfile = this.elContent.find(`#show_2d_profile`);
-        elShow2DProfile.click(() => {
-            this.propertiesPanel.viewer.profileWindow.show();
-            this.propertiesPanel.viewer.profileWindowController.setProfile(measurement);
+        let elShow2DSitePlan = this.elContent.find(`#show_2d_sitePlan`);
+        elShow2DSitePlan.click(() => {
+            this.propertiesPanel.viewer.sitePlanWindow.show();
+            this.propertiesPanel.viewer.sitePlanWindowController.setSitePlan(measurement);
         });
 
         this.propertiesPanel.addVolatileListener(measurement, "marker_added", this._update);
@@ -116,12 +116,12 @@ export class SitePlanPanel extends MeasurePanel{
 
     async download(){
 
-        let profile = this.measurement;
+        let sitePlan = this.measurement;
 
         let regions = [];
         {
-            let segments = profile.getSegments();
-            let width = profile.width;
+            let segments = sitePlan.getSegments();
+            let width = sitePlan.width;
             
             for(let segment of segments){
                 let start = segment.start.clone().multiply(new THREE.Vector3(1, 1, 0));

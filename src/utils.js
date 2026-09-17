@@ -5,6 +5,7 @@ import {Volume} from "./utils/Volume.js";
 import {Profile} from "./utils/Profile.js";
 import {Measure} from "./utils/Measure.js";
 import {PolygonClipVolume} from "./utils/PolygonClipVolume.js";
+import { SitePlan } from "./utils/SitePlan.js";
 
 export class Utils {
 	static async loadShapefileFeatures (file, callback) {
@@ -891,6 +892,8 @@ export class Utils {
 			}
 		} else if (measurement instanceof Profile) {
 			return `${Potree.resourcePath}/icons/profile.svg`;
+		} else if (measurement instanceof SitePlan) {
+			return `${Potree.resourcePath}/icons/plan.svg`;
 		} else if (measurement instanceof Volume) {
 			return `${Potree.resourcePath}/icons/volume.svg`;
 		} else if (measurement instanceof PolygonClipVolume) {

@@ -12,56 +12,56 @@ export class SitePlanTool extends EventDispatcher {
         this.viewer = viewer;
         this.renderer = viewer.renderer;
 
-        this.addEventListener('start_inserting_profile', e => {
+        this.addEventListener('start_inserting_sitePlan', e => {
             this.viewer.dispatchEvent({
                 type: 'cancel_insertions'
             });
         });
 
         this.scene = new THREE.Scene();
-        this.scene.name = 'scene_profile';
+        this.scene.name = 'scene_sitePlan';
         this.light = new THREE.PointLight(0xffffff, 1.0);
         this.scene.add(this.light);
 
         this.viewer.inputHandler.registerInteractiveScene(this.scene);
 
-        this.onRemove = e => this.scene.remove(e.profile);
-        this.onAdd = e => this.scene.add(e.profile);
+        this.onRemove = e => this.scene.remove(e.sitePlan);
+        this.onAdd = e => this.scene.add(e.sitePlan);
 
-        for(let profile of viewer.scene.profiles){
-            this.onAdd({profile: profile});
+        for(let sitePlan of viewer.scene.sitePlans){
+            this.onAdd({sitePlan: sitePlan});
         }
 
         viewer.addEventListener("update", this.update.bind(this));
         viewer.addEventListener("render.pass.perspective_overlay", this.render.bind(this));
         viewer.addEventListener("scene_changed", this.onSceneChange.bind(this));
 
-        viewer.scene.addEventListener('profile_added', this.onAdd);
-        viewer.scene.addEventListener('profile_removed', this.onRemove);
+        viewer.scene.addEventListener('sitePlan_added', this.onAdd);
+        viewer.scene.addEventListener('sitePlan_removed', this.onRemove);
     }
 
     onSceneChange(e){
         if(e.oldScene){
-            e.oldScene.removeEventListeners('profile_added', this.onAdd);
-            e.oldScene.removeEventListeners('profile_removed', this.onRemove);
+            e.oldScene.removeEventListeners('sitePlan_added', this.onAdd);
+            e.oldScene.removeEventListeners('sitePlan_removed', this.onRemove);
         }
 
-        e.scene.addEventListener('profile_added', this.onAdd);
-        e.scene.addEventListener('profile_removed', this.onRemove);
+        e.scene.addEventListener('sitePlan_added', this.onAdd);
+        e.scene.addEventListener('sitePlan_removed', this.onRemove);
     }
 
     startInsertion (args = {}) {
         let domElement = this.viewer.renderer.domElement;
 
-        let profile = new SitePlan();
-        profile.name = args.name || 'SitePlan';
+        let sitePlan = new SitePlan();
+        sitePlan.name = args.name || 'SitePlan';
 
         this.dispatchEvent({
-            type: 'start_inserting_profile',
-            profile: profile
+            type: 'start_inserting_sitePlan',
+            sitePlan: sitePlan
         });
 
-        this.scene.add(profile);
+        this.scene.add(sitePlan);
 
         let cancel = {
             callback: null
@@ -69,27 +69,27 @@ export class SitePlanTool extends EventDispatcher {
 
         let insertionCallback = (e) => {
             if(e.button === THREE.MOUSE.LEFT){
-                if(profile.points.length <= 1){
+                if(sitePlan.points.length <= 1){
                     let camera = this.viewer.scene.getActiveCamera();
-                    let distance = camera.position.distanceTo(profile.points[0]);
+                    let distance = camera.position.distanceTo(sitePlan.points[0]);
                     let clientSize = this.viewer.renderer.getSize(new THREE.Vector2());
                     let pr = Utils.projectedRadius(1, camera, distance, clientSize.width, clientSize.height);
                     let width = (10 / pr);
 
-                    profile.setWidth(width);
+                    sitePlan.setWidth(width);
                 }
 
-                profile.addMarker(profile.points[profile.points.length - 1].clone());
+                sitePlan.addMarker(sitePlan.points[sitePlan.points.length - 1].clone());
 
                 this.viewer.inputHandler.startDragging(
-                    profile.spheres[profile.spheres.length - 1]);
+                    sitePlan.spheres[sitePlan.spheres.length - 1]);
             } else if (e.button === THREE.MOUSE.RIGHT) {
                 cancel.callback();
             }
         };
 
         cancel.callback = e => {
-            profile.removeMarker(profile.points.length - 1);
+            sitePlan.removeMarker(sitePlan.points.length - 1);
             domElement.removeEventListener('mouseup', insertionCallback, false);
             this.viewer.removeEventListener('cancel_insertions', cancel.callback);
         };
@@ -97,18 +97,18 @@ export class SitePlanTool extends EventDispatcher {
         this.viewer.addEventListener('cancel_insertions', cancel.callback);
         domElement.addEventListener('mouseup', insertionCallback, false);
 
-        profile.addMarker(new THREE.Vector3(0, 0, 0));
+        sitePlan.addMarker(new THREE.Vector3(0, 0, 0));
         this.viewer.inputHandler.startDragging(
-            profile.spheres[profile.spheres.length - 1]);
+            sitePlan.spheres[sitePlan.spheres.length - 1]);
 
-        this.viewer.scene.addProfile(profile);
+        this.viewer.scene.addSitePlan(sitePlan);
 
-        return profile;
+        return sitePlan;
     }
     
     update(){
         let camera = this.viewer.scene.getActiveCamera();
-        let profiles = this.viewer.scene.profiles;
+        let sitePlans = this.viewer.scene.sitePlans;
         let renderAreaSize = this.viewer.renderer.getSize(new THREE.Vector2());
         let clientWidth = renderAreaSize.width;
         let clientHeight = renderAreaSize.height;
@@ -116,8 +116,8 @@ export class SitePlanTool extends EventDispatcher {
         this.light.position.copy(camera.position);
 
         // make size independant of distance
-        for(let profile of profiles){
-            for(let sphere of profile.spheres){				
+        for(let sitePlan of sitePlans){
+            for(let sphere of sitePlan.spheres){				
                 let distance = camera.position.distanceTo(sphere.getWorldPosition(new THREE.Vector3()));
                 let pr = Utils.projectedRadius(1, camera, distance, clientWidth, clientHeight);
                 let scale = (15 / pr);

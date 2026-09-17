@@ -22,6 +22,7 @@ let paths = {
 	html: [
 		"src/viewer/potree.css",
 		"src/viewer/sidebar.html",
+        "src/viewer/sitePlan.html",
 		"src/viewer/profile.html"
 	],
 	resources: [

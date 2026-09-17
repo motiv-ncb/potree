@@ -11,6 +11,7 @@ import {TransformationTool} from "../utils/TransformationTool.js";
 import {Utils} from "../utils.js";
 import {MapView} from "./map.js";
 import {ProfileWindow, ProfileWindowController} from "./profile.js";
+import {SitePlanWindow, SitePlanWindowController} from "./sitePlan.js";
 import {BoxVolume} from "../utils/Volume.js";
 import { TransformOriginBoxVolume } from "../utils/TransformVolume.js";
 import {Features} from "../Features.js";
@@ -48,6 +49,8 @@ export class Viewer extends EventDispatcher{
 
 		this.renderArea = domElement;
 		this.guiLoaded = false;
+        this.profileGuiLoaded = false;
+        this.sitePlanGuiLoaded = false;
 		this.guiLoadTasks = [];
 
 		this.onVrListeners = [];
@@ -1412,7 +1415,7 @@ export class Viewer extends EventDispatcher{
 					$(document.body).append(elProfile.children());
 					this.profileWindow = new ProfileWindow(this);
 					this.profileWindowController = new ProfileWindowController(this);
-
+                   
 					$('#profile_window').draggable({
 						handle: $('#profile_titlebar'),
 						containment: $(document.body)
@@ -1423,7 +1426,10 @@ export class Viewer extends EventDispatcher{
 					});
 
 					$(() => {
-						this.guiLoaded = true;
+                        this.profileGuiLoaded = true;
+                        if(this.sitePlanGuiLoaded){
+                            this.guiLoaded = true;
+                        }
 						for(let task of this.guiLoadTasks){
 							task();
 						}
@@ -1431,7 +1437,32 @@ export class Viewer extends EventDispatcher{
 					});
 				});
 
-				
+
+                let elSitePlan = $('<div>').load(new URL(Potree.scriptPath + '/sitePlan.html').href, () => {
+					$(document.body).append(elSitePlan.children());
+					this.sitePlanWindow = new SitePlanWindow(this);
+                    this.sitePlanWindowController = new SitePlanWindowController(this);
+                   
+					$('#sitePlan_window').draggable({
+						handle: $('#profile_titlebar'),
+						containment: $(document.body)
+					});
+					$('#sitePlan_window').resizable({
+						containment: $(document.body),
+						handles: 'n, e, s, w'
+					});
+
+					$(() => {
+						this.sitePlanGuiLoaded = true;
+                        if(this.profileGuiLoaded){
+                            this.guiLoaded = true;
+                        }
+						for(let task of this.guiLoadTasks){
+							task();
+						}
+
+					});
+				});			
 
 			});
 

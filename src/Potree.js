@@ -80,6 +80,7 @@ export {VRControls} from "./navigation/VRControls.js";
 
 // cmair export //
 export {ProfileWindow} from "./viewer/profile.js"
+export {SitePlanWindow} from "./viewer/sitePlan.js"
 export {MeasurePanel} from "./viewer/PropertyPanels/MeasurePanel.js"
 export {DistancePanel} from "./viewer/PropertyPanels/DistancePanel.js"
 export {EDLRenderer} from "./viewer/EDLRenderer.js"

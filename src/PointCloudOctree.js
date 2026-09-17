@@ -627,6 +627,108 @@ export class PointCloudOctree extends PointCloudTree {
 		return points;
 	}
 
+    /**
+	 * returns points inside the siteplan points
+	 *
+	 * maxDepth:		search points up to the given octree depth
+	 *
+	 *
+	 * The return value is an array with all segments of the profile path
+	 *	let segment = {
+	 *		start:	THREE.Vector3,
+	 *		end:	THREE.Vector3,
+	 *		points: {}
+	 *		project: function()
+	 *	};
+	 *
+	 * The project() function inside each segment can be used to transform
+	 * that segments point coordinates to line up along the x-axis.
+	 *
+	 *
+	 */
+	getPointsInSitePlan (profile, maxDepth, callback) {
+		if (callback) {
+			let request = new Potree.ProfileRequest(this, profile, maxDepth, callback);
+			this.profileRequests.push(request);
+
+			return request;
+		}
+
+		let points = {
+			segments: [],
+			boundingBox: new THREE.Box3(),
+			projectedBoundingBox: new THREE.Box2()
+		};
+
+		// evaluate segments
+		for (let i = 0; i < profile.points.length - 1; i++) {
+			let start = profile.points[i];
+			let end = profile.points[i + 1];
+			let ps = this.getSitePlan(start, end, profile.width, maxDepth);
+
+			let segment = {
+				start: start,
+				end: end,
+				points: ps,
+				project: null
+			};
+
+			points.segments.push(segment);
+
+			points.boundingBox.expandByPoint(ps.boundingBox.min);
+			points.boundingBox.expandByPoint(ps.boundingBox.max);
+		}
+
+		// add projection functions to the segments
+		let mileage = new THREE.Vector3();
+		for (let i = 0; i < points.segments.length; i++) {
+			let segment = points.segments[i];
+			let start = segment.start;
+			let end = segment.end;
+
+			let project = (function (_start, _end, _mileage, _boundingBox) {
+				let start = _start;
+				let end = _end;
+				let mileage = _mileage;
+				let boundingBox = _boundingBox;
+
+				let xAxis = new THREE.Vector3(1, 0, 0);
+				let dir = new THREE.Vector3().subVectors(end, start);
+				dir.y = 0;
+				dir.normalize();
+				let alpha = Math.acos(xAxis.dot(dir));
+				if (dir.z > 0) {
+					alpha = -alpha;
+				}
+
+				return function (position) {
+					let toOrigin = new THREE.Matrix4().makeTranslation(-start.x, -boundingBox.min.y, -start.z);
+					let alignWithX = new THREE.Matrix4().makeRotationY(-alpha);
+					let applyMileage = new THREE.Matrix4().makeTranslation(mileage.x, 0, 0);
+
+					let pos = position.clone();
+					pos.applyMatrix4(toOrigin);
+					pos.applyMatrix4(alignWithX);
+					pos.applyMatrix4(applyMileage);
+
+					return pos;
+				};
+			}(start, end, mileage.clone(), points.boundingBox.clone()));
+
+			segment.project = project;
+
+			mileage.x += new THREE.Vector3(start.x, 0, start.z).distanceTo(new THREE.Vector3(end.x, 0, end.z));
+			mileage.y += end.y - start.y;
+		}
+
+		points.projectedBoundingBox.min.x = 0;
+		points.projectedBoundingBox.min.y = points.boundingBox.min.y;
+		points.projectedBoundingBox.max.x = mileage.x;
+		points.projectedBoundingBox.max.y = points.boundingBox.max.y;
+
+		return points;
+	}
+
 	/**
 	 * returns points inside the given profile bounds.
 	 *
@@ -639,6 +741,23 @@ export class PointCloudOctree extends PointCloudTree {
 	 *
 	 */
 	getProfile (start, end, width, depth, callback) {
+		let request = new Potree.ProfileRequest(start, end, width, depth, callback);
+		this.profileRequests.push(request);
+	};
+
+    /**
+	 * returns points inside the given profile bounds.
+	 *
+	 * start:
+	 * end:
+	 * width:
+	 * depth:		search points up to the given octree depth
+	 * callback:	if specified, points are loaded before searching
+	 *
+	 *
+	 */
+	getSitePlan (start, end, width, depth, callback) {
+        // TODO : Get site plan
 		let request = new Potree.ProfileRequest(start, end, width, depth, callback);
 		this.profileRequests.push(request);
 	};
