@@ -131,9 +131,9 @@ class SitePlanFakeOctree extends PointCloudTree{
                 data.data.position[3 * i + 2] + this.trueOctree.position.z,
             );
 
-            let x = data.data.mileage[i];
-            let y = 0;
-            let z = truePos.z;
+            let x = truePos.x;
+            let y = truePos.y;
+            let z = 0;
 
             projectedBox.expandByPoint(new THREE.Vector3(x, y, z));
 
@@ -331,7 +331,7 @@ export class SitePlanWindow extends EventDispatcher {
                 let ncPos = [this.scaleX.invert(newMouse.x), this.scaleY.invert(newMouse.y)];
 
                 this.camera.position.x -= ncPos[0] - cPos[0];
-                this.camera.position.z -= ncPos[1] - cPos[1];
+                this.camera.position.y -= ncPos[1] - cPos[1];
 
                 this.render();
             } else if (this.pointclouds.size > 0) {
@@ -473,7 +473,7 @@ export class SitePlanWindow extends EventDispatcher {
             let ncPos = [this.scaleX.invert(this.mouse.x), this.scaleY.invert(this.mouse.y)];
 
             this.camera.position.x -= ncPos[0] - cPos[0];
-            this.camera.position.z -= ncPos[1] - cPos[1];
+            this.camera.position.y -= ncPos[1] - cPos[1];
 
             this.render();
             this.updateScales();
@@ -680,8 +680,8 @@ export class SitePlanWindow extends EventDispatcher {
         this.camera = new THREE.OrthographicCamera(-1000, 1000, 1000, -1000, -1000, 1000);
         this.camera.up.set(0, 0, 1);
         this.camera.rotation.order = "ZXY";
-        this.camera.rotation.x = Math.PI / 2.0;
-    
+        // this.camera.rotation.x = Math.PI / 2.0;
+      //  this.camera.rotation.x = - Math.PI ;
 
         this.scene = new THREE.Scene();
         this.sitePlanScene = new THREE.Scene();
@@ -705,7 +705,7 @@ export class SitePlanWindow extends EventDispatcher {
             .domain([this.camera.left + this.camera.position.x, this.camera.right + this.camera.position.x])
             .range([0, width]);
         this.scaleY = d3.scale.linear()
-            .domain([this.camera.bottom + this.camera.position.z, this.camera.top + this.camera.position.z])
+            .domain([this.camera.bottom + this.camera.position.y, this.camera.top + this.camera.position.y])
             .range([height, 0]);
 
         this.xAxis = d3.svg.axis()
@@ -846,7 +846,7 @@ export class SitePlanWindow extends EventDispatcher {
 
         this.scaleX.domain([this.camera.left + this.camera.position.x, this.camera.right + this.camera.position.x])
             .range([0, width]);
-        this.scaleY.domain([this.camera.bottom + this.camera.position.z, this.camera.top + this.camera.position.z])
+        this.scaleY.domain([this.camera.bottom + this.camera.position.y, this.camera.top + this.camera.position.y])
             .range([height, 0]);
 
         let marginLeft = this.renderArea[0].offsetLeft;
