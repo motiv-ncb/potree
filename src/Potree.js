@@ -55,6 +55,7 @@ export * from "./utils/Message.js";
 export * from "./utils/PointCloudSM.js";
 export * from "./utils/PolygonClipVolume.js";
 export * from "./utils/Profile.js";
+export * from "./utils/SitePlan.js";
 export * from "./utils/ProfileTool.js";
 export * from "./utils/ScreenBoxSelectTool.js";
 export * from "./utils/SpotLightHelper.js";
