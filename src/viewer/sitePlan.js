@@ -1071,10 +1071,12 @@ export class SitePlanWindowController {
     }
 
     progressHandler (pointcloud, progress) {
-        for (let segment of progress.segments) {
-            this.sitePlanWindow.addPoints(pointcloud, segment.points);
-            this.numPoints += segment.points.numPoints;
-        }
+        this.sitePlanWindow.addPoints(pointcloud, progress.points);
+        this.numPoints += progress.points.numPoints;
+        // for (let segment of progress.segments) {
+        //     this.sitePlanWindow.addPoints(pointcloud, segment.points);
+        //     this.numPoints += segment.points.numPoints;
+        // }
     }
 
     cancel () {

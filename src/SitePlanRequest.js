@@ -9,6 +9,8 @@ export class SitePlanData {
 		this.segments = [];
 		this.boundingBox = new THREE.Box3();
 
+        this.points = new Points();
+
 		for (let i = 0; i < sitePlan.points.length - 1; i++) {
 			let start = sitePlan.points[i];
 			let end = sitePlan.points[i + 1];
@@ -24,7 +26,7 @@ export class SitePlanData {
 			let N = forward;
 			let cutPlane = new THREE.Plane().setFromNormalAndCoplanarPoint(N, startGround);
 			let halfPlane = new THREE.Plane().setFromNormalAndCoplanarPoint(side, center);
-
+            
 			let segment = {
 				start: start,
 				end: end,
@@ -39,12 +41,9 @@ export class SitePlanData {
 	}
 
 	size () {
-		let size = 0;
-		for (let segment of this.segments) {
-			size += segment.points.numPoints;
-		}
+       
+        return this.points.numPoints;
 
-		return size;
 	}
 };
 
@@ -181,14 +180,14 @@ export class SitePlanRequest {
 		yield true;
 	};
 
-	* getAccepted(numPoints, node, matrix, segment, segmentDir, points, totalMileage){
+	* getAccepted(numPoints, node, matrix, sitePlanPoint, segmentDir, points, totalMileage){
 		let checkpoint = performance.now();
 
 		let accepted = new Uint32Array(numPoints);
 		let mileage = new Float64Array(numPoints);
 		let acceptedPositions = new Float32Array(numPoints * 3);
 		let numAccepted = 0;
-
+        
 		let pos = new THREE.Vector3();
 		let svp = new THREE.Vector3();
 
@@ -202,10 +201,10 @@ export class SitePlanRequest {
 				view[i * 3 + 2]);
 
 			pos.applyMatrix4(matrix);
-            let distance = Math.abs(pos.z - segment.start.z)
+            let distance = Math.abs(pos.z - sitePlanPoint.z)
 
 			if (distance < this.sitePlan.width / 2) {
-				svp.subVectors(pos, segment.start);
+				svp.subVectors(pos, sitePlanPoint);
 				let localMileage = segmentDir.dot(svp);
 
 				accepted[numAccepted] = i;
@@ -249,8 +248,9 @@ export class SitePlanRequest {
 		let totalMileage = 0;
 
 		let pointsProcessed = 0;
-        if(target.segments.length > 0){
+        if(target.sitePlan.points.length > 0){
             let segment = target.segments[0];
+            let sitePlanPoint = target.sitePlan.points[0];
 			for (let node of nodes) {
 				let numPoints = node.numPoints;
 				let geometry = node.geometry;
@@ -263,7 +263,7 @@ export class SitePlanRequest {
 					let bbWorld = node.boundingBox.clone().applyMatrix4(this.pointcloud.matrixWorld);
 					let bsWorld = bbWorld.getBoundingSphere(new THREE.Sphere());
 
-                    let distance = Math.abs(segment.start.z - bsWorld.center.z) ;
+                    let distance = Math.abs(sitePlanPoint.z - sitePlanPoint.z) ;
 					let intersects = (distance < (bsWorld.radius + target.sitePlan.width));
 
 					if(!intersects){
@@ -279,9 +279,8 @@ export class SitePlanRequest {
 				// 	viewer.scene.scene.add(boxHelper);
 				// }
 
-				let sv = new THREE.Vector3().subVectors(segment.end, segment.start).setZ(0);
-				let segmentDir = sv.clone().normalize();
 
+                let segmentDir = new THREE.Vector3(1,0,0);
 				let points = new Points();
 
 				let nodeMatrix = new THREE.Matrix4().makeTranslation(...node.boundingBox.min.toArray());
@@ -294,7 +293,7 @@ export class SitePlanRequest {
 				let accepted = null;
 				let mileage = null;
 				let acceptedPositions = null;
-				for(let result of this.getAccepted(numPoints, node, matrix, segment, segmentDir, points,totalMileage)){
+				for(let result of this.getAccepted(numPoints, node, matrix, sitePlanPoint, segmentDir, points,totalMileage)){
 					if(!result){
 						let duration = performance.now() - checkpoint;
 						//console.log(`getPointsInsideSitePlan yield after ${duration}ms`);
@@ -352,16 +351,16 @@ export class SitePlanRequest {
 				points.data['mileage'] = mileage;
 				points.numPoints = accepted.length;
 
-				segment.points.add(points);
+				// segment.points.add(points);
+                target.points.add(points);
 			}
 
-			totalMileage += segment.length;
 		}
 
-		if(target.segments.length > 0){
-            let segment = target.segments[0];
-			target.boundingBox.union(segment.points.boundingBox);
-		}
+		
+        for(let node of nodes){
+            target.boundingBox.union(node.boundingBox);
+        }
 
 		//console.log(`getPointsInsideSitePlan finished`);
 		yield true;
