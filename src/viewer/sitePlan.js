@@ -405,12 +405,6 @@ export class SitePlanWindow extends EventDispatcher {
                                 </tr>`;
                         } else if (attributeName === 'normal') {
                             continue;
-                        } else if (attributeName === 'mileage') {
-                            html += `
-                                <tr>
-                                    <td>${attributeName}</td>
-                                    <td>${value.toFixed(3)}</td>
-                                </tr>`;
                         } else {
                             html += `
                                 <tr>

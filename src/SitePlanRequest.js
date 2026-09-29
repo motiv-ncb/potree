@@ -152,11 +152,10 @@ export class SitePlanRequest {
 		yield true;
 	};
 
-	* getAccepted(numPoints, node, matrix, sitePlanPoint, points, totalMileage){
+	* getAccepted(numPoints, node, matrix, sitePlanPoint, points){
 		let checkpoint = performance.now();
 
 		let accepted = new Uint32Array(numPoints);
-		let mileage = new Float64Array(numPoints);
 		let acceptedPositions = new Float32Array(numPoints * 3);
 		let numAccepted = 0;
         
@@ -176,11 +175,8 @@ export class SitePlanRequest {
             let distance = Math.abs(pos.z - sitePlanPoint.z)
 
 			if (distance < this.sitePlan.width / 2) {
-				svp.subVectors(pos, sitePlanPoint);
-				let localMileage = svp.z;
 
 				accepted[numAccepted] = i;
-				mileage[numAccepted] = localMileage + totalMileage;
 				points.boundingBox.expandByPoint(pos);
 
 				pos.sub(this.pointcloud.position);
@@ -203,7 +199,6 @@ export class SitePlanRequest {
 		}
 
 		accepted = accepted.subarray(0, numAccepted);
-		mileage = mileage.subarray(0, numAccepted);
 		acceptedPositions = acceptedPositions.subarray(0, numAccepted * 3);
 
 		//let end = performance.now();
@@ -212,12 +207,11 @@ export class SitePlanRequest {
 
 		//console.log(`getAccepted finished`);
 
-		yield [accepted, mileage, acceptedPositions];
+		yield [accepted, acceptedPositions];
 	}
 
 	* getPointsInsideSitePlan(nodes, target){
 		let checkpoint = performance.now();
-		let totalMileage = 0;
 
 		let pointsProcessed = 0;
         if(target.sitePlan.points.length > 0){
@@ -261,16 +255,15 @@ export class SitePlanRequest {
 				pointsProcessed = pointsProcessed + numPoints;
 
 				let accepted = null;
-				let mileage = null;
 				let acceptedPositions = null;
-				for(let result of this.getAccepted(numPoints, node, matrix, sitePlanPoint, points,totalMileage)){
+				for(let result of this.getAccepted(numPoints, node, matrix, sitePlanPoint, points)){
 					if(!result){
 						let duration = performance.now() - checkpoint;
 						//console.log(`getPointsInsideSitePlan yield after ${duration}ms`);
 						yield false;
 						checkpoint = performance.now();
 					}else{
-						[accepted, mileage, acceptedPositions] = result;
+						[accepted, acceptedPositions] = result;
 					}
 				}
 
@@ -318,7 +311,6 @@ export class SitePlanRequest {
 					points.data[attributeName] = filteredBuffer;
 				}
 
-				points.data['mileage'] = mileage;
 				points.numPoints = accepted.length;
 
                 target.points.add(points);

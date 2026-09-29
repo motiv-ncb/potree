@@ -8,17 +8,7 @@ export class DXFSitePlanExporter {
 
 	static toXYZ(points, flatten = false) {
 
-		/*
-		points: {
-			...
-			data: {
-				mileage: [0, 1, 2...], -> one per point
-				position: [0, 0, 0, 1, 1, 1, 2, 2, 2...], -> X, Y, Z
-				rgba: [0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2...] -> R, G, B, A
-			},
-			numPoints: Int
-		}
-		*/
+	
 
 		const pointsXYZ = {
 			x: [],
@@ -34,13 +24,11 @@ export class DXFSitePlanExporter {
 		};
 
 		const pData    = points.data;
-		const pMileage = pData.mileage;
 		const pCoords  = pData.position;
 		const pColor   = pData.rgba;
 
 		for (let pIx = 0; pIx < points.numPoints; pIx++) {
 
-			const poMileage = pMileage[pIx];
 			const poCoordX  = pCoords[ ((pIx * 3) + 0) ];
 			const poCoordY  = pCoords[ ((pIx * 3) + 1) ];
 			const poCoordZ  = pCoords[ ((pIx * 3) + 2) ];
@@ -51,17 +39,17 @@ export class DXFSitePlanExporter {
 
 			if (flatten === true) {
 
-				pointsXYZ.x.push(poMileage);
-				pointsXYZ.y.push(0);
+				pointsXYZ.x.push(poCoordX);
+				pointsXYZ.y.push(poCoordY);
 				pointsXYZ.z.push(poCoordZ);
 
 				// Get boundaries X
-				if (pointsXYZ.maxX < poMileage) pointsXYZ.maxX = poMileage;
-				if (pointsXYZ.minX > poMileage) pointsXYZ.minX = poMileage;
+				if (pointsXYZ.maxX < poCoordX) pointsXYZ.maxX = poCoordX;
+				if (pointsXYZ.minX > poCoordX) pointsXYZ.minX = poCoordX;
 
 				// Get boundaries Z
-				if (pointsXYZ.maxZ < poCoordZ) pointsXYZ.maxZ = poCoordZ;
-				if (pointsXYZ.minZ > poCoordZ) pointsXYZ.minZ = poCoordZ;
+				if (pointsXYZ.maxY < poCoordY) pointsXYZ.maxY = poCoordY;
+				if (pointsXYZ.minY > poCoordY) pointsXYZ.minY = poCoordY;
 
 			} else {
 
@@ -87,8 +75,8 @@ export class DXFSitePlanExporter {
 
 		if (flatten === true) {
 			// Set boundaries Y
-			pointsXYZ.maxY = 0;
-			pointsXYZ.minY = 0;
+			pointsXYZ.maxZ = 0;
+			pointsXYZ.minZ = 0;
 		}
 
 		pointsXYZ.numPoints = points.numPoints;
