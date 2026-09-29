@@ -14,18 +14,17 @@ export class SitePlan extends THREE.Object3D{
         this.spheres = [];
         this.boxes = [];
         this.width = 1;
-        this.height = 20;
         this._modifiable = true;
 
         this.sphereGeometry = new THREE.SphereGeometry(0.4, 10, 10);
-        this.color = new THREE.Color(0xff0000);
+        this.color = new THREE.Color(0xffff00);
         this.lineColor = new THREE.Color(0xff0000);
     }
 
     createSphereMaterial () {
         let sphereMaterial = new THREE.MeshLambertMaterial({
             //shading: THREE.SmoothShading,
-            color: 0xff0000,
+            color: 0xffff00,
             depthTest: false,
             depthWrite: false}
         );
