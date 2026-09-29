@@ -852,7 +852,7 @@ export class SitePlanWindow extends EventDispatcher {
             .innerTickSize(-width)
             .outerTickSize(1)
             .tickPadding(10)
-            .ticks(height / 20);
+            .ticks(height / 50);
 
 
         this.elXAxis
