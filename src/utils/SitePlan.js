@@ -17,14 +17,25 @@ export class SitePlan extends THREE.Object3D{
         this._modifiable = true;
 
         this.sphereGeometry = new THREE.SphereGeometry(0.4, 10, 10);
-        this.color = new THREE.Color(0xffff00);
+        this.color = new THREE.Color(0xff0000);
         this.lineColor = new THREE.Color(0xff0000);
+
+        this.coneGeometry = new THREE.ConeGeometry( 0.4, 1, 10 );
+
+        this.upObject = new THREE.Mesh(this.coneGeometry, this.createSphereMaterial());
+        this.downObject = new THREE.Mesh(this.coneGeometry, this.createSphereMaterial());
+        this.upObject.rotation.x = Math.PI / 2;
+        this.downObject.rotation.x = - Math.PI / 2;
+        let shift = 1.5
+        this.upObject.position.z = shift
+        this.downObject.position.z = -shift;
+        this.setTopBottomEvent();
     }
 
     createSphereMaterial () {
         let sphereMaterial = new THREE.MeshLambertMaterial({
             //shading: THREE.SmoothShading,
-            color: 0xffff00,
+            color: 0xff0000,
             depthTest: false,
             depthWrite: false}
         );
@@ -32,44 +43,57 @@ export class SitePlan extends THREE.Object3D{
         return sphereMaterial;
     };
 
-    getSegments () {
-        let segments = [];
+    setTopBottomEvent(){
 
-        for (let i = 0; i < this.points.length - 1; i++) {
-            let start = this.points[i].clone();
-            let end = this.points[i + 1].clone();
-            segments.push({start: start, end: end});
-        }
+        let upDrag = (e) => {
+            let p = this.getMouseVerticalPlaneIntersection(e.drag.end,e.viewer.scene.getActiveCamera(),e.viewer, this.points[0]);
+                        this.upObject.material.emissive.setHex(0x000000);
 
-        return segments;
-    }
+            this.setPosition(0, new THREE.Vector3(this.points[0].x, this.points[0].y, p.z + 1.5 / this.spheres[0].scale.z))
 
-    getSegmentMatrices () {
-        let segments = this.getSegments();
-        let matrices = [];
+            this.update();
+        };
 
-        for (let segment of segments) {
-            let {start, end} = segment;
+        let downDrag = (e) => {
+            let p = this.getMouseVerticalPlaneIntersection(e.drag.end,e.viewer.scene.getActiveCamera(),e.viewer, this.points[0]);
+             this.downObject.material.emissive.setHex(0x000000);
+            // this.points[0].z = p.z + 1.5 / this.spheres[0].scale.z;
+            this.setPosition(0, new THREE.Vector3(this.points[0].x, this.points[0].y,  p.z + 1.5 / this.spheres[0].scale.z))
+           
+            this.update();
+        }; 
 
-            let box = new THREE.Object3D();
+        let mouseover = (e) => e.object.material.emissive.setHex(0x888888);
+        let mouseleave = (e) => e.object.material.emissive.setHex(0x000000);
 
-            let length = start.clone().setZ(0).distanceTo(end.clone().setZ(0));
-            box.scale.set(length, 10000, this.width);
-            box.up.set(0, 0, 1);
+        this.upObject.addEventListener('drag', upDrag);
+        this.downObject.addEventListener('drag', downDrag);
 
-            let center = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
-            let diff = new THREE.Vector3().subVectors(end, start);
-            let target = new THREE.Vector3(diff.y, -diff.x, 0);
+        this.upObject.addEventListener('mouseover', mouseover);
+        this.upObject.addEventListener('mouseleave', mouseleave);
 
-            box.position.set(0, 0, 0);
-            box.lookAt(target);
-            box.position.copy(center);
+        this.downObject.addEventListener('mouseover', mouseover);
+        this.downObject.addEventListener('mouseleave', mouseleave);
 
-            box.updateMatrixWorld();
-            matrices.push(box.matrixWorld);
-        }
+    }    
 
-        return matrices;
+    getMouseVerticalPlaneIntersection(mouse, camera, viewer, point){
+        let renderer = viewer.renderer;
+        
+        let nmouse = {
+            x: (mouse.x / renderer.domElement.clientWidth) * 2 - 1,
+            y: -(mouse.y / renderer.domElement.clientHeight) * 2 + 1
+        };
+
+        let raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(nmouse, camera);
+        let ray = raycaster.ray;
+        const direction = ray.direction;
+        let plane = new THREE.Plane();
+        plane.setFromNormalAndCoplanarPoint(direction, point);
+        let target = new THREE.Vector3();
+        ray.intersectPlane(plane,target);
+        return target;
     }
 
     addMarker (point) {
@@ -80,7 +104,8 @@ export class SitePlan extends THREE.Object3D{
         this.add(sphere);
         this.spheres.push(sphere);
 
-        
+        sphere.add(this.upObject);
+        sphere.add(this.downObject);
         
         let boxGeometry = new THREE.BoxGeometry(1, 1, 1);
         let boxMaterial = new THREE.MeshBasicMaterial({color: 0xff0000, transparent: true, opacity: 0.2});
@@ -212,6 +237,8 @@ export class SitePlan extends THREE.Object3D{
 
             sphere.raycast(raycaster, intersects);
         }
+        this.upObject.raycast(raycaster, intersects);
+        this.downObject.raycast(raycaster, intersects);
 
         // recalculate distances because they are not necessarely correct
         // for scaled objects.
