@@ -1994,6 +1994,10 @@ export class Viewer extends EventDispatcher{
 			for(let profile of this.scene.profiles){
 				boxes.push(...profile.boxes);
 			}
+
+            for(let sitePlan of this.scene.sitePlans){
+                boxes.push(...sitePlan.boxes);
+            }
 			
 			// Needed for .getInverse(), pre-empt a determinant of 0, see #815 / #816
 			let degenerate = (box) => box.matrixWorld.determinant() !== 0;

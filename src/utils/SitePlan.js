@@ -12,7 +12,6 @@ export class SitePlan extends THREE.Object3D{
         this.name = 'Profile_' + this.constructor.counter;
         this.points = [];
         this.spheres = [];
-        this.edges = [];
         this.boxes = [];
         this.width = 1;
         this.height = 20;
@@ -82,32 +81,16 @@ export class SitePlan extends THREE.Object3D{
         this.add(sphere);
         this.spheres.push(sphere);
 
-        // edges & boxes
-        if (this.points.length > 1) {
-            let lineGeometry = new THREE.Geometry();
-            lineGeometry.vertices.push(new THREE.Vector3(), new THREE.Vector3());
-            lineGeometry.colors.push(this.lineColor, this.lineColor, this.lineColor);
-            let lineMaterial = new THREE.LineBasicMaterial({
-                vertexColors: THREE.VertexColors,
-                linewidth: 2,
-                transparent: true,
-                opacity: 0.4
-            });
-            lineMaterial.depthTest = false;
-            let edge = new THREE.Line(lineGeometry, lineMaterial);
-            edge.visible = false;
+        
+        
+        let boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+        let boxMaterial = new THREE.MeshBasicMaterial({color: 0xff0000, transparent: true, opacity: 0.2});
+        let box = new THREE.Mesh(boxGeometry, boxMaterial);
+        box.visible = false;
 
-            this.add(edge);
-            this.edges.push(edge);
-
-            let boxGeometry = new THREE.BoxGeometry(1, 1, 1);
-            let boxMaterial = new THREE.MeshBasicMaterial({color: 0xff0000, transparent: true, opacity: 0.2});
-            let box = new THREE.Mesh(boxGeometry, boxMaterial);
-            box.visible = false;
-
-            this.add(box);
-            this.boxes.push(box);
-        }
+        this.add(box);
+        this.boxes.push(box);
+        
 
         { // event listeners
             let drag = (e) => {
@@ -166,8 +149,7 @@ export class SitePlan extends THREE.Object3D{
         this.remove(this.spheres[index]);
 
         let edgeIndex = (index === 0) ? 0 : (index - 1);
-        this.remove(this.edges[edgeIndex]);
-        this.edges.splice(edgeIndex, 1);
+      
         this.remove(this.boxes[edgeIndex]);
         this.boxes.splice(edgeIndex, 1);
 
@@ -219,77 +201,9 @@ export class SitePlan extends THREE.Object3D{
         } else if (this.points.length === 1) {
             let point = this.points[0];
             this.spheres[0].position.copy(point);
-
+            this.boxes[0].position.copy(point);
+            this.boxes[0].scale.set(1000000, 1000000, this.width);
             return;
-        }
-
-        let min = this.points[0].clone();
-        let max = this.points[0].clone();
-        let centroid = new THREE.Vector3();
-        let lastIndex = this.points.length - 1;
-        for (let i = 0; i <= lastIndex; i++) {
-            let point = this.points[i];
-            let sphere = this.spheres[i];
-            let leftIndex = (i === 0) ? lastIndex : i - 1;
-            // let rightIndex = (i === lastIndex) ? 0 : i + 1;
-            let leftVertex = this.points[leftIndex];
-            // let rightVertex = this.points[rightIndex];
-            let leftEdge = this.edges[leftIndex];
-            let rightEdge = this.edges[i];
-            let leftBox = this.boxes[leftIndex];
-            // rightBox = this.boxes[i];
-
-            // let leftEdgeLength = point.distanceTo(leftVertex);
-            // let rightEdgeLength = point.distanceTo(rightVertex);
-            // let leftEdgeCenter = new THREE.Vector3().addVectors(leftVertex, point).multiplyScalar(0.5);
-            // let rightEdgeCenter = new THREE.Vector3().addVectors(point, rightVertex).multiplyScalar(0.5);
-
-            sphere.position.copy(point);
-
-            if (this._modifiable) {
-                sphere.visible = true;
-            } else {
-                sphere.visible = false;
-            }
-
-            if (leftEdge) {
-                leftEdge.geometry.vertices[1].copy(point);
-                leftEdge.geometry.verticesNeedUpdate = true;
-                leftEdge.geometry.computeBoundingSphere();
-            }
-
-            if (rightEdge) {
-                rightEdge.geometry.vertices[0].copy(point);
-                rightEdge.geometry.verticesNeedUpdate = true;
-                rightEdge.geometry.computeBoundingSphere();
-            }
-
-            if (leftBox) {
-                let start = leftVertex;
-                let end = point;
-                let length = start.clone().setZ(0).distanceTo(end.clone().setZ(0));
-                leftBox.scale.set(length, 1000000, this.width);
-                leftBox.up.set(0, 0, 1);
-
-                let center = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
-                let diff = new THREE.Vector3().subVectors(end, start);
-                let target = new THREE.Vector3(diff.y, -diff.x, 0);
-
-                leftBox.position.set(0, 0, 0);
-                leftBox.lookAt(target);
-                leftBox.position.copy(center);
-            }
-
-            centroid.add(point);
-            min.min(point);
-            max.max(point);
-        }
-        centroid.multiplyScalar(1 / this.points.length);
-
-        for (let i = 0; i < this.boxes.length; i++) {
-            let box = this.boxes[i];
-
-            box.position.z = min.z + (max.z - min.z) / 2;
         }
     }
 
