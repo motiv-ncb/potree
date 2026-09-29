@@ -49,7 +49,7 @@ export class SitePlan extends THREE.Object3D{
             let p = this.getMouseVerticalPlaneIntersection(e.drag.end,e.viewer.scene.getActiveCamera(),e.viewer, this.points[0]);
                         this.upObject.material.emissive.setHex(0x000000);
 
-            this.setPosition(0, new THREE.Vector3(this.points[0].x, this.points[0].y, p.z + 1.5 / this.spheres[0].scale.z))
+            this.setPosition(0, new THREE.Vector3(this.points[0].x, this.points[0].y, p.z - 1.5 * this.spheres[0].scale.z))
 
             this.update();
         };
@@ -58,7 +58,7 @@ export class SitePlan extends THREE.Object3D{
             let p = this.getMouseVerticalPlaneIntersection(e.drag.end,e.viewer.scene.getActiveCamera(),e.viewer, this.points[0]);
              this.downObject.material.emissive.setHex(0x000000);
             // this.points[0].z = p.z + 1.5 / this.spheres[0].scale.z;
-            this.setPosition(0, new THREE.Vector3(this.points[0].x, this.points[0].y,  p.z + 1.5 / this.spheres[0].scale.z))
+            this.setPosition(0, new THREE.Vector3(this.points[0].x, this.points[0].y,  p.z + 1.5 * this.spheres[0].scale.z))
            
             this.update();
         }; 
@@ -169,7 +169,15 @@ export class SitePlan extends THREE.Object3D{
 
     removeMarker (index) {
         this.points.splice(index, 1);
+        try{
+            this.spheres[index].remove(this.upObject);
+            this.spheres[index].remove(this.downObject);
+        }
+        catch{
 
+        }
+       
+        
         this.remove(this.spheres[index]);
 
         let edgeIndex = (index === 0) ? 0 : (index - 1);

@@ -81,6 +81,10 @@ export class SitePlanTool extends EventDispatcher {
 
                 sitePlan.addMarker(sitePlan.points[sitePlan.points.length - 1].clone());
                 cancel.callback();
+
+                sitePlan.spheres[0].add(sitePlan.upObject);
+                sitePlan.spheres[0].add(sitePlan.downObject);
+
                 // this.viewer.inputHandler.startDragging(
                 //     sitePlan.spheres[sitePlan.spheres.length - 1]);
             } else if (e.button === THREE.MOUSE.RIGHT) {
