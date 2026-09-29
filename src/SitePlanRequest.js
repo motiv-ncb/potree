@@ -6,38 +6,10 @@ export class SitePlanData {
 	constructor (sitePlan) {
 		this.sitePlan = sitePlan;
 
-		this.segments = [];
 		this.boundingBox = new THREE.Box3();
 
         this.points = new Points();
 
-		for (let i = 0; i < sitePlan.points.length - 1; i++) {
-			let start = sitePlan.points[i];
-			let end = sitePlan.points[i + 1];
-
-			let startGround = new THREE.Vector3(start.x, start.y, 0);
-			let endGround = new THREE.Vector3(end.x, end.y, 0);
-
-			let center = new THREE.Vector3().addVectors(endGround, startGround).multiplyScalar(0.5);
-			let length = startGround.distanceTo(endGround);
-			let side = new THREE.Vector3().subVectors(endGround, startGround).normalize();
-			let up = new THREE.Vector3(0, 0, 1);
-			let forward = new THREE.Vector3().crossVectors(side, up).normalize();
-			let N = forward;
-			let cutPlane = new THREE.Plane().setFromNormalAndCoplanarPoint(N, startGround);
-			let halfPlane = new THREE.Plane().setFromNormalAndCoplanarPoint(side, center);
-            
-			let segment = {
-				start: start,
-				end: end,
-				cutPlane: cutPlane,
-				halfPlane: halfPlane,
-				length: length,
-				points: new Points()
-			};
-
-			this.segments.push(segment);
-		}
 	}
 
 	size () {
@@ -180,7 +152,7 @@ export class SitePlanRequest {
 		yield true;
 	};
 
-	* getAccepted(numPoints, node, matrix, sitePlanPoint, segmentDir, points, totalMileage){
+	* getAccepted(numPoints, node, matrix, sitePlanPoint, points, totalMileage){
 		let checkpoint = performance.now();
 
 		let accepted = new Uint32Array(numPoints);
@@ -205,7 +177,7 @@ export class SitePlanRequest {
 
 			if (distance < this.sitePlan.width / 2) {
 				svp.subVectors(pos, sitePlanPoint);
-				let localMileage = segmentDir.dot(svp);
+				let localMileage = svp.z;
 
 				accepted[numAccepted] = i;
 				mileage[numAccepted] = localMileage + totalMileage;
@@ -249,7 +221,6 @@ export class SitePlanRequest {
 
 		let pointsProcessed = 0;
         if(target.sitePlan.points.length > 0){
-            let segment = target.segments[0];
             let sitePlanPoint = target.sitePlan.points[0];
 			for (let node of nodes) {
 				let numPoints = node.numPoints;
@@ -280,7 +251,6 @@ export class SitePlanRequest {
 				// }
 
 
-                let segmentDir = new THREE.Vector3(1,0,0);
 				let points = new Points();
 
 				let nodeMatrix = new THREE.Matrix4().makeTranslation(...node.boundingBox.min.toArray());
@@ -293,7 +263,7 @@ export class SitePlanRequest {
 				let accepted = null;
 				let mileage = null;
 				let acceptedPositions = null;
-				for(let result of this.getAccepted(numPoints, node, matrix, sitePlanPoint, segmentDir, points,totalMileage)){
+				for(let result of this.getAccepted(numPoints, node, matrix, sitePlanPoint, points,totalMileage)){
 					if(!result){
 						let duration = performance.now() - checkpoint;
 						//console.log(`getPointsInsideSitePlan yield after ${duration}ms`);
@@ -351,7 +321,6 @@ export class SitePlanRequest {
 				points.data['mileage'] = mileage;
 				points.numPoints = accepted.length;
 
-				// segment.points.add(points);
                 target.points.add(points);
 			}
 

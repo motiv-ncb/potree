@@ -251,11 +251,7 @@ export class SitePlanWindow extends EventDispatcher {
         this.autoFitEnabled = true; // completely disable/enable
         this.autoFit = false; // internal
 
-        let cwIcon = `${exports.resourcePath}/icons/arrow_cw.svg`;
-        $('#potree_sitePlan_rotate_cw').attr('src', cwIcon);
-
-        let ccwIcon = `${exports.resourcePath}/icons/arrow_ccw.svg`;
-        $('#potree_sitePlan_rotate_ccw').attr('src', ccwIcon);
+       
         
         let forwardIcon = `${exports.resourcePath}/icons/arrow_up.svg`;
         $('#potree_sitePlan_move_forward').attr('src', forwardIcon);
@@ -264,16 +260,16 @@ export class SitePlanWindow extends EventDispatcher {
         $('#potree_sitePlan_move_backward').attr('src', backwardIcon);
 
         let dxf2DIcon = `${exports.resourcePath}/icons/file_dxf_2d.svg`;
-        $('#potree_download_dxf2D_icon').attr('src', dxf2DIcon);
+        $('#potree_download_sitePlan_dxf2D_icon').attr('src', dxf2DIcon);
 
         let dxf3DIcon = `${exports.resourcePath}/icons/file_dxf_3d.svg`;
-        $('#potree_download_dxf3D_icon').attr('src', dxf3DIcon);
+        $('#potree_download_sitePlan_dxf3D_icon').attr('src', dxf3DIcon);
 
         let csvIcon = `${exports.resourcePath}/icons/file_csv_2d.svg`;
-        $('#potree_download_csv_icon').attr('src', csvIcon);
+        $('#potree_download_sitePlan_csv_icon').attr('src', csvIcon);
 
         let lasIcon = `${exports.resourcePath}/icons/file_las_3d.svg`;
-        $('#potree_download_las_icon').attr('src', lasIcon);
+        $('#potree_download_sitePlan_las_icon').attr('src', lasIcon);
 
         let closeIcon = `${exports.resourcePath}/icons/close.svg`;
         $('#closeSitePlanContainer').attr("src", closeIcon);
@@ -337,10 +333,10 @@ export class SitePlanWindow extends EventDispatcher {
             } else if (this.pointclouds.size > 0) {
                 // FIND HOVERED POINT
                 let radius = Math.abs(this.scaleX.invert(0) - this.scaleX.invert(40));
-                let mileage = this.scaleX.invert(newMouse.x);
-                let elevation = this.scaleY.invert(newMouse.y);
+                let x = this.scaleX.invert(newMouse.x);
+                let y = this.scaleY.invert(newMouse.y);
 
-                let closest = this.selectPoint(mileage, elevation, radius);
+                let closest = this.selectPoint(x, y, radius);
 
                 if (closest) {
                     let point = closest.point;
@@ -354,7 +350,7 @@ export class SitePlanWindow extends EventDispatcher {
                     this.elRoot.find('#sitePlanSelectionProperties').fadeIn(200);
                     this.pickSphere.visible = true;
                     this.pickSphere.scale.set(0.5 * radius, 0.5 * radius, 0.5 * radius);
-                    this.pickSphere.position.set(point.mileage, 0, position[2]);
+                    this.pickSphere.position.set(position[0], position[1], 0);
 
                     this.viewerPickSphere.position.set(...position);
                     
@@ -512,7 +508,7 @@ export class SitePlanWindow extends EventDispatcher {
             return points;
         };
 
-        $('#potree_download_dxf2D_icon').click(() => {
+        $('#potree_download_sitePlan_dxf2D_icon').click(() => {
             
             const points = getSitePlanPoints();
 
@@ -522,7 +518,7 @@ export class SitePlanWindow extends EventDispatcher {
             $('#potree_download_sitePlan_dxf2D_link').attr('href', URL.createObjectURL(blob));
         });
 
-        $('#potree_download_dxf3D_icon').click(() => {
+        $('#potree_download_sitePlan_dxf3D_icon').click(() => {
             
             const points = getSitePlanPoints(true);
 
@@ -532,7 +528,7 @@ export class SitePlanWindow extends EventDispatcher {
             $('#potree_download_sitePlan_dxf3D_link').attr('href', URL.createObjectURL(blob));
         });
 
-        $('#potree_download_csv_icon').click(() => {
+        $('#potree_download_sitePlan_csv_icon').click(() => {
             
             let points = getSitePlanPoints(true);
 
@@ -542,7 +538,7 @@ export class SitePlanWindow extends EventDispatcher {
             $('#potree_download_sitePlan_ortho_link').attr('href', URL.createObjectURL(blob));
         });
 
-        $('#potree_download_las_icon').click(() => {
+        $('#potree_download_sitePlan_las_icon').click(() => {
 
             let points = getSitePlanPoints(true);
 
@@ -553,7 +549,7 @@ export class SitePlanWindow extends EventDispatcher {
         });
     }
 
-    selectPoint (mileage, elevation, radius) {
+    selectPoint (x, y, radius) {
         let closest = {
             distance: Infinity,
             pointcloud: null,
@@ -562,9 +558,9 @@ export class SitePlanWindow extends EventDispatcher {
         };
 
         let pointBox = new THREE.Box2(
-            new THREE.Vector2(mileage - radius, elevation - radius),
-            new THREE.Vector2(mileage + radius, elevation + radius));
-
+            new THREE.Vector2(x - radius, y - radius),
+            new THREE.Vector2(x + radius, y + radius));
+        
         let numTested = 0;
         let numSkipped = 0;
         let numTestedPoints = 0;
@@ -574,8 +570,8 @@ export class SitePlanWindow extends EventDispatcher {
             for(let points of entry.points){
 
                 let collisionBox = new THREE.Box2(
-                    new THREE.Vector2(points.projectedBox.min.x, points.projectedBox.min.z),
-                    new THREE.Vector2(points.projectedBox.max.x, points.projectedBox.max.z)
+                    new THREE.Vector2(points.projectedBox.min.x, points.projectedBox.min.y),
+                    new THREE.Vector2(points.projectedBox.max.x, points.projectedBox.max.y)
                 );
 
                 let intersects = collisionBox.intersectsBox(pointBox);
@@ -591,8 +587,8 @@ export class SitePlanWindow extends EventDispatcher {
 
                 for (let i = 0; i < points.numPoints; i++) {
 
-                    let m = points.data.mileage[i] - mileage;
-                    let e = points.data.position[3 * i + 2] - elevation + pointcloud.position.z;
+                    let m = points.data.position[3 * i]- x;
+                    let e = points.data.position[3 * i + 1] - y + pointcloud.position.y;
                     let r = Math.sqrt(m * m + e * e);
 
                     const withinDistance = r < radius && r < closest.distance;
@@ -722,7 +718,7 @@ export class SitePlanWindow extends EventDispatcher {
             .innerTickSize(-width)
             .outerTickSize(1)
             .tickPadding(10)
-            .ticks(height / 20);
+            .ticks(height / 50);
 
         this.elXAxis = this.svg.append('g')
             .attr('class', 'x axis')
@@ -955,62 +951,14 @@ export class SitePlanWindowController {
         });
         this.viewer.scene.addEventListener("pointcloud_added", this._recompute);
 
-        $("#potree_sitePlan_rotate_amount").val(parseInt(this.rotateAmount));
-        $("#potree_sitePlan_rotate_amount").on("input", (e) => {
-            const str = $("#potree_sitePlan_rotate_amount").val();
 
-            if(!isNaN(str)){
-                const value = parseFloat(str);
-                this.rotateAmount = value;
-                $("#potree_sitePlan_rotate_amount").css("background-color", "")
-            }else{
-                $("#potree_sitePlan_rotate_amount").css("background-color", "#ff9999")
-            }
-
-        });
-
-        const rotate = (radians) => {
-            const sitePlan = this.sitePlan;
-            const points = sitePlan.points;
-            const start = points[0];
-            const end = points[points.length - 1];
-            const center = start.clone().add(end).multiplyScalar(0.5);
-
-            const mMoveOrigin = new THREE.Matrix4().makeTranslation(-center.x, -center.y, -center.z);
-            const mRotate = new THREE.Matrix4().makeRotationZ(radians);
-            const mMoveBack = new THREE.Matrix4().makeTranslation(center.x, center.y, center.z);
-            //const transform = mMoveOrigin.multiply(mRotate).multiply(mMoveBack);
-            const transform = mMoveBack.multiply(mRotate).multiply(mMoveOrigin);
-
-            const rotatedPoints = points.map( point => point.clone().applyMatrix4(transform) );
-
-            this.sitePlanWindow.autoFitEnabled = false;
-
-            for(let i = 0; i < points.length; i++){
-                sitePlan.setPosition(i, rotatedPoints[i]);
-            }
-        }
-
-        $("#potree_sitePlan_rotate_cw").click( () => {
-            const radians = THREE.Math.degToRad(this.rotateAmount);
-            rotate(-radians);
-        });
-
-        $("#potree_sitePlan_rotate_ccw").click( () => {
-            const radians = THREE.Math.degToRad(this.rotateAmount);
-            rotate(radians);
-        });
+    
+     
 
         $("#potree_sitePlan_move_forward").click( () => {
             const sitePlan = this.sitePlan;
             const points = sitePlan.points;
-            const start = points[0];
-            const end = points[points.length - 1];
-
-            const dir = end.clone().sub(start).normalize();
-            const up = new THREE.Vector3(0, 0, 1);
-            const forward = up.cross(dir);
-            const move = forward.clone().multiplyScalar(sitePlan.width / 2);
+            const move = new THREE.Vector3(0, 0, sitePlan.width / 2);
 
             this.sitePlanWindow.autoFitEnabled = false;
 
@@ -1022,13 +970,7 @@ export class SitePlanWindowController {
         $("#potree_sitePlan_move_backward").click( () => {
             const sitePlan = this.sitePlan;
             const points = sitePlan.points;
-            const start = points[0];
-            const end = points[points.length - 1];
-
-            const dir = end.clone().sub(start).normalize();
-            const up = new THREE.Vector3(0, 0, 1);
-            const forward = up.cross(dir);
-            const move = forward.clone().multiplyScalar(-sitePlan.width / 2);
+            const move = new THREE.Vector3(0, 0, - sitePlan.width / 2);
 
             this.sitePlanWindow.autoFitEnabled = false;
 
@@ -1073,10 +1015,6 @@ export class SitePlanWindowController {
     progressHandler (pointcloud, progress) {
         this.sitePlanWindow.addPoints(pointcloud, progress.points);
         this.numPoints += progress.points.numPoints;
-        // for (let segment of progress.segments) {
-        //     this.sitePlanWindow.addPoints(pointcloud, segment.points);
-        //     this.numPoints += segment.points.numPoints;
-        // }
     }
 
     cancel () {
