@@ -8,7 +8,7 @@
 	
 	<div id="sitePlan_titlebar" class="pv-titlebar" style="display: flex; position: absolute; height: 30px; width: 100%; box-sizing: border-box;">
 		<span style="padding-right: 10px">
-			<span id="sitePlan_window_title" data-i18n="sitePlan.title"></span>
+			<span id="sitePlan_window_title" data-i18n="tt.site_plan"></span>
 		</span>
 		<span id="sitePlanInfo" style="flex-grow: 1; flex-direction: row"> </span>
 		<!-- <span id="sitePlan_toggle_size_button" class="ui-icon ui-icon-newwin sitePlan-button"> </span> -->
@@ -20,21 +20,13 @@
 		
 		<span class="pv-main-color" style="height: 100%; width: 100%; padding: 5px; display:flex; flex-direction: column; box-sizing: border-box;">
 			<div style=" width: 100%; color: #9d9d9d; margin: 5px; display: flex; flex-direction: row; box-sizing: border-box;">
-				<span data-i18n="sitePlan.nb_points"></span>: &nbsp;
+				<span data-i18n="profile.nb_points"></span>: &nbsp;
 				<span id="sitePlan_num_points">-</span>
 				<!--<span id="sitePlan_threshold" style="width: 300px">
 					Threshold: <span id="potree_sitePlan_threshold_label">123</span> <div id="potree_sitePlan_threshold_slider"></div>
 				</span>-->
 				<span style="flex-grow: 1;"></span>
 				<span>
-				
-					<!-- <span contenteditable="true" style="display: inline-block; 
-						width: 24px; height: 24px; 
-						vertical-align: top; 
-						background: white; color:black"></span> -->
-
-				
-					
 
 
 					<img id="potree_sitePlan_move_forward" class="text-icon"/>
@@ -44,15 +36,15 @@
 						<img id="potree_download_sitePlan_dxf2D_icon" class="text-icon"/>
 					</a>
 
-					<a id="potree_download_sitePlan_dxf3D_link" href="#" download="sitePlan_3D.dxf">
+					<a id="potree_download_sitePlan_dxf3D_link" href="#" download="sitePlan_3D.dxf" style="display: none;">
 						<img id="potree_download_sitePlan_dxf3D_icon" class="text-icon"/>
 					</a>
 
-					<a id="potree_download_sitePlan_ortho_link" href="#" download="sitePlan.csv">
+					<a id="potree_download_sitePlan_ortho_link" href="#" download="sitePlan.csv " style="display: none;">
 						<img id="potree_download_sitePlan_csv_icon" class="text-icon"/>
 					</a>
 					
-					<a id="potree_download_sitePlan_link" href="#" download="sitePlan.las">
+					<a id="potree_download_sitePlan_link" href="#" download="sitePlan.las" style="display: none;">
 						<img id="potree_download_sitePlan_las_icon" class="text-icon"/>
 					</a>
 					

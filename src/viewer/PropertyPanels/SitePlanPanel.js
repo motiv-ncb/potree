@@ -13,9 +13,9 @@ export class SitePlanPanel extends MeasurePanel{
                 <span class="coordinates_table_container"></span>
                 <br>
                 <span style="display:flex">
-                    <span data-i18n="tt.height_sitePlan_width" style="display:flex; align-items: center; padding-right: 10px">Width: </span>
+                    <span data-i18n="tt.site_plan_width" style="display:flex; align-items: center; padding-right: 10px">Width: </span>
                     <input id="sldSitePlanWidth" name="sldSitePlanWidth" value="5.06" style="flex-grow: 1; width:100%">
-                    <button type="button" data-i18n="tt.height_sitePlan" id="show_2d_sitePlan" value="Height sitePlan" style="width: 100%"/>
+                    <button type="button" data-i18n="tt.site_plan" id="show_2d_sitePlan" value="Height sitePlan" style="width: 100%"/>
                 </span>
                 <!-- 
                 <br>
