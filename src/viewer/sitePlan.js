@@ -759,7 +759,7 @@ export class SitePlanWindow extends EventDispatcher {
             let size = this.projectedBox.getSize(new THREE.Vector3());
 
             let sx = width / size.x;
-            let sy = height / size.z;
+            let sy = height / size.y;
             let scale = Math.min(sx, sy);
 
             let center = this.projectedBox.getCenter(new THREE.Vector3());
