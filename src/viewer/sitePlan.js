@@ -954,7 +954,7 @@ export class SitePlanWindowController {
             const points = sitePlan.points;
             const move = new THREE.Vector3(0, 0, sitePlan.width / 2);
 
-            this.sitePlanWindow.autoFitEnabled = false;
+            // this.sitePlanWindow.autoFitEnabled = false;
 
             for(let i = 0; i < points.length; i++){
                 sitePlan.setPosition(i, points[i].clone().add(move));
@@ -966,12 +966,19 @@ export class SitePlanWindowController {
             const points = sitePlan.points;
             const move = new THREE.Vector3(0, 0, - sitePlan.width / 2);
 
-            this.sitePlanWindow.autoFitEnabled = false;
+            // this.sitePlanWindow.autoFitEnabled = false;
 
             for(let i = 0; i < points.length; i++){
                 sitePlan.setPosition(i, points[i].clone().add(move));
             }
         });
+
+        $('#potree_sidePlan_autofit_checkbox').change((e) => {
+            this.sitePlanWindow.autoFitEnabled = $('#potree_sidePlan_autofit_checkbox').is(":checked");
+            if (this.sitePlanWindow.autoFitEnabled){
+                this.recompute();
+            }
+        })
     }
 
     setSitePlan (sitePlan) {

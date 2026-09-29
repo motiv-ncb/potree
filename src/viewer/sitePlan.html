@@ -1,6 +1,6 @@
 <div id="sitePlan_window" style="
 	position: absolute; 
-	width: 84%;
+	width: 44%;
 	left: 15%; top: 55%; height: 44%;
 	margin: 5px;
 	border: 1px solid black; 
@@ -19,15 +19,18 @@
 	<div style="position: absolute; top: 30px; width: 100%; height: calc(100% - 30px); box-sizing: border-box;" class="pw_content">
 		
 		<span class="pv-main-color" style="height: 100%; width: 100%; padding: 5px; display:flex; flex-direction: column; box-sizing: border-box;">
-			<div style=" width: 100%; color: #9d9d9d; margin: 5px; display: flex; flex-direction: row; box-sizing: border-box;">
+			<div style=" width: 100%; color: #9d9d9d; margin: 5px; display: flex; flex-direction: row; box-sizing: border-box; align-items: center;">
 				<span data-i18n="profile.nb_points"></span>: &nbsp;
 				<span id="sitePlan_num_points">-</span>
 				<!--<span id="sitePlan_threshold" style="width: 300px">
 					Threshold: <span id="potree_sitePlan_threshold_label">123</span> <div id="potree_sitePlan_threshold_slider"></div>
 				</span>-->
 				<span style="flex-grow: 1;"></span>
-				<span>
 
+                <input type="checkbox" id="potree_sidePlan_autofit_checkbox" checked style="top: 0%;"></input>
+                <span>Auto fit</span>
+				<span>
+                    
 
 					<img id="potree_sitePlan_move_forward" class="text-icon"/>
 					<img id="potree_sitePlan_move_backward" class="text-icon"/>
