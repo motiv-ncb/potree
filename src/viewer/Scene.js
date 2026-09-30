@@ -28,6 +28,7 @@ export class Scene extends EventDispatcher{
 		this.pointclouds = [];
 		this.measurements = [];
 		this.profiles = [];
+        this.sitePlans = [];
 		this.volumes = [];
 		this.polygonClipVolumes = [];
 		this.cameraAnimations = [];
@@ -369,6 +370,27 @@ export class Scene extends EventDispatcher{
 		}
 	}
 
+    addSitePlan (sitePlan) {
+		this.sitePlans.push(sitePlan);
+		this.dispatchEvent({
+			'type': 'sitePlan_added',
+			'scene': this,
+			'sitePlan': sitePlan
+		});
+	}
+
+	removeSitePlan (sitePlan) {
+		let index = this.sitePlans.indexOf(sitePlan);
+		if (index > -1) {
+			this.sitePlans.splice(index, 1);
+			this.dispatchEvent({
+				'type': 'sitePlan_removed',
+				'scene': this,
+				'sitePlan': sitePlan
+			});
+		}
+	}
+
 	removeAllMeasurements () {
 		while (this.measurements.length > 0) {
 			this.removeMeasurement(this.measurements[0]);
@@ -376,6 +398,10 @@ export class Scene extends EventDispatcher{
 
 		while (this.profiles.length > 0) {
 			this.removeProfile(this.profiles[0]);
+		}
+
+        while (this.sitePlans.length > 0) {
+			this.removeProfile(this.sitePlans[0]);
 		}
 
 		while (this.volumes.length > 0) {

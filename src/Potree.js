@@ -18,6 +18,7 @@ export * from "./Points.js";
 export * from "./Potree_update_visibility.js";
 export * from "./PotreeRenderer.js";
 export * from "./ProfileRequest.js";
+export * from "./SitePlanRequest.js";
 export * from "./TextSprite.js";
 export * from "./MultiLineTextSprite.js";
 export * from "./utils.js";
@@ -54,6 +55,7 @@ export * from "./utils/Message.js";
 export * from "./utils/PointCloudSM.js";
 export * from "./utils/PolygonClipVolume.js";
 export * from "./utils/Profile.js";
+export * from "./utils/SitePlan.js";
 export * from "./utils/ProfileTool.js";
 export * from "./utils/ScreenBoxSelectTool.js";
 export * from "./utils/SpotLightHelper.js";
@@ -80,6 +82,7 @@ export {VRControls} from "./navigation/VRControls.js";
 
 // cmair export //
 export {ProfileWindow} from "./viewer/profile.js"
+export {SitePlanWindow} from "./viewer/sitePlan.js"
 export {MeasurePanel} from "./viewer/PropertyPanels/MeasurePanel.js"
 export {DistancePanel} from "./viewer/PropertyPanels/DistancePanel.js"
 export {EDLRenderer} from "./viewer/EDLRenderer.js"

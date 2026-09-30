@@ -412,6 +412,23 @@ export class PointCloudOctree extends PointCloudTree {
 		return intersects;
 	}
 
+    nodeIntersectsSitePlan (node, sitePlan) {
+		let bbWorld = node.boundingBox.clone().applyMatrix4(this.matrixWorld);
+		let bsWorld = bbWorld.getBoundingSphere(new THREE.Sphere());
+
+		let intersects = false;
+        if(sitePlan.points.length > 0){
+            let distance = Math.abs(sitePlan.points[0].z - bsWorld.center.z) ;
+            intersects = intersects || (distance < (bsWorld.radius + sitePlan.width));
+
+        }
+		
+
+		//console.log(`${node.name}: ${intersects}`);
+
+		return intersects;
+	}
+
 	deepestNodeAt(position){
 		
 		const toObjectSpace = this.matrixWorld.clone().invert();
@@ -627,6 +644,46 @@ export class PointCloudOctree extends PointCloudTree {
 		return points;
 	}
 
+    /**
+	 * returns points inside the siteplan points
+	 *
+	 * maxDepth:		search points up to the given octree depth
+	 *
+	 *
+	 * The return value is an array with all segments of the profile path
+	 *	let segment = {
+	 *		start:	THREE.Vector3,
+	 *		end:	THREE.Vector3,
+	 *		points: {}
+	 *		project: function()
+	 *	};
+	 *
+	 * The project() function inside each segment can be used to transform
+	 * that segments point coordinates to line up along the x-axis.
+	 *
+	 *
+	 */
+	getPointsInSitePlan (sitePlan, maxDepth, callback) {
+		if (callback) {
+			let request = new Potree.SitePlanRequest(this, sitePlan, maxDepth, callback);
+			this.profileRequests.push(request);
+
+			return request;
+		}
+
+		let points = {
+			boundingBox: new THREE.Box3(),
+			projectedBoundingBox: new THREE.Box2()
+		};
+
+		points.projectedBoundingBox.min.x = points.boundingBox.min.x;
+		points.projectedBoundingBox.min.y = points.boundingBox.min.y;
+		points.projectedBoundingBox.max.x = points.boundingBox.max.x;
+		points.projectedBoundingBox.max.y = points.boundingBox.max.y;
+
+		return points;
+	}
+
 	/**
 	 * returns points inside the given profile bounds.
 	 *
@@ -640,6 +697,23 @@ export class PointCloudOctree extends PointCloudTree {
 	 */
 	getProfile (start, end, width, depth, callback) {
 		let request = new Potree.ProfileRequest(start, end, width, depth, callback);
+		this.profileRequests.push(request);
+	};
+
+    /**
+	 * returns points inside the given profile bounds.
+	 *
+	 * start:
+	 * end:
+	 * width:
+	 * depth:		search points up to the given octree depth
+	 * callback:	if specified, points are loaded before searching
+	 *
+	 *
+	 */
+	getSitePlan (start, end, width, depth, callback) {
+        // TODO : Get site plan
+		let request = new Potree.SitePlanRequest(start, end, width, depth, callback);
 		this.profileRequests.push(request);
 	};
 

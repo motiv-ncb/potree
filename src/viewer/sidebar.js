@@ -28,6 +28,7 @@ export class Sidebar{
 
 		this.measuringTool = viewer.measuringTool;
 		this.profileTool = viewer.profileTool;
+        this.sitePlanTool = viewer.sitePlanTool;
 		this.volumeTool = viewer.volumeTool;
 
 		this.dom = $("#sidebar_root");
@@ -390,6 +391,22 @@ export class Sidebar{
 				$.jstree.reference(jsonNode.id).select_node(jsonNode.id);
 			}
 		));
+
+        // SITEPLAN
+		elToolbar.append(this.createToolIcon(
+			Potree.resourcePath + '/icons/plan.svg',
+			'[title]tt.site_plan',
+			() => {
+				$('#menu_measurements').next().slideDown(); ;
+				let profile = this.sitePlanTool.startInsertion();
+
+				let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
+				let jsonNode = measurementsRoot.children.find(child => child.data.uuid === profile.uuid);
+				$.jstree.reference(jsonNode.id).deselect_all();
+				$.jstree.reference(jsonNode.id).select_node(jsonNode.id);
+			}
+		));
+
 
 		// PROFILE
 		elToolbar.append(this.createToolIcon(
@@ -964,6 +981,13 @@ export class Sidebar{
             tree.i18n();
 		};
 
+        let onSitePlanAdded = (e) => {
+			let sitePlan = e.sitePlan;
+			let icon = Utils.getMeasurementIcon(sitePlan);
+			createNode(measurementID, sitePlan.name, icon, sitePlan);
+            tree.i18n();
+		};
+
 		let onAnnotationAdded = (e) => {
 			let annotation = e.annotation;
 
@@ -1048,6 +1072,7 @@ export class Sidebar{
 
 		this.viewer.scene.addEventListener("measurement_added", onMeasurementAdded);
 		this.viewer.scene.addEventListener("profile_added", onProfileAdded);
+        this.viewer.scene.addEventListener("sitePlan_added", onSitePlanAdded);
 		this.viewer.scene.addEventListener("volume_added", onVolumeAdded);
 		this.viewer.scene.addEventListener("camera_animation_added", onCameraAnimationAdded);
 		this.viewer.scene.addEventListener("oriented_images_added", onOrientedImagesAdded);
@@ -1162,6 +1187,14 @@ export class Sidebar{
             tree.i18n();
 		};
 
+        let onSitePlanRemoved = (e) => {
+			let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
+			let jsonNode = measurementsRoot.children.find(child => child.data.uuid === e.sitePlan.uuid);
+			
+			tree.jstree("delete_node", jsonNode.id);
+            tree.i18n();
+		};
+
         let onAnnotationRemoved = (e) => {
             let annotationsRoot = $("#jstree_scene").jstree().get_json("annotations");
 			let jsonNode = annotationsRoot.children.find(child => child.data.uuid === e.annotation.uuid);
@@ -1183,6 +1216,8 @@ export class Sidebar{
         this.viewer.scene.addEventListener("pointcloud_removed", onPointcloudRemoved);
 		this.viewer.scene.addEventListener("polygon_clip_volume_removed", onPolygonClipVolumeRemoved);
 		this.viewer.scene.addEventListener("profile_removed", onProfileRemoved);
+        this.viewer.scene.addEventListener("sitePlan_removed", onSitePlanRemoved);
+
         this.viewer.scene.addEventListener("navigation_record_removed", onNavigationRecordRemoved);
 
         this.viewer.scene.annotations.addEventListener("annotation_removed", onAnnotationRemoved);
@@ -1231,6 +1266,10 @@ export class Sidebar{
 			onProfileAdded({profile: profile});
 		}
 
+        for(let sitePlan of scene.sitePlans){
+			onSitePlanAdded({sitePlan: sitePlan});
+		}
+
 		{
 			createNode(otherID, "Camera", null, new THREE.Camera());
 		}
@@ -1242,6 +1281,8 @@ export class Sidebar{
             e.oldScene.removeEventListener("bim_pointcloud_added", onBIMPointCloudAdded);
 			e.oldScene.removeEventListener("measurement_added", onMeasurementAdded);
 			e.oldScene.removeEventListener("profile_added", onProfileAdded);
+            e.oldScene.removeEventListener("sitePlan_added", onSitePlanAdded);
+
 			e.oldScene.removeEventListener("volume_added", onVolumeAdded);
 			e.oldScene.removeEventListener("polygon_clip_volume_added", onVolumeAdded);
 			e.oldScene.removeEventListener("measurement_removed", onMeasurementRemoved);
@@ -1251,6 +1292,8 @@ export class Sidebar{
             e.scene.addEventListener("bim_pointcloud_added", onBIMPointCloudAdded);
 			e.scene.addEventListener("measurement_added", onMeasurementAdded);
 			e.scene.addEventListener("profile_added", onProfileAdded);
+            e.scene.addEventListener("sitePlan_added", onSitePlanAdded);
+
 			e.scene.addEventListener("volume_added", onVolumeAdded);
 			e.scene.addEventListener("polygon_clip_volume_added", onVolumeAdded);
 			e.scene.addEventListener("measurement_removed", onMeasurementRemoved);

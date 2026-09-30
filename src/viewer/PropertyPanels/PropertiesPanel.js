@@ -5,6 +5,7 @@ import {PointCloudTree} from "../../PointCloudTree.js";
 import {Annotation} from "../../Annotation.js";
 import {Measure} from "../../utils/Measure.js";
 import {Profile} from "../../utils/Profile.js";
+import {SitePlan} from "../../utils/SitePlan.js";
 import {Volume, BoxVolume, SphereVolume} from "../../utils/Volume.js";
 import {CameraAnimation} from "../../modules/CameraAnimation/CameraAnimation.js";
 import {PolygonClipVolume} from "../../utils/PolygonClipVolume.js";
@@ -20,11 +21,13 @@ import {CirclePanel} from "./CirclePanel.js";
 import {HeightPanel} from "./HeightPanel.js";
 import {VolumePanel} from "./VolumePanel.js";
 import {ProfilePanel} from "./ProfilePanel.js";
+import {SitePlanPanel} from "./SitePlanPanel.js";
 import {CameraPanel} from "./CameraPanel.js";
 import {AnnotationPanel} from "./AnnotationPanel.js";
 import { CameraAnimationPanel } from "./CameraAnimationPanel.js";
 import { PolygonClipVolumePanel } from "./PolygonClipVolumePanel.js";
 import { TransformPointcloudBoxVolume } from "../../utils/TransformVolume.js";
+
 export class PropertiesPanel{
 
 	constructor(container, viewer){
@@ -54,7 +57,7 @@ export class PropertiesPanel{
 
 		if(object instanceof PointCloudTree){
 			this.setPointCloud(object);
-		}else if(object instanceof Measure || object instanceof Profile || object instanceof Volume){
+		}else if(object instanceof Measure || object instanceof Profile || object instanceof SitePlan || object instanceof Volume){
 			this.setMeasurement(object);
 		}else if(object instanceof THREE.Camera){
 			this.setCamera(object);
@@ -1703,6 +1706,7 @@ export class PropertiesPanel{
 			ANGLE: {panel: AnglePanel},
 			HEIGHT: {panel: HeightPanel},
 			PROFILE: {panel: ProfilePanel},
+            SITEPLAN: {panel: SitePlanPanel},
 			VOLUME: {panel: VolumePanel},
 			CIRCLE: {panel: CirclePanel},
 			OTHER: {panel: PointPanel},
@@ -1729,7 +1733,9 @@ export class PropertiesPanel{
 				return TYPE.PROFILE;
 			} else if (measurement instanceof Volume) {
 				return TYPE.VOLUME;
-            }
+            }  else if (measurement instanceof SitePlan) {
+				return TYPE.SITEPLAN;
+			}
 		};
 
 		//this.container.html("measurement");

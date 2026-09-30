@@ -1,0 +1,351 @@
+
+import * as THREE from "../libs/three.js/build/three.module.js";
+import {Points} from "./Points.js";
+
+export class SitePlanData {
+	constructor (sitePlan) {
+		this.sitePlan = sitePlan;
+
+		this.boundingBox = new THREE.Box3();
+
+        this.points = new Points();
+
+	}
+
+	size () {
+       
+        return this.points.numPoints;
+
+	}
+};
+
+export class SitePlanRequest {
+	constructor (pointcloud, sitePlan, maxDepth, callback) {
+		this.pointcloud = pointcloud;
+		this.sitePlan = sitePlan;
+		this.maxDepth = maxDepth || Number.MAX_VALUE;
+		this.callback = callback;
+		this.temporaryResult = new SitePlanData(this.sitePlan);
+		this.pointsServed = 0;
+		this.highestLevelServed = 0;
+
+		this.priorityQueue = new BinaryHeap(function (x) { return 1 / x.weight; });
+
+		this.initialize();
+	}
+
+	initialize () {
+		this.priorityQueue.push({node: this.pointcloud.pcoGeometry.root, weight: Infinity});
+	};
+
+	// traverse the node and add intersecting descendants to queue
+	traverse (node) {
+		let stack = [];
+		for (let i = 0; i < 8; i++) {
+			let child = node.children[i];
+			if (child && this.pointcloud.nodeIntersectsSitePlan(child, this.sitePlan)) {
+				stack.push(child);
+			}
+		}
+
+		while (stack.length > 0) {
+			let node = stack.pop();
+			let weight = node.boundingSphere.radius;
+
+			this.priorityQueue.push({node: node, weight: weight});
+
+			// add children that intersect the cutting plane
+			if (node.level < this.maxDepth) {
+				for (let i = 0; i < 8; i++) {
+					let child = node.children[i];
+					if (child && this.pointcloud.nodeIntersectsSitePlan(child, this.sitePlan)) {
+						stack.push(child);
+					}
+				}
+			}
+		}
+	}
+
+	update(){
+		if(!this.updateGeneratorInstance){
+			this.updateGeneratorInstance = this.updateGenerator();
+		}
+
+		let result = this.updateGeneratorInstance.next();
+		if(result.done){
+			this.updateGeneratorInstance = null;
+		}
+	}
+
+	* updateGenerator(){
+		// load nodes in queue
+		// if hierarchy expands, also load nodes from expanded hierarchy
+		// once loaded, add data to this.points and remove node from queue
+		// only evaluate 1-50 nodes per frame to maintain responsiveness
+
+		let start = performance.now();
+
+		let maxNodesPerUpdate = 1;
+		let intersectedNodes = [];
+
+		for (let i = 0; i < Math.min(maxNodesPerUpdate, this.priorityQueue.size()); i++) {
+			let element = this.priorityQueue.pop();
+			let node = element.node;
+
+			if(node.level > this.maxDepth){
+				continue;
+			}
+
+			if (node.loaded) {
+				// add points to result
+				intersectedNodes.push(node);
+				exports.lru.touch(node);
+				this.highestLevelServed = Math.max(node.getLevel(), this.highestLevelServed);
+
+				var geom = node.pcoGeometry;
+				var hierarchyStepSize = geom ? geom.hierarchyStepSize : 1;
+
+				var doTraverse = node.getLevel() === 0 ||
+					(node.level % hierarchyStepSize === 0 && node.hasChildren);
+
+				if (doTraverse) {
+					this.traverse(node);
+				}
+			} else {
+				node.load();
+				this.priorityQueue.push(element);
+			}
+		}
+
+		if (intersectedNodes.length > 0) {
+
+			for(let done of this.getPointsInsideSitePlan(intersectedNodes, this.temporaryResult)){
+				if(!done){
+					//console.log("updateGenerator yields");
+					yield false;
+				}
+			}
+			if (this.temporaryResult.size() > 100) {
+				this.pointsServed += this.temporaryResult.size();
+				this.callback.onProgress({request: this, points: this.temporaryResult});
+				this.temporaryResult = new SitePlanData(this.sitePlan);
+			}
+		}
+
+		if (this.priorityQueue.size() === 0) {
+			// we're done! inform callback and remove from pending requests
+
+			if (this.temporaryResult.size() > 0) {
+				this.pointsServed += this.temporaryResult.size();
+				this.callback.onProgress({request: this, points: this.temporaryResult});
+				this.temporaryResult = new SitePlanData(this.sitePlan);
+			}
+
+			this.callback.onFinish({request: this});
+
+			let index = this.pointcloud.profileRequests.indexOf(this);
+			if (index >= 0) {
+				this.pointcloud.profileRequests.splice(index, 1);
+			}
+		}
+
+		yield true;
+	};
+
+	* getAccepted(numPoints, node, matrix, sitePlanPoint, points){
+		let checkpoint = performance.now();
+
+		let accepted = new Uint32Array(numPoints);
+		let acceptedPositions = new Float32Array(numPoints * 3);
+		let numAccepted = 0;
+        
+		let pos = new THREE.Vector3();
+		let svp = new THREE.Vector3();
+
+		let view = new Float32Array(node.geometry.attributes.position.array);
+
+		for (let i = 0; i < numPoints; i++) {
+
+			pos.set(
+				view[i * 3 + 0],
+				view[i * 3 + 1],
+				view[i * 3 + 2]);
+
+			pos.applyMatrix4(matrix);
+            let distance = Math.abs(pos.z - sitePlanPoint.z)
+
+			if (distance < this.sitePlan.width / 2) {
+
+				accepted[numAccepted] = i;
+				points.boundingBox.expandByPoint(pos);
+
+				pos.sub(this.pointcloud.position);
+
+				acceptedPositions[3 * numAccepted + 0] = pos.x;
+				acceptedPositions[3 * numAccepted + 1] = pos.y;
+				acceptedPositions[3 * numAccepted + 2] = pos.z;
+
+				numAccepted++;
+			}
+
+			if((i % 1000) === 0){
+				let duration = performance.now() - checkpoint;
+				if(duration > 4){
+					//console.log(`getAccepted yield after ${duration}ms`);
+					yield false;
+					checkpoint = performance.now();
+				}
+			}
+		}
+
+		accepted = accepted.subarray(0, numAccepted);
+		acceptedPositions = acceptedPositions.subarray(0, numAccepted * 3);
+
+		//let end = performance.now();
+		//let duration = end - start;
+		//console.log("accepted duration ", duration)
+
+		//console.log(`getAccepted finished`);
+
+		yield [accepted, acceptedPositions];
+	}
+
+	* getPointsInsideSitePlan(nodes, target){
+		let checkpoint = performance.now();
+
+		let pointsProcessed = 0;
+        if(target.sitePlan.points.length > 0){
+            let sitePlanPoint = target.sitePlan.points[0];
+			for (let node of nodes) {
+				let numPoints = node.numPoints;
+				let geometry = node.geometry;
+
+				if(!numPoints){
+					continue;
+				}
+
+				{ // skip if current node doesn't intersect current segment
+					let bbWorld = node.boundingBox.clone().applyMatrix4(this.pointcloud.matrixWorld);
+					let bsWorld = bbWorld.getBoundingSphere(new THREE.Sphere());
+
+                    let distance = Math.abs(sitePlanPoint.z - sitePlanPoint.z) ;
+					let intersects = (distance < (bsWorld.radius + target.sitePlan.width));
+
+					if(!intersects){
+						continue;
+					}
+				}
+
+				// {// DEBUG
+				// 	console.log(node.name);
+				// 	let boxHelper = new Potree.Box3Helper(node.getBoundingBox());
+				// 	boxHelper.matrixAutoUpdate = false;
+				// 	boxHelper.matrix.copy(viewer.scene.pointclouds[0].matrixWorld);
+				// 	viewer.scene.scene.add(boxHelper);
+				// }
+
+
+				let points = new Points();
+
+				let nodeMatrix = new THREE.Matrix4().makeTranslation(...node.boundingBox.min.toArray());
+
+				let matrix = new THREE.Matrix4().multiplyMatrices(
+					this.pointcloud.matrixWorld, nodeMatrix);
+
+				pointsProcessed = pointsProcessed + numPoints;
+
+				let accepted = null;
+				let acceptedPositions = null;
+				for(let result of this.getAccepted(numPoints, node, matrix, sitePlanPoint, points)){
+					if(!result){
+						let duration = performance.now() - checkpoint;
+						//console.log(`getPointsInsideSitePlan yield after ${duration}ms`);
+						yield false;
+						checkpoint = performance.now();
+					}else{
+						[accepted, acceptedPositions] = result;
+					}
+				}
+
+				let duration = performance.now() - checkpoint;
+				if(duration > 4){
+					//console.log(`getPointsInsideSitePlan yield after ${duration}ms`);
+					yield false;
+					checkpoint = performance.now();
+				}
+
+				points.data.position = acceptedPositions;
+
+				let relevantAttributes = Object.keys(geometry.attributes).filter(a => !["position", "indices"].includes(a));
+				for(let attributeName of relevantAttributes){
+
+					let attribute = geometry.attributes[attributeName];
+
+                    // fix points not shown in sitePlan windows
+					let numElements = attribute.itemSize;
+                    //let numElements = attribute.array.length / numPoints;
+
+
+					if(numElements !== parseInt(numElements)){
+						debugger;
+					}
+
+					let Type = attribute.array.constructor;
+
+					let filteredBuffer = new Type(numElements * accepted.length);
+
+					let source = attribute.array;
+					let target = filteredBuffer;
+
+					for(let i = 0; i < accepted.length; i++){
+
+						let index = accepted[i];
+
+						let start = index * numElements;
+						let end = start + numElements;
+						let sub = source.subarray(start, end);
+
+						target.set(sub, i * numElements);
+					}
+
+					points.data[attributeName] = filteredBuffer;
+				}
+
+				points.numPoints = accepted.length;
+
+                target.points.add(points);
+			}
+
+		}
+
+		
+        for(let node of nodes){
+            target.boundingBox.union(node.boundingBox);
+        }
+
+		//console.log(`getPointsInsideSitePlan finished`);
+		yield true;
+	};
+
+	finishLevelThenCancel () {
+		if (this.cancelRequested) {
+			return;
+		}
+
+		this.maxDepth = this.highestLevelServed;
+		this.cancelRequested = true;
+
+		//console.log(`maxDepth: ${this.maxDepth}`);
+	};
+
+	cancel () {
+		this.callback.onCancel();
+
+		this.priorityQueue = new BinaryHeap(function (x) { return 1 / x.weight; });
+
+		let index = this.pointcloud.profileRequests.indexOf(this);
+		if (index >= 0) {
+			this.pointcloud.profileRequests.splice(index, 1);
+		}
+	};
+}
