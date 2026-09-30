@@ -49,8 +49,6 @@ export class Viewer extends EventDispatcher{
 
 		this.renderArea = domElement;
 		this.guiLoaded = false;
-        this.profileGuiLoaded = false;
-        this.sitePlanGuiLoaded = false;
 		this.guiLoadTasks = [];
 
 		this.onVrListeners = [];
@@ -1426,43 +1424,33 @@ export class Viewer extends EventDispatcher{
 					});
 
 					$(() => {
-                        this.profileGuiLoaded = true;
-                        if(this.sitePlanGuiLoaded){
-                            this.guiLoaded = true;
-                        }
-						for(let task of this.guiLoadTasks){
-							task();
-						}
 
+                        let elSitePlan = $('<div>').load(new URL(Potree.scriptPath + '/sitePlan.html').href, () => {
+                        $(document.body).append(elSitePlan.children());
+                        this.sitePlanWindow = new SitePlanWindow(this);
+                        this.sitePlanWindowController = new SitePlanWindowController(this);
+                    
+                        $('#sitePlan_window').draggable({
+                            handle: $('#sitePlan_titlebar'),
+                            containment: $(document.body)
+                        });
+                        $('#sitePlan_window').resizable({
+                            containment: $(document.body),
+                            handles: 'n, e, s, w'
+                        });
+
+                        $(() => {
+                                this.guiLoaded = true;
+                                for(let task of this.guiLoadTasks){
+                                    task();
+                                }
+                            });
+                        });			
 					});
 				});
 
 
-                let elSitePlan = $('<div>').load(new URL(Potree.scriptPath + '/sitePlan.html').href, () => {
-					$(document.body).append(elSitePlan.children());
-					this.sitePlanWindow = new SitePlanWindow(this);
-                    this.sitePlanWindowController = new SitePlanWindowController(this);
-                   
-					$('#sitePlan_window').draggable({
-						handle: $('#profile_titlebar'),
-						containment: $(document.body)
-					});
-					$('#sitePlan_window').resizable({
-						containment: $(document.body),
-						handles: 'n, e, s, w'
-					});
-
-					$(() => {
-						this.sitePlanGuiLoaded = true;
-                        if(this.profileGuiLoaded){
-                            this.guiLoaded = true;
-                        }
-						for(let task of this.guiLoadTasks){
-							task();
-						}
-
-					});
-				});			
+               
 
 			});
 

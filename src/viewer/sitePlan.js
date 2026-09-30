@@ -237,6 +237,7 @@ export class SitePlanWindow extends EventDispatcher {
         this.viewer = viewer;
         this.elRoot = $('#sitePlan_window');
         this.renderArea = this.elRoot.find('#sitePlanCanvasContainer');
+        this.renderArea.empty();
         this.svg = d3.select('svg#sitePlanSVG');
         this.mouseIsDown = false;
 
