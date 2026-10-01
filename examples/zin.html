@@ -48,10 +48,11 @@
 		viewer.loadSettingsFromURL();
 
 		viewer.setDescription("Loading COPC format");
-
 		viewer.loadGUI(() => {
 			viewer.setLanguage('en');
-			$("#menu_appearance").next().show();
+			// $("#menu_appearance").next().show();
+			$("#menu_scene").next().show();
+			viewer.toggleSidebar();
 		});
 
         var path = "../pointclouds/lion_takanawa.copc.laz";
@@ -83,7 +84,23 @@
 			if (c) material.activeAttributeName = c;
 
 			viewer.fitToScreen(0.5);
+
+			let scene = viewer.scene;
+			{ // SINGLE POINT MEASURE
+				let measure = new Potree.Measure();
+				measure.name = "Point";
+				measure.showDistances = false;
+				measure.showCoordinates = true;
+				measure.maxMarkers = 1;
+				measure.addMarker(new THREE.Vector3(-2.360, 3.210, 0.610));
+				
+				scene.addMeasurement(measure);
+
+
+			}
 		});
+
+		
 	</script>
   </body>
 </html>
