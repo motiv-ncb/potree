@@ -88,14 +88,19 @@
 			let scene = viewer.scene;
 			{ // SINGLE POINT MEASURE
 				let measure = new Potree.Measure();
-				measure.name = "Point";
+				measure.name = "Line";
 				measure.showDistances = false;
-				measure.showCoordinates = true;
-				measure.maxMarkers = 1;
+				measure.showCoordinates = false;
+				// measure.maxMarkers = 1;
+				measure.addMarker(new THREE.Vector3(0, 0, 0));
 				measure.addMarker(new THREE.Vector3(-2.360, 3.210, 0.610));
-				
-				scene.addMeasurement(measure);
 
+				/// move point example
+				measure.points[0].position.set(1,3,2);
+				////
+
+				scene.addMeasurement(measure);
+				console.log(measure);
 
 			}
 		});
