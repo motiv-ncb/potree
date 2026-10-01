@@ -86,7 +86,51 @@ export class AnnotationPanel{
 			annotation.description = description;
 		}, false);
 
-        
+        // CMAIR resolve paste style issue 
+        // Paste as plain text (strip formatting like font size/color)
+        const escapeHtml = (s) => s
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
+
+        const makePasteHandler = (multiline) => (e) => {
+            e.preventDefault();
+            let text = (e.clipboardData || window.clipboardData).getData("text/plain");
+            text = text.replace(/\r\n?/g, "\n");
+
+            let html;
+            if (multiline) {
+                html = text.split("\n").map(escapeHtml).join("<br>");
+            } else {
+                html = escapeHtml(text.replace(/\s*\n\s*/g, " ").trim());
+            }
+
+            // insertHTML keeps undo working and fires the "input" event,
+            // so annotation.title / description update automatically
+            if (document.queryCommandSupported && document.queryCommandSupported("insertHTML")) {
+                document.execCommand("insertHTML", false, html);
+            } else {
+                const sel = window.getSelection();
+                if (!sel.rangeCount) return;
+                const range = sel.getRangeAt(0);
+                range.deleteContents();
+                const frag = range.createContextualFragment(html);
+                const last = frag.lastChild;
+                range.insertNode(frag);
+                if (last) {
+                    range.setStartAfter(last);
+                    range.collapse(true);
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                }
+                e.target.dispatchEvent(new Event("input"));
+            }
+        };  
+
+        this.elTitle[0].addEventListener("paste", makePasteHandler(true));
+        this.elDescription[0].addEventListener("paste", makePasteHandler(true));
+        //////////////////////////////////////
 
 		this.update();
 	}
