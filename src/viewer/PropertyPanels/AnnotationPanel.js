@@ -33,12 +33,12 @@ export class AnnotationPanel{
 			<div>
 
 				<div class="heading" data-i18n="tt.title">Title</div>
-				<div id="annotation_title" contenteditable="true">
+				<div id="annotation_title" contenteditable="true" style="background:white; color:black">
 					Annotation Title
 				</div>
 
 				<div class="heading" data-i18n="tt.description">Description</div>
-				<div id="annotation_description" contenteditable="true">
+				<div id="annotation_description" contenteditable="true" style="background:white; color:black">
 					A longer description of this annotation. 
 						Can be multiple lines long. TODO: the user should be able
 						to modify title and description. 
