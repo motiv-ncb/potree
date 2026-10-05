@@ -56,7 +56,7 @@ export class VolumePanel extends MeasurePanel{
 						<th></th>
 					</tr>
 					<tr>
-						<td align="center" id="cell_length" style="width: 33%"></td>
+						<td align="center" id="cell_length" style="width: 33% ;background-color:white;color: #000000" ><input id="input-length" type="number" style="width: 70px"></td>
 						<td align="center" id="cell_width" style="width: 33%"></td>
 						<td align="center" id="cell_height" style="width: 33%"></td>
 						<td align="right" style="width: 25%">
@@ -64,8 +64,8 @@ export class VolumePanel extends MeasurePanel{
 						</td>
 					</tr>
 				</table>
-
-				<br>
+				
+				<br>  
 				<span style="font-weight: bold">Volume: </span>
 				<span id="measurement_volume"></span>
                
@@ -594,9 +594,11 @@ export class VolumePanel extends MeasurePanel{
 			let elWidth = this.elContent.find(`#cell_width`);
 			let elHeight = this.elContent.find(`#cell_height`);
 
-			elLength.html(dimensions[0]);
+			// elLength.val(dimensions[0]); //update zin
+			elLength.find('#input-length').val(dimensions[0])
 			elWidth.html(dimensions[1]);
 			elHeight.html(dimensions[2]);
+		
 		}
 
 		{
