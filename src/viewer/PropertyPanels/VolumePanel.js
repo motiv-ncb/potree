@@ -579,16 +579,11 @@ export class VolumePanel extends MeasurePanel{
 			//angles = [angles.z, angles.x, angles.y];
 			angles = angles.map(v => 180 * v / Math.PI);
 			// angles = angles.map(a => a.toFixed(1) + '\u00B0');
-			angles = angles.map(a => a.toFixed(1));
+			angles = angles.map(a => a.toFixed(3));
 
 			let elAlpha = this.elContent.find(`#input-alpha`);
 			let elBetta = this.elContent.find(`#input-betta`);
 			let elGamma = this.elContent.find(`#input-gamma`);
-			// let elBetta = this.elContent.find(`#angle_cell_betta`);
-			// let elGamma = this.elContent.find(`#angle_cell_gamma`);
-
-			//elAlpha.find('#input-alpha').val(angles[0]);
-			//elAlpha.html(angles[0]);
 
 			elAlpha.val(angles[0]);			
 			elBetta.val(angles[1]);
@@ -636,18 +631,12 @@ export class VolumePanel extends MeasurePanel{
 
 		{
 			let dimensions = this.measurement.scale.toArray();
-			dimensions = dimensions.map(v => Utils.addCommas(v.toFixed(2)));
-
-			//let elLength = this.elContent.find(`#cell_length`);	
-			
+			dimensions = dimensions.map(v => Utils.addCommas(v.toFixed(3)));
 
 			let elLength = this.elContent.find(`#input-length`);
 			let elWidth = this.elContent.find(`#input-width`);
 			let elHeight = this.elContent.find(`#input-height`);
 
-			//<td align="center" id="cell_length" style="background-color:white;color: #000000"><input id="input-length" type="number" style="width: 70px"></td>
-			//elLength.find('#input-length').val(dimensions[0])
-			//elWidth.html(dimensions[1]);
 			elLength.val(dimensions[0]); //zin
 			elWidth.val(dimensions[1]);
 			elHeight.val(dimensions[2]);			
@@ -673,10 +662,8 @@ export class VolumePanel extends MeasurePanel{
 						elWidth.val(0);
         				return;
     				}
-    		// Width 
-    		this.measurement.scale.y = newWidth;
-    		// // Y position 
-    		// this.measurement.position.y = newWidth;
+    		    // Width 
+    		    this.measurement.scale.y = newWidth;
 
 			});
 
@@ -688,10 +675,9 @@ export class VolumePanel extends MeasurePanel{
 						elHeight.val(0);
         				return;
     				}
-    		// Height 
-    		this.measurement.scale.z = newHeight;
-    		// // Z position 
-    		// this.measurement.position.z = newHeight;
+                // Height 
+                this.measurement.scale.z = newHeight;
+    		
 
 			});
 
