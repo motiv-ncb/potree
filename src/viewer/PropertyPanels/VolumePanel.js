@@ -39,8 +39,9 @@ export class VolumePanel extends MeasurePanel{
 						<th></th>
 					</tr>
 					<tr>
-						<td align="center" id="angle_cell_alpha" style="width: 33%"></td>
-						<td align="center" id="angle_cell_betta" style="width: 33%"></td>
+						<td ><input id="input-alpha" type="number" style="width: 70px"></td>
+						<td ><input id="input-betta" type="number" style="width: 70px"></td>
+						<td ><input id="input-gamma" type="number" style="width: 70px"></td>
 						<td align="center" id="angle_cell_gamma" style="width: 33%"></td>
 						<td align="right" style="width: 25%">
 							<img name="copyRotation" title="copy" class="button-icon" src="${copyIconPath}" style="width: 16px; height: 16px"/>
@@ -577,15 +578,60 @@ export class VolumePanel extends MeasurePanel{
 			angles = angles.toArray();
 			//angles = [angles.z, angles.x, angles.y];
 			angles = angles.map(v => 180 * v / Math.PI);
-			angles = angles.map(a => a.toFixed(1) + '\u00B0');
+			// angles = angles.map(a => a.toFixed(1) + '\u00B0');
+			angles = angles.map(a => a.toFixed(1));
 
-			let elAlpha = this.elContent.find(`#angle_cell_alpha`);
-			let elBetta = this.elContent.find(`#angle_cell_betta`);
-			let elGamma = this.elContent.find(`#angle_cell_gamma`);
+			let elAlpha = this.elContent.find(`#input-alpha`);
+			let elBetta = this.elContent.find(`#input-betta`);
+			let elGamma = this.elContent.find(`#input-gamma`);
+			// let elBetta = this.elContent.find(`#angle_cell_betta`);
+			// let elGamma = this.elContent.find(`#angle_cell_gamma`);
 
-			elAlpha.html(angles[0]);
-			elBetta.html(angles[1]);
-			elGamma.html(angles[2]);
+			//elAlpha.find('#input-alpha').val(angles[0]);
+			//elAlpha.html(angles[0]);
+
+			elAlpha.val(angles[0]);			
+			elBetta.val(angles[1]);
+			elGamma.val(angles[2]);
+
+			elAlpha.on("change", () => {
+
+    			let newAlpha = parseFloat(elAlpha.val());
+				
+    			if (isNaN(newAlpha)) {
+						return;
+    				}
+				// the input should be degree, but rotation system is radian
+				// so we need to convert from degree input to radian system
+				this.measurement.rotation.x = newAlpha * Math.PI/180;
+    		
+			});
+
+			elBetta.on("change", () => {
+
+    			let newBetta = parseFloat(elBetta.val());
+				
+    			if (isNaN(newBetta)) {
+						return;
+    				}
+				// the input should be degree, but rotation system is radian
+				// so we need to convert from degree input to radian system
+				this.measurement.rotation.y = newBetta * Math.PI/180;
+    		
+			});
+
+			elGamma.on("change", () => {
+
+    			let newGamma = parseFloat(elGamma.val());
+				
+    			if (isNaN(newGamma)) {
+						return;
+    				}
+				// the input should be degree, but rotation system is radian
+				// so we need to convert from degree input to radian system
+				this.measurement.rotation.z = newGamma * Math.PI/180;
+    		
+			});
 		}
 
 		{
@@ -601,7 +647,7 @@ export class VolumePanel extends MeasurePanel{
 
 			//<td align="center" id="cell_length" style="background-color:white;color: #000000"><input id="input-length" type="number" style="width: 70px"></td>
 			//elLength.find('#input-length').val(dimensions[0])
-			// elWidth.html(dimensions[1]);
+			//elWidth.html(dimensions[1]);
 			elLength.val(dimensions[0]); //zin
 			elWidth.val(dimensions[1]);
 			elHeight.val(dimensions[2]);			
@@ -616,9 +662,7 @@ export class VolumePanel extends MeasurePanel{
     				}
     		// Length 
     		this.measurement.scale.x = newLength;
-    		// // X position 
-    		// this.measurement.position.x = newLength;
-
+    		
 			});
 
 			elWidth.on("change", () => {
