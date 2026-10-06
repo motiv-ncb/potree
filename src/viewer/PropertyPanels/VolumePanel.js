@@ -48,6 +48,8 @@ export class VolumePanel extends MeasurePanel{
 					</tr>
 				</table>
 
+
+				
 				<table class="measurement_value_table">
 					<tr>
 						<th data-i18n="tt.length">${lblLengthText}</th>
@@ -56,9 +58,9 @@ export class VolumePanel extends MeasurePanel{
 						<th></th>
 					</tr>
 					<tr>
-						<td align="center" id="cell_length" style="width: 33% ;background-color:white;color: #000000" ><input id="input-length" type="number" style="width: 70px"></td>
-						<td align="center" id="cell_width" style="width: 33%"></td>
-						<td align="center" id="cell_height" style="width: 33%"></td>
+						<td><input id="input-length" type="number" style="width: 70px"></td>
+						<td><input id="input-width" type="number" style="width: 70px"></td>
+						<td><input id="input-height" type="number" style="width: 70px"></td>
 						<td align="right" style="width: 25%">
 							<img name="copyScale" title="copy" class="button-icon" src="${copyIconPath}" style="width: 16px; height: 16px"/>
 						</td>
@@ -590,16 +592,69 @@ export class VolumePanel extends MeasurePanel{
 			let dimensions = this.measurement.scale.toArray();
 			dimensions = dimensions.map(v => Utils.addCommas(v.toFixed(2)));
 
-			let elLength = this.elContent.find(`#cell_length`);
-			let elWidth = this.elContent.find(`#cell_width`);
-			let elHeight = this.elContent.find(`#cell_height`);
+			//let elLength = this.elContent.find(`#cell_length`);	
+			
 
-			// elLength.val(dimensions[0]); //update zin
-			elLength.find('#input-length').val(dimensions[0])
-			elWidth.html(dimensions[1]);
-			elHeight.html(dimensions[2]);
+			let elLength = this.elContent.find(`#input-length`);
+			let elWidth = this.elContent.find(`#input-width`);
+			let elHeight = this.elContent.find(`#input-height`);
+
+			//<td align="center" id="cell_length" style="background-color:white;color: #000000"><input id="input-length" type="number" style="width: 70px"></td>
+			//elLength.find('#input-length').val(dimensions[0])
+			// elWidth.html(dimensions[1]);
+			elLength.val(dimensions[0]); //zin
+			elWidth.val(dimensions[1]);
+			elHeight.val(dimensions[2]);			
+		
+			elLength.on("change", () => {
+ 
+    			let newLength = parseFloat(elLength.val());
+
+    			if (isNaN(newLength) || newLength <0) {	
+						elLength.val(0);					
+        				return;
+    				}
+    		// Length 
+    		this.measurement.scale.x = newLength;
+    		// // X position 
+    		// this.measurement.position.x = newLength;
+
+			});
+
+			elWidth.on("change", () => {
+
+    			let newWidth = parseFloat(elWidth.val());
+
+    			if (isNaN(newWidth)|| newWidth <0) {
+						elWidth.val(0);
+        				return;
+    				}
+    		// Width 
+    		this.measurement.scale.y = newWidth;
+    		// // Y position 
+    		// this.measurement.position.y = newWidth;
+
+			});
+
+			elHeight.on("change", () => {
+
+    			let newHeight = parseFloat(elHeight.val());
+
+    			if (isNaN(newHeight) || newHeight <0) {
+						elHeight.val(0);
+        				return;
+    				}
+    		// Height 
+    		this.measurement.scale.z = newHeight;
+    		// // Z position 
+    		// this.measurement.position.z = newHeight;
+
+			});
+
+			
 		
 		}
+	
 
 		{
 			let elVolume = this.elContent.find(`#measurement_volume`);
