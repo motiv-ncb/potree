@@ -39,8 +39,9 @@ export class VolumePanel extends MeasurePanel{
 						<th></th>
 					</tr>
 					<tr>
-						<td align="center" id="angle_cell_alpha" style="width: 33%"></td>
-						<td align="center" id="angle_cell_betta" style="width: 33%"></td>
+						<td ><input id="input-alpha" type="number" style="width: 70px"></td>
+						<td ><input id="input-betta" type="number" style="width: 70px"></td>
+						<td ><input id="input-gamma" type="number" style="width: 70px"></td>
 						<td align="center" id="angle_cell_gamma" style="width: 33%"></td>
 						<td align="right" style="width: 25%">
 							<img name="copyRotation" title="copy" class="button-icon" src="${copyIconPath}" style="width: 16px; height: 16px"/>
@@ -48,6 +49,8 @@ export class VolumePanel extends MeasurePanel{
 					</tr>
 				</table>
 
+
+				
 				<table class="measurement_value_table">
 					<tr>
 						<th data-i18n="tt.length">${lblLengthText}</th>
@@ -56,16 +59,16 @@ export class VolumePanel extends MeasurePanel{
 						<th></th>
 					</tr>
 					<tr>
-						<td align="center" id="cell_length" style="width: 33%"></td>
-						<td align="center" id="cell_width" style="width: 33%"></td>
-						<td align="center" id="cell_height" style="width: 33%"></td>
+						<td><input id="input-length" type="number" style="width: 70px"></td>
+						<td><input id="input-width" type="number" style="width: 70px"></td>
+						<td><input id="input-height" type="number" style="width: 70px"></td>
 						<td align="right" style="width: 25%">
 							<img name="copyScale" title="copy" class="button-icon" src="${copyIconPath}" style="width: 16px; height: 16px"/>
 						</td>
 					</tr>
 				</table>
-
-				<br>
+				
+				<br>  
 				<span style="font-weight: bold">Volume: </span>
 				<span id="measurement_volume"></span>
                
@@ -575,29 +578,113 @@ export class VolumePanel extends MeasurePanel{
 			angles = angles.toArray();
 			//angles = [angles.z, angles.x, angles.y];
 			angles = angles.map(v => 180 * v / Math.PI);
-			angles = angles.map(a => a.toFixed(1) + '\u00B0');
+			// angles = angles.map(a => a.toFixed(1) + '\u00B0');
+			angles = angles.map(a => a.toFixed(3));
 
-			let elAlpha = this.elContent.find(`#angle_cell_alpha`);
-			let elBetta = this.elContent.find(`#angle_cell_betta`);
-			let elGamma = this.elContent.find(`#angle_cell_gamma`);
+			let elAlpha = this.elContent.find(`#input-alpha`);
+			let elBetta = this.elContent.find(`#input-betta`);
+			let elGamma = this.elContent.find(`#input-gamma`);
 
-			elAlpha.html(angles[0]);
-			elBetta.html(angles[1]);
-			elGamma.html(angles[2]);
+			elAlpha.val(angles[0]);			
+			elBetta.val(angles[1]);
+			elGamma.val(angles[2]);
+
+			elAlpha.on("change", () => {
+
+    			let newAlpha = parseFloat(elAlpha.val());
+				
+    			if (isNaN(newAlpha)) {
+						return;
+    				}
+				// the input should be degree, but rotation system is radian
+				// so we need to convert from degree input to radian system
+				this.measurement.rotation.x = newAlpha * Math.PI/180;
+    		
+			});
+
+			elBetta.on("change", () => {
+
+    			let newBetta = parseFloat(elBetta.val());
+				
+    			if (isNaN(newBetta)) {
+						return;
+    				}
+				// the input should be degree, but rotation system is radian
+				// so we need to convert from degree input to radian system
+				this.measurement.rotation.y = newBetta * Math.PI/180;
+    		
+			});
+
+			elGamma.on("change", () => {
+
+    			let newGamma = parseFloat(elGamma.val());
+				
+    			if (isNaN(newGamma)) {
+						return;
+    				}
+				// the input should be degree, but rotation system is radian
+				// so we need to convert from degree input to radian system
+				this.measurement.rotation.z = newGamma * Math.PI/180;
+    		
+			});
 		}
 
 		{
 			let dimensions = this.measurement.scale.toArray();
-			dimensions = dimensions.map(v => Utils.addCommas(v.toFixed(2)));
+			dimensions = dimensions.map(v => Utils.addCommas(v.toFixed(3)));
 
-			let elLength = this.elContent.find(`#cell_length`);
-			let elWidth = this.elContent.find(`#cell_width`);
-			let elHeight = this.elContent.find(`#cell_height`);
+			let elLength = this.elContent.find(`#input-length`);
+			let elWidth = this.elContent.find(`#input-width`);
+			let elHeight = this.elContent.find(`#input-height`);
 
-			elLength.html(dimensions[0]);
-			elWidth.html(dimensions[1]);
-			elHeight.html(dimensions[2]);
+			elLength.val(dimensions[0]); //zin
+			elWidth.val(dimensions[1]);
+			elHeight.val(dimensions[2]);			
+		
+			elLength.on("change", () => {
+ 
+    			let newLength = parseFloat(elLength.val());
+
+    			if (isNaN(newLength) || newLength <0) {	
+						elLength.val(0);					
+        				return;
+    				}
+    		// Length 
+    		this.measurement.scale.x = newLength;
+    		
+			});
+
+			elWidth.on("change", () => {
+
+    			let newWidth = parseFloat(elWidth.val());
+
+    			if (isNaN(newWidth)|| newWidth <0) {
+						elWidth.val(0);
+        				return;
+    				}
+    		    // Width 
+    		    this.measurement.scale.y = newWidth;
+
+			});
+
+			elHeight.on("change", () => {
+
+    			let newHeight = parseFloat(elHeight.val());
+
+    			if (isNaN(newHeight) || newHeight <0) {
+						elHeight.val(0);
+        				return;
+    				}
+                // Height 
+                this.measurement.scale.z = newHeight;
+    		
+
+			});
+
+			
+		
 		}
+	
 
 		{
 			let elVolume = this.elContent.find(`#measurement_volume`);
