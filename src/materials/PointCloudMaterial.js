@@ -1360,6 +1360,7 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
     }
 
     setSegmentValues(attributeName, newValues ){
+        newValues.sort((a, b) => a - b);
         let values = this.getSegmentValues(attributeName);
         if(newValues != values){
             this.visibleValues.set(attributeName,newValues);

@@ -599,7 +599,8 @@ export class Measure extends THREE.Object3D {
 						for (let key of Object.keys(I.point).filter(e => e !== 'position')) {
 							point[key] = I.point[key];
                             if(I.pointcloud.metadata && I.pointcloud.metadata.object_labels && I.pointcloud.metadata.object_labels[key]){
-                                point[key].label = I.pointcloud.metadata.object_labels[key][point[key][0]]
+                                const lbl = I.pointcloud.metadata.object_labels[key][point[key][0]];
+                                point[key].label = (lbl && lbl.label)? lbl.label:lbl;
                             }
 						}
 

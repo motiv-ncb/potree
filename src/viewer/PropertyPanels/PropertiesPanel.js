@@ -338,32 +338,31 @@ export class PropertiesPanel{
 						<span data-i18n="appearance.indices">Indices</span>
 					</div>
 				</div>
+               <!--
+                <div id = "pointcloud_sementation_container">
+                    <div class="divider">
+                        <span data-i18n="appearance.segmentation">Segmentation</span>
+                    </div>
+                    <li >
+                        <label><input id="enableSegmentVisible" type="checkbox" /><span data-i18n="appearance.enable_segementation_display">Enable segementation display</span></label>
 
-                <div class="divider">
-					<span data-i18n="appearance.segmentation">Segmentation</span>
-				</div>
-                <li >
-                	<label><input id="enableSegmentVisible" type="checkbox" /><span data-i18n="appearance.enable_segementation_display">Enable segementation display</span></label>
-
-                </li>
-				<li>
-					<select id="optSegmentVisibleMaterial" name="optSegmentVisibleMaterial"></select>
-				</li>
-                <li>
-                    <input id="segmentVisibleFilterInput" style="width:100%"></input>
-                </li>
-                <li>
-                    <button id="segmentVisibleFilterBtn" data-i18n="common.filter">Filter</button>
-                </li>
+                    </li>
+                    <li>
+                        <select id="optSegmentVisibleMaterial" name="optSegmentVisibleMaterial"></select>
+                    </li>
+                    <li>
+                        <input id="segmentVisibleFilterInput" style="width:100%"></input>
+                    </li>
+                    <li>
+                        <button id="segmentVisibleFilterBtn" data-i18n="common.filter">Filter</button>
+                    </li>
+                    
+                    <li style="max-height:200px; overflow-y:auto">
+                        <div id="segmentVisibleMaterialContainer"></div>
+                    <li>
+                </div>
+                -->
                 
-                <li style="max-height:200px; overflow-y:auto">
-                    <div id="segmentVisibleMaterialContainer"></div>
-                <li>
-               
-
-                
-
-               
 			</div>
 		`);
 
@@ -1028,8 +1027,15 @@ export class PropertiesPanel{
         
         // segment visible
         {
+            // for show hide containter in sidebar
+            if(pointcloud.metadata && pointcloud.metadata.object_labels){
+                $("#pointcloud_sementation_container").show();
+            }
+            else{
+                $("#pointcloud_sementation_container").hide();
+            }
 
-            let opt = panel.find(`#enableSegmentVisible`);
+	        let opt = $(`#enableSegmentVisible`);
             opt.click(() => {
                 material.showHideSegment = opt.prop("checked");
                 let pointClouds = self.getSelectedPointclouds();
@@ -1037,19 +1043,19 @@ export class PropertiesPanel{
                     point.material.showHideSegment = opt.prop("checked");
                 }   
             });
-           
-            let segmentVisibleAttributeSelection = panel.find('#optSegmentVisibleMaterial');
-            let segmentVisibleMaterialContainer = panel.find('#segmentVisibleMaterialContainer');
+            
+            let segmentVisibleAttributeSelection = $('#optSegmentVisibleMaterial');
+            let segmentVisibleMaterialContainer = $('#segmentVisibleMaterialContainer');
 
-			if(pointcloud.metadata && pointcloud.metadata.object_labels){
-                // segmentVisibleAttributeSelection.show();
+            if(pointcloud.metadata && pointcloud.metadata.object_labels){
+                segmentVisibleAttributeSelection.empty();
                 for(let segmentName in pointcloud.metadata.object_labels){
                     let elOption = $(`<option value="${segmentName}" >${segmentName}</option>`);
                     segmentVisibleAttributeSelection.append(elOption);
                 }
                 segmentVisibleAttributeSelection.i18n();
             }
-            else{
+            else {
                 segmentVisibleAttributeSelection.hide();
             }
 
@@ -1070,29 +1076,41 @@ export class PropertiesPanel{
                     if(vs){         
                         for(let i in labels){
                             const checkText = vs.includes(parseInt(i))? "checked":"";
-                            const labelCheckbox = $(`                     
+                            if (labels[i].label){
+                                if(labels[i].n > 50000){
+                                    const labelCheckbox = $(`                     
+                                    <li>
+                                        <label><input type="checkbox" data-attributeName="${material.xActiveAttributeName}"  data-index="${i}" ${checkText}/><span> ${labels[i].label}</span></label>   
+                                    </li>
+                                `);        
+                                segmentVisibleMaterialContainer.append(labelCheckbox);
+                                }
+                            }
+                            else{
+                                const labelCheckbox = $(`                     
                                     <li>
                                         <label><input type="checkbox" data-attributeName="${material.xActiveAttributeName}"  data-index="${i}" ${checkText}/><span> ${labels[i]}</span></label>   
                                     </li>
-                                `)        
-                            segmentVisibleMaterialContainer.append(labelCheckbox);
+                                `);        
+                                segmentVisibleMaterialContainer.append(labelCheckbox);
+                            }
                         }
-                            segmentVisibleMaterialContainer.on('change', 'input[type="checkbox"]', function() {
+                        segmentVisibleMaterialContainer.on('change', 'input[type="checkbox"]', function() {
                             var isChecked = $(this).is(':checked');
                             var checkboxIndex = $(this).data('index');
                             if(isChecked){
-                                material.addSegmentValues(material.xActiveAttributeName, checkboxIndex)
+                                material.addSegmentValues(material.xActiveAttributeName, checkboxIndex);
                             }
-                            else{
-                                material.removeSegmentValues(material.xActiveAttributeName, checkboxIndex)
+                            else {
+                                material.removeSegmentValues(material.xActiveAttributeName, checkboxIndex);
                             }
                         });
                     }          
                 }        
-            }
+            };
 
-            let segmentVisibleFilterBtn = panel.find('#segmentVisibleFilterBtn');
-            let filterInput = panel.find('#segmentVisibleFilterInput');
+            let segmentVisibleFilterBtn = $('#segmentVisibleFilterBtn');
+            let filterInput =$('#segmentVisibleFilterInput');
             segmentVisibleFilterBtn.click(()=>{
                 if(pointcloud.metadata && pointcloud.metadata.object_labels){
                     const labels = pointcloud.metadata.object_labels[material.xActiveAttributeName];
@@ -1110,7 +1128,7 @@ export class PropertiesPanel{
                         material.setSegmentValues(material.xActiveAttributeName, indices);
                     }      
                 }
-            })
+            });
 
             segmentVisibleAttributeSelection.selectmenu({change: updateSegmentVisiblePanel});
             let update = () => {
@@ -1122,7 +1140,7 @@ export class PropertiesPanel{
                     filterInput.show();
                     segmentVisibleMaterialContainer.show();
                 }
-                else{
+                else {
                     // segmentVisibleAttributeSelection.selectmenu().hide()
                     segmentVisibleFilterBtn.hide();
                     filterInput.hide();
@@ -1140,7 +1158,7 @@ export class PropertiesPanel{
                     const index = Number($(this).data('index'));
                     $(this).prop('checked', values.includes(index));
                 });
-            }
+            };
             
             this.addVolatileListener(material, "material_property_changed", update);
             this.addVolatileListener(material, "segment_attribute_changed", update);
@@ -1148,6 +1166,7 @@ export class PropertiesPanel{
 
             update();
             updateSegmentVisiblePanel();
+
            
         }
 
