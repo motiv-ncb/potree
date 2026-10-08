@@ -393,15 +393,15 @@ export class VolumeTool extends EventDispatcher{
             }
                         
             // cmair show volime only when greater than 0
-			let calculatedVolume = volume.getVolume();
-            if(calculatedVolume > 0.0001){
-                calculatedVolume = calculatedVolume / Math.pow(this.viewer.lengthUnit.unitspermeter, 3) * Math.pow(this.viewer.lengthUnitDisplay.unitspermeter, 3);  //convert to cubic meters then to the cubic display unit
-			    let text = Utils.addCommas(calculatedVolume.toFixed(3)) + ' ' + this.viewer.lengthUnitDisplay.code + '\u00B3';
-            	label.setText(text);
-            }
-            else{
-                label.setText("");
-            }
+			// let calculatedVolume = volume.getVolume();
+            // if(calculatedVolume > 0.0001){
+            //     calculatedVolume = calculatedVolume / Math.pow(this.viewer.lengthUnit.unitspermeter, 3) * Math.pow(this.viewer.lengthUnitDisplay.unitspermeter, 3);  //convert to cubic meters then to the cubic display unit
+			//     let text = Utils.addCommas(calculatedVolume.toFixed(3)) + ' ' + this.viewer.lengthUnitDisplay.code + '\u00B3';
+            // 	label.setText(text);
+            // }
+            // else{
+            //     label.setText("");
+            // }
 		}
 	}
 

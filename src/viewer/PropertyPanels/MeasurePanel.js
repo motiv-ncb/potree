@@ -14,6 +14,7 @@ export class MeasurePanel{
 
 	createCoordinatesTable(points){
 		let table = $(`
+            <div class="measurement_content selectable">
 			<table class="measurement_value_table">
 				<tr>
 					<th>x</th>
@@ -22,22 +23,19 @@ export class MeasurePanel{
 					<th></th>
 				</tr>
 			</table>
+            </div>
 		`);
 
 		let copyIconPath = Potree.resourcePath + '/icons/copy.svg';
 
 		for (let i = 0; i < points.length;i++) {
 			let point = points[i];
-			let x = Utils.addCommas(point.x.toFixed(3));
-			let y = Utils.addCommas(point.y.toFixed(3));
-			let z = Utils.addCommas(point.z.toFixed(3));
-
 			let row = $(`
 				<tr>
-					<td><input type="number" value="${Number(x).toFixed(3)}" style="width : 70px" data-index="${i}" data-direction="x"></td>
-					<td><input type="number" value="${Number(y).toFixed(3)}" style="width : 70px" data-index="${i}" data-direction="y"></td>
-					<td><input type="number" value="${Number(z).toFixed(3)}" style="width : 70px" data-index="${i}" data-direction="z"></td>
-					<td align="right" style="width: 25%">
+					<td><input type="number" value="${point.x.toFixed(3)}" style="width : 70px" data-index="${i}" data-direction="x"></td>
+					<td><input type="number" value="${point.y.toFixed(3)}" style="width : 70px" data-index="${i}" data-direction="y"></td>
+					<td><input type="number" value="${point.z.toFixed(3)}" style="width : 70px" data-index="${i}" data-direction="z"></td>
+					<td align="left" style="width: 25%">
 						<img name="copy" title="copy" class="button-icon" src="${copyIconPath}" style="width: 16px; height: 16px"/>
 					</td>
 				</tr>

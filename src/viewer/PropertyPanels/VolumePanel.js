@@ -28,7 +28,7 @@ export class VolumePanel extends MeasurePanel{
 		]).get(measurement.constructor);
 
 		this.elContent = $(`
-			<div class="measurement_content selectable">
+			<div class="measurement_content selectable" style="margin-left: 10px; margin-right: 10px;">
 				<span class="coordinates_table_container"></span>
                 <span class="top_botom_level_table_container"></span>
 				<table class="measurement_value_table">
@@ -43,7 +43,7 @@ export class VolumePanel extends MeasurePanel{
 						<td ><input id="input-betta" type="number" style="width: 70px"></td>
 						<td ><input id="input-gamma" type="number" style="width: 70px"></td>
 						<td align="center" id="angle_cell_gamma" style="width: 33%"></td>
-						<td align="right" style="width: 25%">
+						<td align="left" style="width: 25%">
 							<img name="copyRotation" title="copy" class="button-icon" src="${copyIconPath}" style="width: 16px; height: 16px"/>
 						</td>
 					</tr>
@@ -51,7 +51,7 @@ export class VolumePanel extends MeasurePanel{
 
 
 				
-				<table class="measurement_value_table">
+				<table class="measurement_value_table" style="margin-left: 10px; margin-right: 10px;">
 					<tr>
 						<th data-i18n="tt.length">${lblLengthText}</th>
 						<th data-i18n="tt.width">${lblWidthText}</th>
@@ -62,7 +62,7 @@ export class VolumePanel extends MeasurePanel{
 						<td><input id="input-length" type="number" style="width: 70px"></td>
 						<td><input id="input-width" type="number" style="width: 70px"></td>
 						<td><input id="input-height" type="number" style="width: 70px"></td>
-						<td align="right" style="width: 25%">
+						<td align="left" style="width: 25%">
 							<img name="copyScale" title="copy" class="button-icon" src="${copyIconPath}" style="width: 16px; height: 16px"/>
 						</td>
 					</tr>
@@ -685,12 +685,12 @@ export class VolumePanel extends MeasurePanel{
 		
 		}
 	
-
-		{
-			let elVolume = this.elContent.find(`#measurement_volume`);
-			let volume = this.measurement.getVolume();
-			elVolume.html(Utils.addCommas(volume.toFixed(2)));
-		}
+        // CMAIR remove it as it calculate at only when clicked
+		// {
+		// 	let elVolume = this.elContent.find(`#measurement_volume`);
+		// 	let volume = this.measurement.getVolume();
+		// 	elVolume.html(Utils.addCommas(volume.toFixed(2)));
+		// }
 
 		this.elCheckClip.prop("checked", this.measurement.clip);
 		this.elCheckShow.prop("checked", this.measurement.visible);
