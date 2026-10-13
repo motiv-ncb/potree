@@ -929,6 +929,8 @@ export class ProfileWindow extends EventDispatcher {
 		renderer.render(scene, camera);
 
 		this.requestScaleUpdate();
+
+        this.dispatchEvent({type: "on_profile_rendered"});
 	}
 };
 

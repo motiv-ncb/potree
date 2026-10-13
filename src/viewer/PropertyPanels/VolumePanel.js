@@ -28,10 +28,10 @@ export class VolumePanel extends MeasurePanel{
 		]).get(measurement.constructor);
 
 		this.elContent = $(`
-			<div class="measurement_content selectable" style="margin-left: 10px; margin-right: 10px;">
+			<div class="measurement_content selectable" >
 				<span class="coordinates_table_container"></span>
                 <span class="top_botom_level_table_container"></span>
-				<table class="measurement_value_table">
+				<table class="measurement_value_table" style="margin-left: 10px; margin-right: 10px;">
 					<tr>
 						<th>\u03b1</th>
 						<th>\u03b2</th>
@@ -42,7 +42,6 @@ export class VolumePanel extends MeasurePanel{
 						<td ><input id="input-alpha" type="number" style="width: 70px"></td>
 						<td ><input id="input-betta" type="number" style="width: 70px"></td>
 						<td ><input id="input-gamma" type="number" style="width: 70px"></td>
-						<td align="center" id="angle_cell_gamma" style="width: 33%"></td>
 						<td align="left" style="width: 25%">
 							<img name="copyRotation" title="copy" class="button-icon" src="${copyIconPath}" style="width: 16px; height: 16px"/>
 						</td>
